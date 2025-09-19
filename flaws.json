@@ -125,4 +125,155 @@
      ======================= */
   {
     "id": "veilborn_identity_drift",
-    "name": "Identity Drift"
+    "name": "Identity Drift",
+    "desc": "Mutable nature erodes a consistent sense of self; you may forget choices, relationships, or names.",
+    "cost": -2,
+    "tags": ["race:veilborn"]
+  },
+  {
+    "id": "veilborn_aura_bleed",
+    "name": "Aura Bleed",
+    "desc": "Emotions/intentions leak into surroundings (flickering lights, withering plants, strange moods).",
+    "cost": -1,
+    "tags": ["race:veilborn"]
+  },
+  {
+    "id": "veilborn_phantom_echo",
+    "name": "Phantom Echo",
+    "desc": "Occasionally phase in sleep/exhaustion; wake in strange places or drained.",
+    "cost": -1,
+    "tags": ["race:veilborn"]
+  },
+  {
+    "id": "veilborn_shadowed_whispers",
+    "name": "Shadowed Whispers",
+    "desc": "You murmur to unseen voices; unnerves others; harms social interactions.",
+    "cost": -1,
+    "tags": ["race:veilborn"]
+  },
+  {
+    "id": "veilborn_oath_entanglement",
+    "name": "Oath Entanglement",
+    "desc": "A casual promise became binding; you’re compelled until released.",
+    "cost": -3,
+    "tags": ["race:veilborn"]
+  },
+  {
+    "id": "veilborn_mythic_magnetism",
+    "name": "Mythic Magnetism",
+    "desc": "Attracts ghost signals, dream intrusions, odd subroutines; Willpower checks to ignore ‘hallucinations’.",
+    "cost": -3,
+    "tags": ["race:veilborn"]
+  },
+  {
+    "id": "veilborn_sensory_overload",
+    "name": "Sensory Overload",
+    "desc": "Chaotic environments overwhelm you (loud, flashing, emotional crowds). Causes confusion or paralysis.",
+    "cost": -3,
+    "tags": ["race:veilborn"]
+  },
+  {
+    "id": "veilborn_veil_sickness",
+    "name": "Veil Sickness",
+    "desc": "Long absence from spiritual places drains you; (Fortitude) checks to avoid fatigue penalties.",
+    "cost": -3,
+    "tags": ["race:veilborn"]
+  },
+  {
+    "id": "veilborn_legacy_conflict",
+    "name": "Legacy Conflict",
+    "desc": "Conflicting mythic imprints clash in crisis; roll Wisdom or become near-catatonic as echoes replay.",
+    "cost": -4,
+    "tags": ["race:veilborn"]
+  },
+  {
+    "id": "veilborn_unstable_morality",
+    "name": "Unstable Morality",
+    "desc": "You may act against allies for curiosity/gain; Willpower check or act selfishly.",
+    "cost": -4,
+    "tags": ["race:veilborn"]
+  },
+  {
+    "id": "veilborn_veils_price",
+    "name": "Veil’s Price",
+    "desc": "Power demands a toll: deterioration, bleeding eyes, or vitality loss when overchanneling.",
+    "cost": -5,
+    "tags": ["race:veilborn"]
+  },
+  {
+    "id": "veilborn_hollow_pulse",
+    "name": "Hollow Pulse",
+    "desc": "Heartbeat tied to the Veil; exertion risks collapse unless you pass (Fortitude).",
+    "cost": -5,
+    "tags": ["race:veilborn"]
+  },
+
+  /* =======================
+     HUMANS (ALL) + SUBTYPES
+     ======================= */
+  {
+    "id": "human_stasis_degradation",
+    "name": "Stasis Degradation",
+    "desc": "After cryosleep, your first activation rolls –2 to the Stat modifier until retrained (1–2 scenes).",
+    "cost": -3,
+    "tags": ["race:human"]
+  },
+  {
+    "id": "human_system_vulnerability",
+    "name": "System Vulnerability",
+    "desc": "Neural/tech exposure can be hijacked; failed Men TN 12 may allow rogue code/AI manipulation.",
+    "cost": -4,
+    "tags": ["race:human"]
+  },
+  {
+    "id": "human_cognitive_drift",
+    "name": "Cognitive Drift",
+    "desc": "Ark anomalies/magic cause –1 to Mental and occasional confusion (DM discretion).",
+    "cost": -2,
+    "tags": ["race:human"]
+  },
+  {
+    "id": "human_cult_stigma",
+    "name": "Cult Stigma",
+    "desc": "Viewed with suspicion by other factions; –1 Social with non-allied groups.",
+    "cost": -2,
+    "tags": ["race:human"]
+  },
+  {
+    "id": "human_tech_obsession",
+    "name": "Tech-obsession",
+    "desc": "Obsessed with tech; –1 Perception in non-tech scenarios.",
+    "cost": -2,
+    "tags": ["race:human"]
+  },
+
+  /* ---- Human Subtypes ---- */
+  {
+    "id": "human_temporal_dislocation",
+    "name": "Temporal Dislocation (Psion only)",
+    "desc": "Precognition distracts you; –1 Physical and Dex during/immediately after visions.",
+    "cost": -3,
+    "tags": ["race:human", "spec:psion"]
+  },
+  {
+    "id": "human_psychic_overload",
+    "name": "Psychic Overload (Psion only)",
+    "desc": "Crowds/emotional intensity impose –1 Mental while active; may skip one action/scene if overloaded.",
+    "cost": -2,
+    "tags": ["race:human", "spec:psion"]
+  },
+  {
+    "id": "human_arcane_isolation",
+    "name": "Arcane Isolation (Arcanist only)",
+    "desc": "Withdrawal from non-magical beings; –1 Social outside magical/familiar company.",
+    "cost": -2,
+    "tags": ["race:human", "spec:arcanist"]
+  },
+  {
+    "id": "human_mental_contagion",
+    "name": "Mental Contagion (Psion only)",
+    "desc": "Unstable minds/corrupted systems risk memory lapses; –1 Mental during prolonged exposure (narrative duration).",
+    "cost": -3,
+    "tags": ["race:human", "spec:psion"]
+  }
+]
