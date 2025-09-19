@@ -1,0 +1,54 @@
+{
+  "version": "0.1",
+  "start_stat_points": 10,
+  "start_power_points": 15,
+  "stats": [
+    { "id": "phys", "name": "Physical" },
+    { "id": "dex", "name": "Dexterity" },
+    { "id": "men", "name": "Mental" },
+    { "id": "perc", "name": "Perception" }
+    ],
+  "races": [
+    { "id": "human", "name": "Human", "blurb": "Adaptable mortals; may be Arcanist, Synthral, Psion, or Human (No Powers)." },
+    { "id": "strigoi", "name": "Strigoi (Vampire)", "blurb": "Western vampire. Blood powers, sunlight weakness." },
+    { "id": "gaki", "name": "Gaki (Eastern Vampire)", "blurb": "Chi-hungry revenant; Do paths & yin/yang balance." },
+    { "id": "spliced", "name": "Spliced", "blurb": "Engineered shifters; beast/hybrid/human forms." },
+    { "id": "veilborn", "name": "Veilborn", "blurb": "Fey-adjacent mythic people of the Ark." }
+  ],
+  "archetypes": {
+    "human": [
+      { "id": "baseline", "name": "Human (No Powers)" },
+      { "id": "arcanist", "name": "Arcanist" },
+      { "id": "synthral", "name": "Synthral" },
+      { "id": "psion", "name": "Psion" }
+    ],
+    "strigoi": [
+      { "id": "life", "name": "Path of Life" },
+      { "id": "death", "name": "Path of Death" },
+      { "id": "warrior", "name": "Path of the Warrior" },
+      { "id": "ruler", "name": "Path of the Ruler" }
+    ],
+    "gaki": [
+      { "id": "yin", "name": "Do of Yin" },
+      { "id": "yang", "name": "Do of Yang" },
+      { "id": "hun", "name": "Do of Hun" },
+      { "id": "po", "name": "Do of P'o" },
+      { "id": "chudo", "name": "Do of Chudo" }
+    ],
+    "spliced": [
+      { "id": "predator", "name": "Predators" },
+      { "id": "avian", "name": "Avian" },
+      { "id": "aquatic", "name": "Aquatic" },
+      { "id": "reptilian", "name": "Reptilian" },
+      { "id": "insectoid", "name": "Insectoid" },
+      { "id": "chimeric", "name": "Chimeric/Experimental" }
+    ],
+    "veilborn": [
+      { "id": "unaffiliated", "name": "Unaffiliated" },
+      { "id": "echoes", "name": "Court of Echoes" },
+      { "id": "veils", "name": "Court of Veils" },
+      { "id": "blossoms", "name": "Court of Blossoms" },
+      { "id": "glass", "name": "Court of Glass" }
+    ]
+  }
+}
