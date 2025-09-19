@@ -1,23 +1,433 @@
 [
-  { "id": "perk_emotional_resonance", "name": "Emotional Resonance", "cost": 2, "category": "Perks", "tags": ["race:vampire"] },
-  { "id": "perk_adaptive_instinct", "name": "Adaptive Instinct", "cost": 2, "category": "Perks", "tags": ["race:human"] },
-  { "id": "perk_pulse_sense", "name": "Pulse Sense", "cost": 2, "category": "Perks", "tags": ["race:veilborn"] },
-  { "id": "perk_designers_gift", "name": "Designer’s Gift", "cost": 4, "category": "Perks", "tags": ["race:spliced"] },
+  /* =========================
+     PERKS — VAMPIRE (both)
+     ========================= */
+  { "id":"perk_vamp_emotional_resonance","name":"Emotional Resonance","category":"Perks","cost":2,"tags":["race:vampire"] },
+  { "id":"perk_vamp_unnatural_beauty","name":"Unnatural Beauty","category":"Perks","cost":3,"tags":["race:vampire"] },
+  { "id":"perk_vamp_unyielding_will","name":"Unyielding Will","category":"Perks","cost":3,"tags":["race:vampire"] },
+  { "id":"perk_vamp_shadows_veil","name":"Shadow’s Veil","category":"Perks","cost":2,"tags":["race:vampire"] },
+  { "id":"perk_vamp_ancient_wisdom","name":"Ancient Wisdom","category":"Perks","cost":2,"tags":["race:vampire"] },
+  { "id":"perk_vamp_neural_disruptive_vitae","name":"Neural Disruptive Vitae","category":"Perks","cost":3,"tags":["race:vampire"] },
+  { "id":"perk_vamp_predators_cunning","name":"Predator’s Cunning","category":"Perks","cost":2,"tags":["race:vampire"] },
+  { "id":"perk_vamp_pulse_of_the_ark","name":"Pulse of the Ark","category":"Perks","cost":2,"tags":["race:vampire"] },
+  { "id":"perk_vamp_blood_economy","name":"Blood Economy","category":"Perks","cost":3,"tags":["race:vampire"] },
+  { "id":"perk_vamp_cybernetic_adaptation","name":"Cybernetic Adaptation","category":"Perks","cost":3,"tags":["race:vampire"] },
 
-  { "id": "strigoi_hypnosis", "name": "Hypnosis", "cost": 2, "category": "Powers", "tags": ["race:strigoi"] },
-  { "id": "gaki_chi_step", "name": "Chi Step", "cost": 3, "category": "Powers", "tags": ["race:gaki"] },
-  { "id": "vb_glimmerstep", "name": "Glimmerstep", "cost": 4, "category": "Powers", "tags": ["race:veilborn"] },
-  { "id": "sp_climbing", "name": "Climbing", "cost": 1, "category": "Powers", "tags": ["race:spliced"] },
-  { "id": "arc_thaumaturgy", "name": "Thaumaturgy", "cost": 1, "category": "Powers", "tags": ["race:human", "arch:arcanist"] },
-  { "id": "psi_telekinetic_surge", "name": "Telekinetic Surge", "cost": 4, "category": "Powers", "tags": ["race:human", "arch:psion"] },
-  { "id": "syn_systemic_runes", "name": "Systemic Runes", "cost": 2, "category": "Powers", "tags": ["race:human", "arch:synthral"] },
+  /* =========================
+     PERKS — SPLICED
+     ========================= */
+  { "id":"perk_spliced_ssl_hsl","name":"SSL & HSL","category":"Perks","cost":3,"tags":["race:spliced"] },
+  { "id":"perk_spliced_designers_gift","name":"Designer’s Gift","category":"Perks","cost":4,"tags":["race:spliced"] },
+  { "id":"perk_spliced_mate_bond","name":"Mate Bond","category":"Perks","cost":4,"tags":["race:spliced"] },
+  { "id":"perk_spliced_maximized_shift","name":"Maximized Shift","category":"Perks","cost":4,"tags":["race:spliced"] },
+  { "id":"perk_spliced_unnatural_weapons","name":"Unnatural Weapons","category":"Perks","cost":5,"tags":["race:spliced","arch:chimeric","arch:chimerical"] },
+  { "id":"perk_spliced_adaptive_biology","name":"Adaptive Biology","category":"Perks","cost":5,"tags":["race:spliced"] },
+  { "id":"perk_spliced_cybernetic_adaptation","name":"Cybernetic Adaptation","category":"Perks","cost":5,"tags":["race:spliced"] },
+  { "id":"perk_spliced_bioelectric_resonance","name":"Bioelectric Resonance","category":"Perks","cost":5,"tags":["race:spliced"] },
 
-  { "id": "school_enchantment", "name": "School: Enchantment", "cost": 1, "category": "Weaves", "tags": ["race:any"], "school": true },
-  { "id": "school_divination", "name": "School: Divination", "cost": 1, "category": "Weaves", "tags": ["race:any"], "school": true },
-  { "id": "enc_enchant_item", "name": "Enchant Item", "cost": 4, "category": "Weaves", "tags": ["race:any"], "requiresSchool": "school_enchantment" },
-  { "id": "div_veilglimpse", "name": "Veilglimpse", "cost": 1, "category": "Weaves", "tags": ["race:any"], "requiresSchool": "school_divination" },
+  /* =========================
+     PERKS — VEILBORN
+     ========================= */
+  { "id":"perk_veil_pulse_sense","name":"Pulse Sense","category":"Perks","cost":2,"tags":["race:veilborn"] },
+  { "id":"perk_veil_echo_imprint","name":"Echo Imprint","category":"Perks","cost":1,"tags":["race:veilborn"] },
+  { "id":"perk_veil_emotional_reading","name":"Emotional Reading","category":"Perks","cost":1,"tags":["race:veilborn"] },
+  { "id":"perk_veil_veil_touched_aura","name":"Veil-Touched Aura","category":"Perks","cost":2,"tags":["race:veilborn"] },
+  { "id":"perk_veil_veil_touched_presence","name":"Veil-Touched Presence","category":"Perks","cost":3,"tags":["race:veilborn"] },
+  { "id":"perk_veil_circuit_sympathy","name":"Circuit Sympathy","category":"Perks","cost":3,"tags":["race:veilborn"] },
+  { "id":"perk_veil_memory_echo","name":"Memory Echo","category":"Perks","cost":3,"tags":["race:veilborn"] },
+  { "id":"perk_veil_unnatural_composure","name":"Unnatural Composure","category":"Perks","cost":3,"tags":["race:veilborn"] },
+  { "id":"perk_veil_illusion_drift","name":"Illusion Drift","category":"Perks","cost":3,"tags":["race:veilborn"] },
+  { "id":"perk_veil_veils_favor","name":"Veil’s Favor","category":"Perks","cost":4,"tags":["race:veilborn"] },
+  { "id":"perk_veil_ancient_wisdom","name":"Ancient Wisdom","category":"Perks","cost":5,"tags":["race:veilborn"] },
+  { "id":"perk_veil_phantom_walk","name":"Phantom Walk","category":"Perks","cost":4,"tags":["race:veilborn"] },
 
-  { "id": "cyb_spectra_vision", "name": "Spectra-Vision (Perc)", "cost": 3, "category": "Cybernetics", "tags": ["race:any"] },
-  { "id": "cyb_titan_frame", "name": "Titan Frame (Phys)", "cost": 4, "category": "Cybernetics", "tags": ["race:any"] },
-  { "id": "hack_silkveil", "name": "Silkveil (Mk I)", "cost": 2, "category": "Cybernetics", "tags": ["race:any"] }
+  /* =========================
+     PERKS — HUMANS (ALL)
+     ========================= */
+  { "id":"perk_human_adaptive_instinct","name":"Adaptive Instinct","category":"Perks","cost":2,"tags":["race:human"] },
+  { "id":"perk_human_survival_drive","name":"Survival Drive","category":"Perks","cost":3,"tags":["race:human"] },
+  { "id":"perk_human_alliance_builder","name":"Alliance Builder","category":"Perks","cost":2,"tags":["race:human"] },
+  { "id":"perk_human_augment_access","name":"Augment Access","category":"Perks","cost":4,"tags":["race:human"] },
+  { "id":"perk_human_artifact_resonance","name":"Artifact Resonance","category":"Perks","cost":3,"tags":["race:human"] },
+
+  /* =============================
+     PERKS — HUMAN (ARCHETYPE)
+     ============================= */
+  { "id":"perk_human_synthral_magiventive","name":"Magiventive","category":"Perks","cost":3,"tags":["race:human","arch:synthral"] },
+  { "id":"perk_human_synthral_spell_coding","name":"Spell Coding","category":"Perks","cost":2,"tags":["race:human","arch:synthral"] },
+  { "id":"perk_human_arcanist_symbolic_literacy","name":"Symbolic Literacy","category":"Perks","cost":2,"tags":["race:human","arch:arcanist"] },
+  { "id":"perk_human_psion_cognitive_shielding","name":"Cognitive Shielding","category":"Perks","cost":3,"tags":["race:human","arch:psion"] },
+
+  /* =========================
+     POWERS — VAMPIRE (Strigoi)
+     ========================= */
+  { "id":"pow_strigoi_hypnosis","name":"Hypnosis","category":"Powers","cost":2,"tags":["race:strigoi"] },
+  { "id":"pow_strigoi_shapeshifting","name":"Shapeshifting","category":"Powers","cost":2,"tags":["race:strigoi"] },
+  { "id":"pow_strigoi_wall_walking","name":"Wall-Walking","category":"Powers","cost":1,"tags":["race:strigoi"] },
+  { "id":"pow_strigoi_dreamwalking","name":"Dreamwalking","category":"Powers","cost":3,"tags":["race:strigoi"] },
+  { "id":"pow_strigoi_voice_of_command","name":"Voice of Command","category":"Powers","cost":3,"tags":["race:strigoi"] },
+  { "id":"pow_strigoi_shadowform","name":"Shadowform","category":"Powers","cost":4,"tags":["race:strigoi"] },
+  { "id":"pow_strigoi_true_polymorph","name":"True Polymorph","category":"Powers","cost":4,"tags":["race:strigoi"] },
+  { "id":"pow_strigoi_domination","name":"Domination","category":"Powers","cost":5,"tags":["race:strigoi"] },
+  { "id":"pow_strigoi_mist_form","name":"Mist Form (Full)","category":"Powers","cost":5,"tags":["race:strigoi"] },
+
+  /* ==============================
+     POWERS — VAMPIRE (Strigoi Paths)
+     ============================== */
+  { "id":"path_life_crimson_allure","name":"Crimson Allure","category":"Powers","cost":3,"tags":["race:strigoi","arch:life"] },
+  { "id":"path_life_sanguine_glamour","name":"Sanguine Glamour","category":"Powers","cost":2,"tags":["race:strigoi","arch:life"] },
+  { "id":"path_life_cradle_of_hunger","name":"Cradle of Hunger","category":"Powers","cost":3,"tags":["race:strigoi","arch:life"] },
+  { "id":"path_life_blood_seed","name":"Blood Seed","category":"Powers","cost":4,"tags":["race:strigoi","arch:life"] },
+
+  { "id":"path_death_carrion_call","name":"Carrion Call","category":"Powers","cost":2,"tags":["race:strigoi","arch:death"] },
+  { "id":"path_death_bone_whisper","name":"Bone Whisper","category":"Powers","cost":2,"tags":["race:strigoi","arch:death"] },
+  { "id":"path_death_rotting_grasp","name":"Rotting Grasp","category":"Powers","cost":3,"tags":["race:strigoi","arch:death"] },
+  { "id":"path_death_echo_barrow","name":"Echo of the Barrow","category":"Powers","cost":2,"tags":["race:strigoi","arch:death"] },
+
+  { "id":"path_warrior_hungering_grip","name":"Hungering Grip","category":"Powers","cost":3,"tags":["race:strigoi","arch:warrior"] },
+  { "id":"path_warrior_unholy_endurance","name":"Unholy Endurance","category":"Powers","cost":4,"tags":["race:strigoi","arch:warrior"] },
+  { "id":"path_warrior_ferine_snarl","name":"Ferine Snarl","category":"Powers","cost":2,"tags":["race:strigoi","arch:warrior"] },
+  { "id":"path_warrior_crimson_frenzy","name":"Crimson Frenzy","category":"Powers","cost":4,"tags":["race:strigoi","arch:warrior"] },
+
+  { "id":"path_ruler_pale_host","name":"Pale Host","category":"Powers","cost":3,"tags":["race:strigoi","arch:ruler"] },
+  { "id":"path_ruler_oathbreakers_curse","name":"Oathbreaker’s Curse","category":"Powers","cost":4,"tags":["race:strigoi","arch:ruler"] },
+  { "id":"path_ruler_lineages_weight","name":"Lineage’s Weight","category":"Powers","cost":3,"tags":["race:strigoi","arch:ruler"] },
+  { "id":"path_ruler_crown_of_silence","name":"Crown of Silence","category":"Powers","cost":4,"tags":["race:strigoi","arch:ruler"] },
+
+  /* =========================
+     POWERS — GAKI (Chi Disciplines)
+     ========================= */
+  { "id":"gaki_chi_manipulation","name":"Chi Manipulation","category":"Powers","cost":2,"tags":["race:gaki"] },
+  { "id":"gaki_dreamwalking","name":"Dreamwalking","category":"Powers","cost":3,"tags":["race:gaki"] },
+  { "id":"gaki_chi_step","name":"Chi Step","category":"Powers","cost":3,"tags":["race:gaki"] },
+  { "id":"gaki_yin_shroud","name":"Yin Shroud","category":"Powers","cost":3,"tags":["race:gaki"] },
+  { "id":"gaki_yang_flame","name":"Yang Flame","category":"Powers","cost":4,"tags":["race:gaki"] },
+  { "id":"gaki_spectral_grip","name":"Spectral Grip","category":"Powers","cost":3,"tags":["race:gaki"] },
+
+  /* =========================
+     POWERS — GAKI (Do paths)
+     ========================= */
+  { "id":"do_yin_corpse_flesh","name":"Corpse Flesh","category":"Powers","cost":2,"tags":["race:gaki","arch:yin"] },
+  { "id":"do_yin_grave_whisper","name":"Grave Whisper","category":"Powers","cost":3,"tags":["race:gaki","arch:yin"] },
+  { "id":"do_yin_void_step","name":"Void Step","category":"Powers","cost":4,"tags":["race:gaki","arch:yin"] },
+  { "id":"do_yin_soul_extraction","name":"Soul Extraction","category":"Powers","cost":4,"tags":["race:gaki","arch:yin"] },
+
+  { "id":"do_hun_aura_of_judgment","name":"Aura of Judgment","category":"Powers","cost":3,"tags":["race:gaki","arch:hun"] },
+  { "id":"do_hun_chi_balance","name":"Chi Balance","category":"Powers","cost":2,"tags":["race:gaki","arch:hun"] },
+  { "id":"do_hun_mandate_of_heaven","name":"Mandate of Heaven","category":"Powers","cost":4,"tags":["race:gaki","arch:hun"] },
+  { "id":"do_hun_solar_radiance","name":"Solar Radiance","category":"Powers","cost":5,"tags":["race:gaki","arch:hun"] },
+
+  { "id":"do_yang_life_mask","name":"Life Mask","category":"Powers","cost":2,"tags":["race:gaki","arch:yang"] },
+  { "id":"do_yang_chi_feast","name":"Chi Feast","category":"Powers","cost":2,"tags":["race:gaki","arch:yang"] },
+  { "id":"do_yang_elemental_surge","name":"Elemental Surge","category":"Powers","cost":4,"tags":["race:gaki","arch:yang"] },
+  { "id":"do_yang_dance_of_fires","name":"Dance of Ten Thousand Fires","category":"Powers","cost":5,"tags":["race:gaki","arch:yang"] },
+
+  { "id":"do_po_searing_agony","name":"Searing Agony","category":"Powers","cost":4,"tags":["race:gaki","arch:po"] },
+  { "id":"do_po_skinning_self","name":"Skinning the Self","category":"Powers","cost":3,"tags":["race:gaki","arch:po"] },
+  { "id":"do_po_hells_visage","name":"Hell’s Visage","category":"Powers","cost":3,"tags":["race:gaki","arch:po"] },
+  { "id":"do_po_dharma_crucible","name":"Dharma Crucible","category":"Powers","cost":5,"tags":["race:gaki","arch:po"] },
+
+  { "id":"do_chudo_mortal_veil","name":"Mortal Veil","category":"Powers","cost":2,"tags":["race:gaki","arch:chudo"] },
+  { "id":"do_chudo_cycle_faces","name":"Cycle of Faces","category":"Powers","cost":3,"tags":["race:gaki","arch:chudo"] },
+  { "id":"do_chudo_memory_weaving","name":"Memory Weaving","category":"Powers","cost":4,"tags":["race:gaki","arch:chudo"] },
+  { "id":"do_chudo_puppet_master","name":"Puppet Master","category":"Powers","cost":5,"tags":["race:gaki","arch:chudo"] },
+
+  /* =========================
+     POWERS — VEILBORN COURTS
+     ========================= */
+  { "id":"veil_echoes_dream_recall","name":"Dream Recall","category":"Powers","cost":2,"tags":["race:veilborn","arch:court_of_echoes"] },
+  { "id":"veil_echoes_archive_walk","name":"Archive Walk","category":"Powers","cost":3,"tags":["race:veilborn","arch:court_of_echoes"] },
+  { "id":"veil_veils_identity_mask","name":"Identity Mask","category":"Powers","cost":3,"tags":["race:veilborn","arch:court_of_veils"] },
+  { "id":"veil_veils_whisper_stitch","name":"Whisper Stitch","category":"Powers","cost":2,"tags":["race:veilborn","arch:court_of_veils"] },
+  { "id":"veil_blossoms_verdant_surge","name":"Verdant Surge","category":"Powers","cost":3,"tags":["race:veilborn","arch:court_of_blossoms"] },
+  { "id":"veil_blossoms_charm_of_bloom","name":"Charm of Bloom","category":"Powers","cost":2,"tags":["race:veilborn","arch:court_of_blossoms"] },
+  { "id":"veil_glass_starlit_gaze","name":"Starlit Gaze","category":"Powers","cost":3,"tags":["race:veilborn","arch:court_of_glass"] },
+  { "id":"veil_glass_astral_reflection","name":"Astral Reflection","category":"Powers","cost":3,"tags":["race:veilborn","arch:court_of_glass"] },
+
+  /* =========================
+     POWERS — HUMAN: ARCANIST
+     ========================= */
+  { "id":"arc_thaumaturgy","name":"Thaumaturgy","category":"Powers","cost":1,"tags":["race:human","arch:arcanist"] },
+  { "id":"arc_magic_of_echoes","name":"Magic of Echoes","category":"Powers","cost":1,"tags":["race:human","arch:arcanist"] },
+  { "id":"arc_ley_pull","name":"Ley Pull","category":"Powers","cost":2,"tags":["race:human","arch:arcanist"] },
+  { "id":"arc_ley_mapping","name":"Ley Mapping","category":"Powers","cost":2,"tags":["race:human","arch:arcanist"] },
+
+  /* =========================
+     POWERS — HUMAN: SYNTHRAL
+     ========================= */
+  { "id":"syn_ritual_magitech","name":"Ritual Magitech","category":"Powers","cost":1,"tags":["race:human","arch:synthral"] },
+  { "id":"syn_systemic_runes","name":"Systemic Runes","category":"Powers","cost":2,"tags":["race:human","arch:synthral"] },
+  { "id":"syn_techno_manipulation","name":"Techno-Manipulation","category":"Powers","cost":2,"tags":["race:human","arch:synthral"] },
+  { "id":"syn_cyber_sprites","name":"Cyber Sprites","category":"Powers","cost":3,"tags":["race:human","arch:synthral"] },
+
+  /* =========================
+     POWERS — HUMAN: PSION
+     ========================= */
+  { "id":"psi_mindshatter_pulse","name":"Mindshatter Pulse","category":"Powers","cost":3,"tags":["race:human","arch:psion"] },
+  { "id":"psi_telekinetic_surge","name":"Telekinetic Surge","category":"Powers","cost":4,"tags":["race:human","arch:psion"] },
+  { "id":"psi_cognitive_echo","name":"Cognitive Echo","category":"Powers","cost":2,"tags":["race:human","arch:psion"] },
+  { "id":"psi_neural_web","name":"Neural Web","category":"Powers","cost":3,"tags":["race:human","arch:psion"] },
+  { "id":"psi_flame_of_will","name":"Flame of Will","category":"Powers","cost":3,"tags":["race:human","arch:psion"] },
+  { "id":"psi_eyes_beyond_time","name":"Eyes Beyond Time","category":"Powers","cost":5,"tags":["race:human","arch:psion"] },
+  { "id":"psi_memory_emotion_sculpt","name":"Memory & Emotion Sculpt","category":"Powers","cost":4,"tags":["race:human","arch:psion"] },
+  { "id":"psi_biokinetics","name":"Biokinetics","category":"Powers","cost":3,"tags":["race:human","arch:psion"] },
+  { "id":"psi_psychokinetics","name":"Psychokinetics","category":"Powers","cost":4,"tags":["race:human","arch:psion"] },
+
+  /* =========================
+     POWERS — Hacking Programs
+     (as Powers so Spliced can use them)
+     ========================= */
+  { "id":"hack_silkveil","name":"Silkveil (Stealth Mk I)","category":"Powers","cost":2,"tags":["race:any"] },
+  { "id":"hack_shadowstep","name":"Shadowstep (Stealth Mk I)","category":"Powers","cost":1,"tags":["race:any"] },
+  { "id":"hack_nightloom","name":"Nightloom (Stealth Mk I)","category":"Powers","cost":1,"tags":["race:any"] },
+  { "id":"hack_mutepatch","name":"MutePatch (Stealth Mk II)","category":"Powers","cost":2,"tags":["race:any"] },
+  { "id":"hack_glasscloak","name":"Glasscloak (Stealth Mk II)","category":"Powers","cost":3,"tags":["race:any"] },
+  { "id":"hack_hushkit","name":"Hushkit (Stealth Mk III)","category":"Powers","cost":2,"tags":["race:any"] },
+  { "id":"hack_fogline","name":"Fogline (Stealth Mk III)","category":"Powers","cost":3,"tags":["race:any"] },
+
+  { "id":"hack_wardhalo","name":"WardHalo (Defensive Mk I)","category":"Powers","cost":1,"tags":["race:any"] },
+  { "id":"hack_glassguard","name":"GlassGuard (Defensive Mk II)","category":"Powers","cost":2,"tags":["race:any"] },
+  { "id":"hack_mistscreen","name":"MistScreen (Defensive Mk II)","category":"Powers","cost":2,"tags":["race:any"] },
+  { "id":"hack_pulsefence","name":"PulseFence (Defensive Mk III)","category":"Powers","cost":3,"tags":["race:any"] },
+
+  { "id":"hack_brickwave","name":"Brickwave (Breach Mk I)","category":"Powers","cost":1,"tags":["race:any"] },
+  { "id":"hack_glassrend","name":"GlassRend (Breach Mk I)","category":"Powers","cost":2,"tags":["race:any"] },
+  { "id":"hack_thunderclasp","name":"Thunderclasp (Breach Mk II)","category":"Powers","cost":3,"tags":["race:any"] },
+  { "id":"hack_clockmender","name":"Clockmender (Breach Mk II)","category":"Powers","cost":2,"tags":["race:any"] },
+  { "id":"hack_signalsmith","name":"SignalSmith (Breach Mk III)","category":"Powers","cost":3,"tags":["race:any"] },
+  { "id":"hack_wreckline","name":"Wreckline (Breach Mk III)","category":"Powers","cost":3,"tags":["race:any"] },
+
+  /* =========================
+     POWERS — SPLICED: Common
+     ========================= */
+  { "id":"sp_common_climbing","name":"Climbing","category":"Powers","cost":1,"tags":["race:spliced"] },
+  { "id":"sp_common_tail_slap","name":"Tail Slap","category":"Powers","cost":2,"tags":["race:spliced"] },
+  { "id":"sp_common_pheromone_cloud","name":"Pheromone Cloud","category":"Powers","cost":3,"tags":["race:spliced"] },
+  { "id":"sp_common_burrow","name":"Burrow","category":"Powers","cost":1,"tags":["race:spliced"] },
+  { "id":"sp_common_quill_cloud","name":"Quill Cloud","category":"Powers","cost":1,"tags":["race:spliced"] },
+
+  /* =========================
+     POWERS — SPLICED: Chimeric
+     ========================= */
+  { "id":"sp_chimeric_hybrid_senses","name":"Hybrid Senses","category":"Powers","cost":1,"tags":["race:spliced","arch:chimeric","arch:chimerical"] },
+  { "id":"sp_chimeric_adaptive_morph","name":"Adaptive Morph","category":"Powers","cost":5,"tags":["race:spliced","arch:chimeric","arch:chimerical"] },
+  { "id":"sp_chimeric_echo_mutation","name":"Echo Mutation","category":"Powers","cost":3,"tags":["race:spliced","arch:chimeric","arch:chimerical"] },
+  { "id":"sp_chimeric_armored_form","name":"Armored Form","category":"Powers","cost":2,"tags":["race:spliced","arch:chimeric","arch:chimerical"] },
+  { "id":"sp_chimeric_chimerical_eyes","name":"Chimerical Eyes","category":"Powers","cost":2,"tags":["race:spliced","arch:chimeric","arch:chimerical"] },
+  { "id":"sp_chimeric_mana_claw","name":"Mana Claw","category":"Powers","cost":3,"tags":["race:spliced","arch:chimeric","arch:chimerical"] },
+  { "id":"sp_chimeric_whispling","name":"Whispling","category":"Powers","cost":2,"tags":["race:spliced","arch:chimeric","arch:chimerical"] },
+  { "id":"sp_chimeric_hungering_maw","name":"Hungering Maw","category":"Powers","cost":4,"tags":["race:spliced","arch:chimeric","arch:chimerical"] },
+  { "id":"sp_chimeric_gravity_grasp","name":"Gravity Grasp","category":"Powers","cost":5,"tags":["race:spliced","arch:chimeric","arch:chimerical"] },
+  { "id":"sp_chimeric_out_on_a_limb","name":"Out on a Limb","category":"Powers","cost":1,"tags":["race:spliced","arch:chimeric","arch:chimerical"] },
+  { "id":"sp_chimeric_eldritch_flash","name":"Eldritch Flash","category":"Powers","cost":3,"tags":["race:spliced","arch:chimeric","arch:chimerical"] },
+  { "id":"sp_chimeric_eldritch_maser","name":"Eldritch Maser","category":"Powers","cost":2,"tags":["race:spliced","arch:chimeric","arch:chimerical"] },
+
+  /* =========================
+     POWERS — SPLICED: Insectoid
+     ========================= */
+  { "id":"sp_insect_web_spinning","name":"Web Spinning","category":"Powers","cost":2,"tags":["race:spliced","arch:insectoid"] },
+  { "id":"sp_insect_carapace_armor","name":"Carapace Armor","category":"Powers","cost":3,"tags":["race:spliced","arch:insectoid"] },
+  { "id":"sp_insect_venom_sting","name":"Venom Sting","category":"Powers","cost":3,"tags":["race:spliced","arch:insectoid"] },
+  { "id":"sp_insect_wall_crawl","name":"Wall-Crawl","category":"Powers","cost":1,"tags":["race:spliced","arch:insectoid"] },
+  { "id":"sp_insect_hive_mind","name":"Hive Mind","category":"Powers","cost":2,"tags":["race:spliced","arch:insectoid"] },
+  { "id":"sp_insect_stink_cloud","name":"Stink Cloud","category":"Powers","cost":5,"tags":["race:spliced","arch:insectoid"] },
+  { "id":"sp_insect_buzzing","name":"Buzzing","category":"Powers","cost":4,"tags":["race:spliced","arch:insectoid"] },
+  { "id":"sp_insect_compound_eyes","name":"Compound Eyes","category":"Powers","cost":2,"tags":["race:spliced","arch:insectoid"] },
+  { "id":"sp_insect_wasp_sting","name":"Wasp Sting","category":"Powers","cost":5,"tags":["race:spliced","arch:insectoid"] },
+  { "id":"sp_insect_mana_cocoon","name":"Mana Cocoon","category":"Powers","cost":2,"tags":["race:spliced","arch:insectoid"] },
+  { "id":"sp_insect_bugs_might","name":"Bugs Might","category":"Powers","cost":1,"tags":["race:spliced","arch:insectoid"] },
+
+  /* =========================
+     POWERS — SPLICED: Reptilian
+     ========================= */
+  { "id":"sp_rep_venom_fang","name":"Venom Fang","category":"Powers","cost":3,"tags":["race:spliced","arch:reptilian"] },
+  { "id":"sp_rep_scalehide","name":"Scalehide","category":"Powers","cost":5,"tags":["race:spliced","arch:reptilian"] },
+  { "id":"sp_rep_constrictors_coil","name":"Constrictor’s Coil","category":"Powers","cost":4,"tags":["race:spliced","arch:reptilian"] },
+  { "id":"sp_rep_detach","name":"Detach","category":"Powers","cost":1,"tags":["race:spliced","arch:reptilian"] },
+  { "id":"sp_rep_shed_skin","name":"Shed Skin","category":"Powers","cost":2,"tags":["race:spliced","arch:reptilian"] },
+  { "id":"sp_rep_poison_spit","name":"Poison Spit","category":"Powers","cost":2,"tags":["race:spliced","arch:reptilian"] },
+  { "id":"sp_rep_chameleons_mantle","name":"Chameleon’s Mantle","category":"Powers","cost":2,"tags":["race:spliced","arch:reptilian"] },
+  { "id":"sp_rep_hypnotizing_gaze","name":"Hypnotizing Gaze","category":"Powers","cost":3,"tags":["race:spliced","arch:reptilian"] },
+  { "id":"sp_rep_heat_sense","name":"Heat Sense","category":"Powers","cost":1,"tags":["race:spliced","arch:reptilian"] },
+
+  /* =========================
+     POWERS — SPLICED: Avian
+     ========================= */
+  { "id":"sp_avian_keen_sight","name":"Keen Sight","category":"Powers","cost":1,"tags":["race:spliced","arch:avian"] },
+  { "id":"sp_avian_piercing_cry","name":"Piercing Cry","category":"Powers","cost":2,"tags":["race:spliced","arch:avian"] },
+  { "id":"sp_avian_predatory_dive","name":"Predatory Dive","category":"Powers","cost":3,"tags":["race:spliced","arch:avian"] },
+  { "id":"sp_avian_wing_blades","name":"Wing Blades","category":"Powers","cost":3,"tags":["race:spliced","arch:avian"] },
+  { "id":"sp_avian_wing_darts","name":"Wing Darts","category":"Powers","cost":2,"tags":["race:spliced","arch:avian"] },
+  { "id":"sp_avian_conspiracy_to_murder","name":"Conspiracy to Murder","category":"Powers","cost":4,"tags":["race:spliced","arch:avian"] },
+  { "id":"sp_avian_voice_mimic","name":"Voice Mimic","category":"Powers","cost":1,"tags":["race:spliced","arch:avian"] },
+  { "id":"sp_avian_a_little_bird_told_me","name":"A Little Bird Told Me","category":"Powers","cost":2,"tags":["race:spliced","arch:avian"] },
+  { "id":"sp_avian_moving_at_hyper_squawk","name":"Moving at Hyper Squawk","category":"Powers","cost":1,"tags":["race:spliced","arch:avian"] },
+  { "id":"sp_avian_ripping_pecks","name":"Ripping Pecks","category":"Powers","cost":3,"tags":["race:spliced","arch:avian"] },
+
+  /* =========================
+     POWERS — SPLICED: Aquatic
+     ========================= */
+  { "id":"sp_aqua_abyssal_sense","name":"Abyssal Sense","category":"Powers","cost":3,"tags":["race:spliced","arch:aquatic"] },
+  { "id":"sp_aqua_surge_strike","name":"Surge Strike","category":"Powers","cost":2,"tags":["race:spliced","arch:aquatic"] },
+  { "id":"sp_aqua_crushing_bite","name":"Crushing Bite","category":"Powers","cost":4,"tags":["race:spliced","arch:aquatic"] },
+  { "id":"sp_aqua_rough_skin","name":"Rough Skin","category":"Powers","cost":3,"tags":["race:spliced","arch:aquatic"] },
+  { "id":"sp_aqua_aqua_shot","name":"Aqua Shot","category":"Powers","cost":3,"tags":["race:spliced","arch:aquatic"] },
+  { "id":"sp_aqua_consume","name":"Consume","category":"Powers","cost":1,"tags":["race:spliced","arch:aquatic"] },
+  { "id":"sp_aqua_chomp_chomp","name":"Chomp-Chomp","category":"Powers","cost":1,"tags":["race:spliced","arch:aquatic"] },
+  { "id":"sp_aqua_eels_spite","name":"Eel’s Spite","category":"Powers","cost":4,"tags":["race:spliced","arch:aquatic"] },
+  { "id":"sp_aqua_still_water","name":"Still Water","category":"Powers","cost":1,"tags":["race:spliced","arch:aquatic"] },
+  { "id":"sp_aqua_echo_pulse","name":"Echo Pulse","category":"Powers","cost":2,"tags":["race:spliced","arch:aquatic"] },
+  { "id":"sp_aqua_death_roll","name":"Death Roll","category":"Powers","cost":5,"tags":["race:spliced","arch:aquatic"] },
+
+  /* =========================
+     POWERS — SPLICED: Predators
+     ========================= */
+  { "id":"sp_pred_savage_rend","name":"Savage Rend","category":"Powers","cost":2,"tags":["race:spliced","arch:predators"] },
+  { "id":"sp_pred_alphas_roar","name":"Alpha’s Roar","category":"Powers","cost":1,"tags":["race:spliced","arch:predators"] },
+  { "id":"sp_pred_unstoppable_charge","name":"Unstoppable Charge","category":"Powers","cost":2,"tags":["race:spliced","arch:predators"] },
+  { "id":"sp_pred_scent_lock","name":"Scent Lock","category":"Powers","cost":1,"tags":["race:spliced","arch:predators"] },
+  { "id":"sp_pred_cat_scratch_fever","name":"Cat Scratch Fever","category":"Powers","cost":3,"tags":["race:spliced","arch:predators"] },
+  { "id":"sp_pred_howling_cannon","name":"Howling Cannon","category":"Powers","cost":3,"tags":["race:spliced","arch:predators"] },
+  { "id":"sp_pred_cats_eye","name":"Cat’s Eye","category":"Powers","cost":1,"tags":["race:spliced","arch:predators"] },
+  { "id":"sp_pred_marking_territory","name":"Marking Territory","category":"Powers","cost":1,"tags":["race:spliced","arch:predators"] },
+
+  /* =========================
+     WEAVES — Schools (All but Spliced)
+     ========================= */
+  { "id":"school_enchantment","name":"School: Enchantment","category":"Weaves","cost":1,"school":true,"tags":["race:any"] },
+  { "id":"school_conjuration","name":"School: Conjuration","category":"Weaves","cost":1,"school":true,"tags":["race:any"] },
+  { "id":"school_necromancy","name":"School: Necromancy","category":"Weaves","cost":1,"school":true,"tags":["race:any"] },
+  { "id":"school_evocation","name":"School: Evocation","category":"Weaves","cost":1,"school":true,"tags":["race:any"] },
+  { "id":"school_abjuration","name":"School: Abjuration","category":"Weaves","cost":1,"school":true,"tags":["race:any"] },
+  { "id":"school_divination","name":"School: Divination","category":"Weaves","cost":1,"school":true,"tags":["race:any"] },
+
+  /* =========================
+     WEAVES — Enchantment
+     ========================= */
+  { "id":"weave_enchant_item","name":"Enchant Item","category":"Weaves","cost":4,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_enchant_creature","name":"Enchant Creature","category":"Weaves","cost":3,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_enhance_creature_strength","name":"Enhance Creature: Strength","category":"Weaves","cost":2,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_enhance_creature_speed","name":"Enhance Creature: Speed","category":"Weaves","cost":2,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_enhance_creature_mind","name":"Enhance Creature: Mind","category":"Weaves","cost":2,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_enhance_creature_endurance","name":"Enhance Creature: Endurance","category":"Weaves","cost":2,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_effect_sleep","name":"Effect Creature: Sleep","category":"Weaves","cost":2,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_enhance_item_element","name":"Enhance Item: Element","category":"Weaves","cost":3,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_enchant_item_recall","name":"Enchant Item: Recall","category":"Weaves","cost":3,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_enchant_item_light","name":"Enchant Item: Light","category":"Weaves","cost":1,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_enchant_item_storage","name":"Enchant Item: Storage","category":"Weaves","cost":3,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_effect_bind","name":"Effect Creature: Bind","category":"Weaves","cost":2,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_effect_confuse","name":"Effect Creature: Confuse","category":"Weaves","cost":2,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_effect_silence","name":"Effect Creature: Silence","category":"Weaves","cost":2,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_effect_hex","name":"Effect Creature: Hex","category":"Weaves","cost":3,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_enhance_item_flight","name":"Enhance Item: Flight","category":"Weaves","cost":1,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_enhance_item_echo","name":"Enhance Item: Echo","category":"Weaves","cost":1,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_enhance_item_link","name":"Enhance Item: Link","category":"Weaves","cost":3,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_enhance_item_illusion","name":"Enhance Item: Illusion","category":"Weaves","cost":1,"requiresSchool":"school_enchantment","tags":["race:any"] },
+  { "id":"weave_permanence","name":"Permanence","category":"Weaves","cost":5,"requiresSchool":"school_enchantment","tags":["race:any"] },
+
+  /* =========================
+     WEAVES — Conjuration
+     ========================= */
+  { "id":"weave_conjure_weapon","name":"Conjure Weapon","category":"Weaves","cost":2,"requiresSchool":"school_conjuration","tags":["race:any"] },
+  { "id":"weave_conjure_armor","name":"Conjure Armor","category":"Weaves","cost":2,"requiresSchool":"school_conjuration","tags":["race:any"] },
+  { "id":"weave_conjure_familiar","name":"Conjure Familiar","category":"Weaves","cost":3,"requiresSchool":"school_conjuration","tags":["race:any"] },
+  { "id":"weave_conjure_clone","name":"Conjure Clone (Illusory)","category":"Weaves","cost":4,"requiresSchool":"school_conjuration","tags":["race:any"] },
+  { "id":"weave_conjure_gateway","name":"Conjure Gateway","category":"Weaves","cost":5,"requiresSchool":"school_conjuration","tags":["race:any"] },
+  { "id":"weave_conjure_swarm","name":"Conjure Swarm","category":"Weaves","cost":2,"requiresSchool":"school_conjuration","tags":["race:any"] },
+
+  /* =========================
+     WEAVES — Necromancy
+     ========================= */
+  { "id":"weave_animate_corpse","name":"Animate Corpse","category":"Weaves","cost":5,"requiresSchool":"school_necromancy","tags":["race:any"] },
+  { "id":"weave_raise_spirit","name":"Raise Spirit","category":"Weaves","cost":5,"requiresSchool":"school_necromancy","tags":["race:any"] },
+  { "id":"weave_drain","name":"Drain","category":"Weaves","cost":3,"requiresSchool":"school_necromancy","tags":["race:any"] },
+  { "id":"weave_inflict_pain","name":"Inflict Pain","category":"Weaves","cost":1,"requiresSchool":"school_necromancy","tags":["race:any"] },
+  { "id":"weave_empower_undead","name":"Empower Corpse/Spirit","category":"Weaves","cost":2,"requiresSchool":"school_necromancy","tags":["race:any"] },
+  { "id":"weave_heal","name":"Heal","category":"Weaves","cost":2,"requiresSchool":"school_necromancy","tags":["race:any"] },
+
+  /* =========================
+     WEAVES — Evocation
+     ========================= */
+  { "id":"weave_create_element_small","name":"Create Element (Small)","category":"Weaves","cost":1,"requiresSchool":"school_evocation","tags":["race:any"] },
+  { "id":"weave_create_element_medium","name":"Create Element (Medium)","category":"Weaves","cost":3,"requiresSchool":"school_evocation","tags":["race:any"] },
+  { "id":"weave_shape_element_small","name":"Shape Element (Small)","category":"Weaves","cost":1,"requiresSchool":"school_evocation","tags":["race:any"] },
+  { "id":"weave_shape_element_medium","name":"Shape Element (Medium)","category":"Weaves","cost":3,"requiresSchool":"school_evocation","tags":["race:any"] },
+
+  /* =========================
+     WEAVES — Abjuration
+     ========================= */
+  { "id":"weave_create_barrier_minor","name":"Create Barrier (Minor)","category":"Weaves","cost":3,"requiresSchool":"school_abjuration","tags":["race:any"] },
+  { "id":"weave_absorb","name":"Absorb","category":"Weaves","cost":3,"requiresSchool":"school_abjuration","tags":["race:any"] },
+  { "id":"weave_seal","name":"Seal","category":"Weaves","cost":4,"requiresSchool":"school_abjuration","tags":["race:any"] },
+  { "id":"weave_dispel","name":"Dispel","category":"Weaves","cost":4,"requiresSchool":"school_abjuration","tags":["race:any"] },
+  { "id":"weave_damage_minor","name":"Damage (Minor)","category":"Weaves","cost":2,"requiresSchool":"school_abjuration","tags":["race:any"] },
+
+  /* =========================
+     WEAVES — Divination
+     ========================= */
+  { "id":"weave_veilglimpse","name":"Veilglimpse","category":"Weaves","cost":1,"requiresSchool":"school_divination","tags":["race:any"] },
+  { "id":"weave_thread_sense","name":"Thread-Sense","category":"Weaves","cost":1,"requiresSchool":"school_divination","tags":["race:any"] },
+  { "id":"weave_echo_of_what_isnt","name":"Echo of What-Isn’t","category":"Weaves","cost":4,"requiresSchool":"school_divination","tags":["race:any"] },
+  { "id":"weave_beast_speaking","name":"Beast-Speaking","category":"Weaves","cost":2,"requiresSchool":"school_divination","tags":["race:any"] },
+  { "id":"weave_whisper_beyond","name":"Whisper Beyond","category":"Weaves","cost":1,"requiresSchool":"school_divination","tags":["race:any"] },
+  { "id":"weave_moment_fracture","name":"Moment Fracture","category":"Weaves","cost":3,"requiresSchool":"school_divination","tags":["race:any"] },
+  { "id":"weave_shard_of_truth","name":"Shard of Truth","category":"Weaves","cost":3,"requiresSchool":"school_divination","tags":["race:any"] },
+  { "id":"weave_omenmark","name":"Omenmark","category":"Weaves","cost":2,"requiresSchool":"school_divination","tags":["race:any"] },
+  { "id":"weave_fate_ripple","name":"Fate Ripple","category":"Weaves","cost":2,"requiresSchool":"school_divination","tags":["race:any"] },
+
+  /* =========================
+     WEAVES — Technomancy (Synthral-only; give cost 0 if you auto-grant)
+     ========================= */
+  { "id":"school_technomancy","name":"School: Technomancy","category":"Weaves","cost":0,"school":true,"tags":["race:human","arch:synthral"] },
+  { "id":"tech_sync_with_device","name":"Sync with Device","category":"Weaves","cost":1,"requiresSchool":"school_technomancy","tags":["race:human","arch:synthral"] },
+  { "id":"tech_build_device","name":"Build Device","category":"Weaves","cost":3,"requiresSchool":"school_technomancy","tags":["race:human","arch:synthral"] },
+  { "id":"tech_laser","name":"Laser","category":"Weaves","cost":2,"requiresSchool":"school_technomancy","tags":["race:human","arch:synthral"] },
+  { "id":"tech_hack_computer","name":"Hack Computer","category":"Weaves","cost":1,"requiresSchool":"school_technomancy","tags":["race:human","arch:synthral"] },
+  { "id":"tech_speak_to_machinery","name":"Speak to Machinery","category":"Weaves","cost":2,"requiresSchool":"school_technomancy","tags":["race:human","arch:synthral"] },
+
+  /* =========================
+     CYBERNETICS — Sensory
+     ========================= */
+  { "id":"cyb_spectra_vision","name":"Spectra-Vision","category":"Cybernetics","cost":3,"tags":["race:any"] },
+  { "id":"cyb_echosense","name":"EchoSense","category":"Cybernetics","cost":3,"tags":["race:any"] },
+  { "id":"cyb_ghostlight_optics","name":"Ghostlight Optics","category":"Cybernetics","cost":2,"tags":["race:any"] },
+  { "id":"cyb_clarity_node","name":"Clarity Node","category":"Cybernetics","cost":1,"tags":["race:any"] },
+  { "id":"cyb_street_eye_mk4","name":"Street-Eye Mk IV","category":"Cybernetics","cost":1,"tags":["race:any"] },
+
+  /* =========================
+     CYBERNETICS — Combat/Utility
+     ========================= */
+  { "id":"cyb_razorjack_interface","name":"Razorjack Interface","category":"Cybernetics","cost":3,"tags":["race:any"] },
+  { "id":"cyb_impact_coil","name":"Impact Coil","category":"Cybernetics","cost":4,"tags":["race:any"] },
+  { "id":"cyb_grav_lock_anchors","name":"Grav-Lock Anchors","category":"Cybernetics","cost":3,"tags":["race:any"] },
+  { "id":"cyb_pulse_injector","name":"Pulse Injector","category":"Cybernetics","cost":3,"tags":["race:any"] },
+  { "id":"cyb_wraith_grip","name":"Wraith Grip","category":"Cybernetics","cost":2,"tags":["race:any"] },
+
+  /* =========================
+     CYBERNETICS — Stealth/Infiltration
+     ========================= */
+  { "id":"cyb_shadeskin","name":"ShadeSkin","category":"Cybernetics","cost":4,"tags":["race:any"] },
+  { "id":"cyb_veil_circuit","name":"Veil Circuit","category":"Cybernetics","cost":3,"tags":["race:any"] },
+  { "id":"cyb_ghoststep_relay","name":"Ghoststep Relay","category":"Cybernetics","cost":2,"tags":["race:any"] },
+  { "id":"cyb_null_sigil","name":"Null Sigil","category":"Cybernetics","cost":3,"tags":["race:any"] },
+  { "id":"cyb_cold_veins","name":"Cold Veins","category":"Cybernetics","cost":2,"tags":["race:any"] },
+
+  /* =========================
+     CYBERNETICS — Strength/Durability
+     ========================= */
+  { "id":"cyb_titan_frame","name":"Titan Frame","category":"Cybernetics","cost":4,"tags":["race:any"] },
+  { "id":"cyb_servocore_overdrive","name":"ServoCore Overdrive","category":"Cybernetics","cost":4,"tags":["race:any"] },
+  { "id":"cyb_ironlung_node","name":"Ironlung Node","category":"Cybernetics","cost":2,"tags":["race:any"] },
+  { "id":"cyb_shock_spine","name":"Shock-Spine","category":"Cybernetics","cost":3,"tags":["race:any"] },
+  { "id":"cyb_grinder_arm","name":"Grinder Arm","category":"Cybernetics","cost":4,"tags":["race:any"] },
+  { "id":"cyb_carapace_full","name":"Carapace (full)","category":"Cybernetics","cost":5,"tags":["race:any"] },
+
+  /* =========================
+     CYBERNETICS — Street-Level
+     ========================= */
+  { "id":"cyb_meatjackers","name":"“Meatjackers”","category":"Cybernetics","cost":2,"tags":["race:any"] },
+  { "id":"cyb_glowsticks","name":"“Glowsticks”","category":"Cybernetics","cost":1,"tags":["race:any"] },
+  { "id":"cyb_bonecrackers","name":"“Bonecrackers”","category":"Cybernetics","cost":2,"tags":["race:any"] },
+  { "id":"cyb_spiderjoints","name":"“Spiderjoints”","category":"Cybernetics","cost":2,"tags":["race:any"] }
 ]
+
