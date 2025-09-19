@@ -1,0 +1,23 @@
+[
+  { "id": "perk_emotional_resonance", "name": "Emotional Resonance", "cost": 2, "category": "Perks", "tags": ["race:vampire"] },
+  { "id": "perk_adaptive_instinct", "name": "Adaptive Instinct", "cost": 2, "category": "Perks", "tags": ["race:human"] },
+  { "id": "perk_pulse_sense", "name": "Pulse Sense", "cost": 2, "category": "Perks", "tags": ["race:veilborn"] },
+  { "id": "perk_designers_gift", "name": "Designer’s Gift", "cost": 4, "category": "Perks", "tags": ["race:spliced"] },
+
+  { "id": "strigoi_hypnosis", "name": "Hypnosis", "cost": 2, "category": "Powers", "tags": ["race:strigoi"] },
+  { "id": "gaki_chi_step", "name": "Chi Step", "cost": 3, "category": "Powers", "tags": ["race:gaki"] },
+  { "id": "vb_glimmerstep", "name": "Glimmerstep", "cost": 4, "category": "Powers", "tags": ["race:veilborn"] },
+  { "id": "sp_climbing", "name": "Climbing", "cost": 1, "category": "Powers", "tags": ["race:spliced"] },
+  { "id": "arc_thaumaturgy", "name": "Thaumaturgy", "cost": 1, "category": "Powers", "tags": ["race:human", "arch:arcanist"] },
+  { "id": "psi_telekinetic_surge", "name": "Telekinetic Surge", "cost": 4, "category": "Powers", "tags": ["race:human", "arch:psion"] },
+  { "id": "syn_systemic_runes", "name": "Systemic Runes", "cost": 2, "category": "Powers", "tags": ["race:human", "arch:synthral"] },
+
+  { "id": "school_enchantment", "name": "School: Enchantment", "cost": 1, "category": "Weaves", "tags": ["race:any"], "school": true },
+  { "id": "school_divination", "name": "School: Divination", "cost": 1, "category": "Weaves", "tags": ["race:any"], "school": true },
+  { "id": "enc_enchant_item", "name": "Enchant Item", "cost": 4, "category": "Weaves", "tags": ["race:any"], "requiresSchool": "school_enchantment" },
+  { "id": "div_veilglimpse", "name": "Veilglimpse", "cost": 1, "category": "Weaves", "tags": ["race:any"], "requiresSchool": "school_divination" },
+
+  { "id": "cyb_spectra_vision", "name": "Spectra-Vision (Perc)", "cost": 3, "category": "Cybernetics", "tags": ["race:any"] },
+  { "id": "cyb_titan_frame", "name": "Titan Frame (Phys)", "cost": 4, "category": "Cybernetics", "tags": ["race:any"] },
+  { "id": "hack_silkveil", "name": "Silkveil (Mk I)", "cost": 2, "category": "Cybernetics", "tags": ["race:any"] }
+]
