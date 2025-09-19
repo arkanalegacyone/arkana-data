@@ -1,44 +1,128 @@
 [
-  { "id": "stasis_degradation", "name": "Stasis Degradation", "pts": 3, "raceTag": "human_common", "note": "First activation after sleep −2 mod (1–2 scenes)." },
-  { "id": "cognitive_drift", "name": "Cognitive Drift", "pts": 2, "raceTag": "human_common", "note": "Ark anomalies: −1 Mental & confusion (GM)." },
-  { "id": "cult_stigma", "name": "Cult Stigma", "pts": 2, "raceTag": "human_common", "note": "−1 Social with non-allied factions." },
-  { "id": "tech_obsession", "name": "Tech-obsession", "pts": 2, "raceTag": "human_common", "note": "Tunnel vision on tech: −1 Perception elsewhere." },
-  { "id": "system_vulnerability", "name": "System Vulnerability", "pts": 4, "raceTag": "human_common", "note": "Rogue code may hijack (Men TN 12)." },
-  { "id": "temporal_dislocation", "name": "Temporal Dislocation", "pts": 3, "raceTag": "human_common", "note": "Visions distract: −1 Phys & Dex during/after." },
-  { "id": "psychic_overload", "name": "Psychic Overload", "pts": 2, "raceTag": "human_common", "note": "Crowds/emotions: −1 Mental; may skip an action." },
+  /* =======================
+     VAMPIRES (Shared)
+     ======================= */
+  {
+    "id": "vamp_feeding_addiction",
+    "name": "Feeding Addiction",
+    "desc": "Feeding thrills you beyond reason. Pick one prey type. Men TN 7 to resist feeding when a viable source is present.",
+    "cost": -2,
+    "tags": ["race:vampire"]
+  },
+  {
+    "id": "vamp_blood_madness",
+    "name": "Blood Madness",
+    "desc": "After three nights without feeding, roll Men (Diff 7) daily or lose control and attack the nearest victim.",
+    "cost": -3,
+    "tags": ["race:vampire"]
+  },
+  {
+    "id": "vamp_shameful_hunger",
+    "name": "Shameful Hunger",
+    "desc": "You recoil at feeding on the living. Men TN 7 to feed; on failure, you abstain.",
+    "cost": -2,
+    "tags": ["race:vampire"]
+  },
 
-  { "id": "arcane_isolation", "name": "Arcane Isolation (Arcanist)", "pts": 2, "raceTag": "human", "archetype": "arcanist", "note": "−1 Social outside magical circles." },
-  { "id": "mental_contagion", "name": "Mental Contagion (Psion)", "pts": 3, "raceTag": "human", "archetype": "psion", "note": "Unstable minds/systems cause ongoing −1 Mental." },
+  /* =======================
+     STRIGOI ONLY
+     ======================= */
+  {
+    "id": "strigoi_parasitic_reputation",
+    "name": "Parasitic Reputation",
+    "desc": "Your kind is seen as parasitic predators; alliances suffer suspicion and hostility.",
+    "cost": -1,
+    "tags": ["race:strigoi"]
+  },
+  {
+    "id": "strigoi_lustful_feeding",
+    "name": "Lustful Feeding",
+    "desc": "You cannot drink blood; you must feed on sexual energy and lust.",
+    "cost": -2,
+    "tags": ["race:strigoi"]
+  },
 
-  { "id": "feeding_addiction", "name": "Feeding Addiction", "pts": 2, "raceTag": "vampire_common", "note": "Men TN 7 to resist feeding near prey." },
-  { "id": "blood_madness", "name": "Blood Madness", "pts": 3, "raceTag": "vampire_common", "note": "After 3 nights starving: roll Men TN 7 daily or frenzy." },
-  { "id": "shameful_hunger", "name": "Shameful Hunger", "pts": 2, "raceTag": "vampire_common", "note": "Men TN 7 to feed at all; failure = abstain." },
+  /* =======================
+     GAKI ONLY
+     ======================= */
+  {
+    "id": "gaki_resonance_conflict",
+    "name": "Resonance Conflict",
+    "desc": "Feeding from supernaturals unbalances your essence, risking corruption and madness until purged.",
+    "cost": -2,
+    "tags": ["race:gaki"]
+  },
+  {
+    "id": "gaki_chi_hunger",
+    "name": "Chi Hunger",
+    "desc": "Mortal blood does not sustain you. Only emotional extremes, spiritual essence, or supernatural Chi will slake your hunger.",
+    "cost": -3,
+    "tags": ["race:gaki"]
+  },
 
-  { "id": "parasitic_reputation", "name": "Parasitic Reputation (Strigoi)", "pts": 1, "raceTag": "strigoi", "note": "Social drawback; politics dependent." },
-  { "id": "lustful_feeding", "name": "Lustful Feeding (Strigoi)", "pts": 2, "raceTag": "strigoi", "note": "Must feed on sexual energy instead of blood." },
+  /* =======================
+     SPLICED
+     ======================= */
+  {
+    "id": "spliced_humanitys_blight",
+    "name": "Humanity’s Blight",
+    "desc": "Unsettling appearance. –2 to Persuasion/Social when seeking trust; may grant +1 Intimidation at GM discretion.",
+    "cost": 2,
+    "tags": ["race:spliced"]
+  },
+  {
+    "id": "spliced_sterility_risk",
+    "name": "Sterility Risk",
+    "desc": "Cannot reproduce naturally. Narrative/social impacts.",
+    "cost": 1,
+    "tags": ["race:spliced"]
+  },
+  {
+    "id": "spliced_savage_flow",
+    "name": "Savage Flow",
+    "desc": "–1 Mental when resisting predatory urges or frenzy; GM may compel behavior under duress.",
+    "cost": 3,
+    "tags": ["race:spliced"]
+  },
+  {
+    "id": "spliced_flawed_splice",
+    "name": "Flawed Splice",
+    "desc": "Transformation is incomplete/defective (e.g., Aquatic cannot breathe water). GM defines the impairment.",
+    "cost": 3,
+    "tags": ["race:spliced"]
+  },
+  {
+    "id": "spliced_unshifting",
+    "name": "Unshifting",
+    "desc": "One shifted form is permanent. –1 Dex to tool-use rolls due to awkward physiology.",
+    "cost": 3,
+    "tags": ["race:spliced"]
+  },
+  {
+    "id": "spliced_genetic_instability",
+    "name": "Genetic Instability",
+    "desc": "Chronic pain: –1 to all rolls during stress; without treatment, risks collapse/coma.",
+    "cost": 4,
+    "tags": ["race:spliced"]
+  },
+  {
+    "id": "spliced_kill_switch",
+    "name": "Kill Switch",
+    "desc": "Hidden programming can override or kill you. GM may trigger in rare story-critical moments.",
+    "cost": 5,
+    "tags": ["race:spliced"]
+  },
+  {
+    "id": "spliced_unstable_form",
+    "name": "Unstable Form",
+    "desc": "Each shift: roll 1d20. 1–5: mutation penalty; 6–15: stable; 16–20: mutation boon (temporary buff).",
+    "cost": 2,
+    "tags": ["race:spliced"]
+  },
 
-  { "id": "resonance_conflict", "name": "Resonance Conflict (Gaki)", "pts": 2, "raceTag": "gaki", "note": "Feeding from supernaturals risks corruption/madness." },
-  { "id": "chi_hunger", "name": "Chi Hunger (Gaki)", "pts": 3, "raceTag": "gaki", "note": "Only emotional/spiritual Chi sustains you." },
-
-  { "id": "humanitys_blight", "name": "Humanity’s Blight", "pts": 2, "raceTag": "spliced", "note": "−2 to trust-building Social; +1 Intimidation (GM)." },
-  { "id": "sterility_risk", "name": "Sterility Risk", "pts": 1, "raceTag": "spliced", "note": "Narrative infertility; factional stress." },
-  { "id": "savage_flow", "name": "Savage Flow", "pts": 3, "raceTag": "spliced", "note": "−1 Mental to resist predatory urges/frenzy." },
-  { "id": "flawed_splice", "name": "Flawed Splice", "pts": 3, "raceTag": "spliced", "note": "Archetype-specific impairment (GM defines)." },
-  { "id": "unshifting", "name": "Unshifting", "pts": 3, "raceTag": "spliced", "note": "One shifted form is permanent; −1 Dex to tool use." },
-  { "id": "genetic_instability", "name": "Genetic Instability", "pts": 4, "raceTag": "spliced", "note": "Chronic pain: −1 all rolls under stress; collapse risk." },
-  { "id": "kill_switch", "name": "Kill Switch", "pts": 5, "raceTag": "spliced", "note": "Hidden programming may incapacitate/override (GM)." },
-  { "id": "unstable_form", "name": "Unstable Form", "pts": 2, "raceTag": "spliced", "note": "Roll on shift for mutation penalty/boon." },
-
-  { "id": "identity_drift", "name": "Identity Drift", "pts": 2, "raceTag": "veilborn", "tier": 1, "note": "Self consistency slips; roles/relationships blur." },
-  { "id": "aura_bleed", "name": "Aura Bleed", "pts": 1, "raceTag": "veilborn", "tier": 1, "note": "Emotions leak: lights flicker, plants wilt." },
-  { "id": "phantom_echo", "name": "Phantom Echo", "pts": 1, "raceTag": "veilborn", "tier": 1, "note": "Unintended phasing during sleep/exhaustion." },
-  { "id": "shadowed_whispers", "name": "Shadowed Whispers", "pts": 1, "raceTag": "veilborn", "tier": 1, "note": "Murmur to unseen voices; social penalties." },
-  { "id": "oath_entanglement", "name": "Oath Entanglement", "pts": 3, "raceTag": "veilborn", "tier": 2, "note": "Bound by a casual promise until released." },
-  { "id": "mythic_magnetism", "name": "Mythic Magnetism", "pts": 3, "raceTag": "veilborn", "tier": 2, "note": "Attract ghost signals, dream intrusions (Will)." },
-  { "id": "sensory_overload", "name": "Sensory Overload", "pts": 3, "raceTag": "veilborn", "tier": 2, "note": "Chaos overwhelms; confusion/paralysis risk." },
-  { "id": "veil_sickness", "name": "Veil Sickness", "pts": 3, "raceTag": "veilborn", "tier": 2, "note": "Absence from spiritual places drains you (Fortitude)." },
-  { "id": "legacy_conflict", "name": "Legacy Conflict", "pts": 4, "raceTag": "veilborn", "tier": 3, "note": "Ancestral echoes clash; risk catatonia/misfires." },
-  { "id": "unstable_morality", "name": "Unstable Morality", "pts": 4, "raceTag": "veilborn", "tier": 3, "note": "Will check vs selfish, self-destructive choices." },
-  { "id": "veils_price", "name": "Veil’s Price", "pts": 5, "raceTag": "veilborn", "tier": 3, "note": "Power exacts toll: bleeding, vitality loss." },
-  { "id": "hollow_pulse", "name": "Hollow Pulse", "pts": 5, "raceTag": "veilborn", "tier": 3, "note": "Veil-tied heartbeat; exertion risks collapse." }
-]
+  /* =======================
+     VEILBORN (Tiered)
+     ======================= */
+  {
+    "id": "veilborn_identity_drift",
+    "name": "Identity Drift"
