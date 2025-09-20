@@ -1,5 +1,4 @@
 [
-
   {
     "id": "cyb_spectra_vision",
     "name": "Spectra-Vision",
@@ -35,7 +34,6 @@
     "cost": 1,
     "type": "sensory"
   },
-
   {
     "id": "cyb_razorjack_interface",
     "name": "Razorjack Interface",
@@ -71,7 +69,6 @@
     "cost": 2,
     "type": "combat"
   },
-
   {
     "id": "cyb_shadeskin",
     "name": "ShadeSkin",
@@ -107,7 +104,6 @@
     "cost": 2,
     "type": "stealth"
   },
-
   {
     "id": "cyb_titan_frame",
     "name": "Titan Frame",
@@ -178,7 +174,6 @@
     "cost": 2,
     "type": "street"
   },
-
   {
     "id": "hack_silkveil",
     "name": "Silkveil",
@@ -242,7 +237,6 @@
     "category": "stealth",
     "mk": "III"
   },
-
   {
     "id": "hack_wardhalo",
     "name": "WardHalo",
@@ -279,7 +273,6 @@
     "category": "defense",
     "mk": "III"
   },
-
   {
     "id": "hack_brickwave",
     "name": "Brickwave",
