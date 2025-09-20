@@ -4,7 +4,6 @@ window.onload = function() {
   var flaws = [], commonPowers = [], perks = [], archPowers = [], cybernetics = [], magicSchools = [];
   var M = loadModel();
 
-  // ----------- Utility functions, model, and data loading ----------- //
   function esc(s){ return String(s||'').replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
   function lc(s){ return String(s||'').toLowerCase(); }
   function loadModel(){
@@ -51,15 +50,209 @@ window.onload = function() {
     magicSchools = magicData;
   }
 
-  // ----------- Data selection and points logic ----------- //
-  // ... all utility functions as in your previous script
-  // flawsForRace, perksForRace, commonPowersForRace, archPowersForRaceArch, canUseMagic, etc.
-  // statMod, normalizeStats, renderList, magicSectionHtml, willOverspend, pointsTotal, pointsSpentTotal
+  // Utility functions for filtering, grouping, stats, points
+  function flawsForRace(race, arch) {
+    if (!race) return [];
+    var r = lc(race);
+    var a = arch ? lc(arch) : "";
+    var humanSpeciesTypes = {
+      "human (no powers)": "human_without_power",
+      "arcanist": "arcanist",
+      "synthral": "synthral",
+      "psion": "psion"
+    };
+    if(r === "human"){
+      var speciesTag = humanSpeciesTypes[a] || "human_without_power";
+      return flaws.filter(function(flaw){
+        var tags = flaw.tags ? flaw.tags.map(lc) : [];
+        return tags.indexOf("species:" + speciesTag) >= 0;
+      });
+    }
+    return flaws.filter(function(flaw){
+      var tags = flaw.tags ? flaw.tags.map(lc) : [];
+      if (r === "strigoi" && tags.indexOf("race:strigoi") >= 0) return true;
+      if (r === "gaki" && tags.indexOf("race:gaki") >= 0) return true;
+      if(tags.indexOf("race:" + r) >= 0) return true;
+      if(a && (tags.indexOf("arch:" + a) >= 0 || tags.indexOf("spec:" + a) >= 0)) return true;
+      return false;
+    });
+  }
+  function perksForRace(race, arch) {
+    var r = lc(race||"");
+    var a = lc(arch||"");
+    return perks.filter(function(perk){
+      if (perk.species && lc(perk.species) !== r) return false;
+      if (perk.arch && a && lc(perk.arch) !== a) return false;
+      return true;
+    });
+  }
+  function commonPowersForRace(race) {
+    var r = lc(race||"");
+    return commonPowers.filter(function(p){ return p.species && lc(p.species) === r; });
+  }
+  function archPowersForRaceArch(race, arch) {
+    var r = lc(race||"");
+    var a = lc(arch||"");
+    return archPowers.filter(function(p){
+      if (p.species && lc(p.species) !== r) return false;
+      if (p.arch && a && lc(p.arch) !== a) return false;
+      return true;
+    });
+  }
+  function cyberneticsAll() {
+    return cybernetics;
+  }
+  function canUseMagic(race, arch) {
+    if(lc(race) === "human" && lc(arch) === "human (no powers)") return false;
+    if(lc(race) === "spliced") return false;
+    return true;
+  }
+  function groupMagicSchoolsBySection(arr, race, arch) {
+    var isSynthral = lc(race) === "human" && lc(arch) === "synthral";
+    var out = {};
+    arr.forEach(function(item){
+      var section = item.section || "Other";
+      if (lc(section) === "technomancy" && !isSynthral) return;
+      if (!out[section]) out[section] = [];
+      out[section].push(item);
+    });
+    Object.keys(out).forEach(function(section){
+      out[section].sort(function(a,b){
+        if (a.id.startsWith("school_")) return -1;
+        if (b.id.startsWith("school_")) return 1;
+        return 0;
+      });
+    });
+    return out;
+  }
+  function magicSchoolsAllGrouped(race, arch) {
+    return groupMagicSchoolsBySection(magicSchools, race, arch);
+  }
+  function statMod(v){ return v===0?-3 : v===1?-2 : v===2?0 : v===3?2 : v===4?4 : v===5?6:0; }
+  function normalizeStats(){
+    var S = M.stats = M.stats || {phys:0,dex:0,mental:0,perc:0};
+    ['phys','dex','mental','perc'].forEach(function(k){ if(typeof S[k]!=='number') S[k]=0; S[k]=Math.min(5,Math.max(0,S[k])); });
+    var spent = (S.phys)+(S.dex)+(S.mental)+(S.perc);
+    S.pool = Math.max(0, 10 - spent);
+    return S;
+  }
+  function groupCyberneticsBySection(arr) {
+    var sectionLabels = [
+      "Sensory Mods",
+      "Combat/Utility Mods",
+      "Augmented Strength/Durability",
+      "Street-Level Popular Mods",
+      "Stealth/Infiltration - Hacking",
+      "Defensive/Countermeasures - Hacking",
+      "Breaching/Intrusion Protocols - Hacking"
+    ];
+    var out = {};
+    sectionLabels.forEach(s => out[s] = []);
+    arr.forEach(function(item){
+      var sec = item.section || "";
+      if (out[sec]) out[sec].push(item);
+    });
+    return out;
+  }
+  function numCyberModsSelected() {
+    return Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid)).length;
+  }
+  function enforceCyberModLimit() {
+    var cyberSlots = M.cyberSlots || 0;
+    var cyberBoxes = Array.from(document.querySelectorAll('#page5 input[data-cyber="1"]'));
+    var selected = cyberBoxes.filter(ch => ch.checked);
+    if (selected.length > cyberSlots) {
+      selected.slice(cyberSlots).forEach(ch => {
+        ch.checked = false;
+        M.picks.delete(ch.dataset.id);
+      });
+      saveModel();
+      render();
+      return;
+    }
+    if (cyberSlots < 1) {
+      cyberBoxes.forEach(ch => ch.disabled = true);
+      return;
+    }
+    if (selected.length >= cyberSlots) {
+      cyberBoxes.forEach(ch => { if (!ch.checked) ch.disabled = true; });
+    } else {
+      cyberBoxes.forEach(ch => { if (!ch.checked) ch.disabled = false; });
+    }
+  }
+  function willOverspend(extra) {
+    var spent = pointsSpentTotal();
+    var total = pointsTotal();
+    return spent + extra > total;
+  }
+  function pointsTotal() {
+    var total = 15 + Array.from(M.flaws).reduce(function(s,fid){
+      var f=flaws.find(function(x){return x.id===fid;});
+      return s+(f?f.cost:0);
+    },0);
+    return total;
+  }
+  function pointsSpentTotal() {
+    var allPicks = Array.from(M.picks);
+    var spentPicks = allPicks.map(function(pid){
+      var arrs = [commonPowers, perks, archPowers, cybernetics];
+      for(var i=0;i<arrs.length;i++){
+        var found=arrs[i].find(function(x){return x.id===pid;});
+        if (found && typeof found.cost !== "undefined") return found.cost;
+        if (found) return 1;
+      }
+      return 0;
+    }).reduce(function(a,b){return a+b;},0);
 
-  // For brevity, these are identical to your prior working script. See your context for their full implementations.
-  // (They are present above and should be pasted in here.)
+    var spentMagic = Array.from(M.magicSchools).map(function(id){
+      var found = magicSchools.find(function(x){return x.id===id;});
+      if (found && typeof found.cost !== "undefined") return found.cost;
+      if (found) return 1;
+      return 0;
+    }).reduce(function(a,b){return a+b;},0);
 
-  // ----------- PAGE 5: Collapsible Section (improved fix) ----------- //
+    var cyberSlotCost = (M.cyberSlots || 0) * 2;
+
+    return spentPicks + spentMagic + cyberSlotCost;
+  }
+  function renderList(title, arr, selectedSet, opt) {
+    opt = opt||{};
+    var html = title ? '<h3>'+esc(title)+'</h3>' : '';
+    if (!arr.length) return html + '<div class="muted">None available.</div>';
+    html += '<div class="list">';
+    arr.forEach(function(item){
+      var sel = selectedSet.has(item.id) ? ' checked' : '';
+      var costVal = (typeof item.cost !== "undefined") ? item.cost : 1;
+      var disabled = (sel ? '' : (opt.willOverspend && opt.willOverspend(costVal)?' disabled':''))
+        + (opt.max && selectedSet.size>=opt.max && !sel ? ' disabled' : '');
+      var cost = (typeof item.cost !== "undefined") ? '<span class="pill">'+item.cost+' pts</span>' : '';
+      html += '<label class="item"><input type="checkbox" data-id="'+item.id+'"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
+    });
+    html += '</div>';
+    return html;
+  }
+  function magicSectionHtml(section, arr) {
+    var schoolEntry = arr[0];
+    var schoolSelected = M.magicSchools.has(schoolEntry.id);
+    var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
+    arr.forEach(function(item, idx){
+      var sel = M.magicSchools.has(item.id) ? ' checked' : '';
+      var costVal = (typeof item.cost !== "undefined") ? item.cost : 1;
+      var disabled = '';
+      if (idx === 0) {
+        disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
+      } else {
+        if (!schoolSelected) disabled = ' disabled';
+        else disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
+      }
+      var cost = (typeof item.cost !== "undefined") ? '<span class="pill">'+item.cost+' pts</span>' : '';
+      html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-magic="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  // ----------- Page 5: Collapsible Section (improved fix) ----------- //
   function collapsibleSection(id, title, content, open) {
     return `
       <div class="ark-collapsible-section" id="section-${id}">
@@ -233,7 +426,7 @@ window.onload = function() {
     });
     enforceCyberModLimit();
 
-    // Fix: Only toggle if header itself clicked
+    // Improved collapse fix: Only toggle if header itself clicked
     Array.prototype.forEach.call(document.querySelectorAll('.ark-collapse-btn'), function(btn){
       btn.addEventListener('click', function(e){
         if (e.target !== btn) return;
@@ -248,8 +441,7 @@ window.onload = function() {
     });
   }
 
-  // ----------- Other page renderers/wire functions and main render ----------- //
-  // ...page1_render, page1_wire, page2_render, page2_wire, page3_render, page3_wire, page4_render, page4_wire, page6_render, page6_wire
+  // Other page renderers and wire functions (page1_render, page1_wire, page2_render, page2_wire, page3_render, page3_wire, page4_render, page4_wire, page6_render, page6_wire)
   // These are unchanged and present in your previous script.
 
   function render(){
