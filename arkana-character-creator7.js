@@ -328,7 +328,7 @@ window.onload = function() {
       return spent + extra > total;
     }
 
-    // Section order: Common Powers, Perks, Cybernetic Slots, Cybernetic Augmentations, [Magic]
+    // Section order: Common Powers, Perks, Cybernetic Augmentations & Hacking (with slots), [Magic]
     var sections = [];
 
     sections.push(
@@ -338,23 +338,20 @@ window.onload = function() {
       renderList("Perks", perksForRace(race, arch), M.picks)
     );
 
-    // Cybernetic slot input section (after perks, before cybernetics)
     sections.push(
-      '<div class="cybernetic-section">' +
-      '<label class="cybernetic-label">Cybernetic Slots:</label>' +
-      '<input type="number" min="0" max="10" class="cybernetic-input" id="cyberneticSlotInput" value="'+(M.cyberSlots||0)+'"'+((remain<2 && M.cyberSlots < 10)?' disabled':'')+'>' +
-      '<span class="cybernetic-cost">Cost: '+cyberSlotCost+' points</span>' +
+      '<h3>Cybernetic Augmentations & Hacking</h3>' +
+      '<div class="cybernetic-section" style="margin-bottom:12px;">' +
+      '<label class="ark-input" style="font-weight:600;width:auto;display:inline-block;margin-right:12px;">Cybernetic Slots</label>' +
+      '<input type="number" min="0" max="10" class="cybernetic-input" id="cyberneticSlotInput" value="'+(M.cyberSlots||0)+'"'+((remain<2 && M.cyberSlots < 10)?' disabled':'')+'">' +
+      '<span class="cybernetic-cost" style="margin-left:10px;">Cost: '+cyberSlotCost+' points</span>' +
       ((remain<2 && M.cyberSlots < 10) ? '<span class="muted" style="margin-left:10px;">No points left for more slots</span>':'') +
-      '</div>'
-    );
-
-    sections.push(
-      renderList("Cybernetic Augmentations & Hacking", cyberneticsAll(), M.picks)
+      '</div>' +
+      renderList("", cyberneticsAll(), M.picks)
     );
 
     function renderList(title, arr, selectedSet, opt) {
       opt = opt||{};
-      var html = '<h3>'+esc(title)+'</h3>';
+      var html = title ? '<h3>'+esc(title)+'</h3>' : '';
       if (!arr.length) return html + '<div class="muted">None available.</div>';
       html += '<div class="list">';
       arr.forEach(function(item){
@@ -463,7 +460,7 @@ window.onload = function() {
         var picksSpent = allPicks.map(function(pid){
           var arrs = [commonPowers, perks, archPowers, cybernetics, magicSchools];
           for(var i=0;i<arrs.length;i++){
-            var found=arrs[i].find(function(x){return x.id===pid;}); if(found) return found.cost||1;
+            var found=arrs[i].find(function(x){return x.id===pid;}); if(found) return f.cost||1;
           }
           return 0;
         }).reduce(function(a,b){return a+b;},0);
