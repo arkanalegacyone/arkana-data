@@ -51,7 +51,7 @@
   {
     "id": "school_enchantment",
     "name": "Enchantment",
-    "desc": "Imbue objects or creatures with magical effects; objects awaken with will.",
+    "desc": "Unlock School of Enchantment",
     "section": "Enchantment",
     "cost": 1
   },
@@ -199,7 +199,7 @@
   {
     "id": "school_conjuration",
     "name": "Conjuration",
-    "desc": "Manifest objects, creatures, and ephemeral entities.",
+    "desc": "Unlock School of Conjuration.",
     "section": "Conjuration",
     "cost": 1
   },
@@ -249,7 +249,7 @@
   {
     "id": "school_necromancy",
     "name": "Necromancy",
-    "desc": "Command spirits, ghosts, or corrupted energy of the dead.",
+    "desc": "Unlock School of Necromancy",
     "section": "Necromancy",
     "cost": 1
   },
@@ -299,7 +299,7 @@
   {
     "id": "school_evocation",
     "name": "Evocation",
-    "desc": "Direct manipulation of elemental or energy forces.",
+    "desc": "Unlock School of Evocation",
     "section": "Evocation",
     "cost": 1
   },
@@ -335,7 +335,7 @@
   {
     "id": "school_abjuration",
     "name": "Abjuration",
-    "desc": "Protective and defensive magic.",
+    "desc": "Unlock School of Abjuration",
     "section": "Abjuration",
     "cost": 1
   },
@@ -377,7 +377,7 @@
 
   {
     "id": "school_divination",
-    "name": "Divination",
+    "name": "Unlock School of Divination",
     "desc": "Mystical insight, visions, and fate manipulation.",
     "section": "Divination",
     "cost": 1
