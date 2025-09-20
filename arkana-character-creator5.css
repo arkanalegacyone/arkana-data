@@ -1,0 +1,214 @@
+#ark-wizard{
+  font:14px/1.45 system-ui,Segoe UI,Arial,sans-serif;
+  color:#111;
+  max-width:900px;
+  margin:0 auto;
+  padding:10px
+}
+#ark-wizard h2{
+  font-size:16px;
+  margin:12px 0 8px
+}
+#ark-wizard h3{
+  font-size:13px;
+  margin:10px 0 6px
+}
+.ark-steps{
+  display:flex;
+  gap:6px;
+  margin:8px 0
+}
+.ark-step{
+  padding:4px 8px;
+  border:1px solid #bbb;
+  border-radius:6px;
+  background:#f7f7f7
+}
+.ark-step.current{
+  background:#e8f0ff;
+  border-color:#7aa2ff
+}
+.ark-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px
+}
+label{
+  font-weight:600;
+  display:block;
+  margin:6px 0 4px
+}
+.ark-input, select, textarea{
+  width:100%;
+  padding:8px;
+  border:1px solid #bbb;
+  border-radius:6px
+}
+.ark-nav{
+  display:flex;
+  gap:8px;
+  margin:14px 0
+}
+.muted{
+  color:#666;
+  font-size:12px
+}
+.pill{
+  display:inline-block;
+  background:#eef;
+  border:1px solid #cfe;
+  padding:2px 6px;
+  border-radius:999px;
+  font-size:12px;
+  margin-left:6px
+}
+.group{
+  border:1px solid #ddd;
+  border-radius:8px;
+  padding:10px;
+  margin:10px 0
+}
+.list{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:6px
+}
+.item{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  padding:6px;
+  border:1px solid #eee;
+  border-radius:6px
+}
+.stat{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin:6px 0
+}
+.stat button{
+  width:28px;
+  height:28px
+}
+.stat-mod{
+  font-weight:bold;
+  color:#ff8260;
+  min-width:32px;
+  text-align:center;
+  font-size:15px
+}
+.note{
+  background:#fff7da;
+  border:1px solid #ffe08a;
+  padding:6px;
+  border-radius:6px
+}
+.totals{
+  font-weight:600;
+  margin:8px 0
+}
+.diag{
+  margin-top:8px;
+  font:12px/1.2 ui-monospace,Consolas,monospace;
+  color:#444
+}
+#flawDisplay {
+  margin-top: 16px;
+}
+
+/* Collapsible sections for page 5 */
+.ark-collapsible-section { margin-bottom: 18px; }
+.ark-collapse-btn {
+  width: 100%;
+  background: #eef;
+  border: 1px solid #cfe;
+  border-radius: 6px;
+  font-size: 15px;
+  text-align: left;
+  padding: 8px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+.ark-collapse-btn .arrow {
+  margin-left: 8px;
+  font-size: 16px;
+}
+.ark-collapsible-body { padding: 10px 6px 2px 6px; }
+
+/* Cybernetics slot section */
+.cybernetic-section {
+  margin-bottom: 12px;
+  background: #f7f7fa;
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+.cybernetic-label {
+  font-weight: bold;
+  color: #3366cc;
+}
+.cybernetic-input {
+  width: 3em;
+  padding: 2px 5px;
+  text-align: center;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  margin-right: 1em;
+}
+.cybernetic-cost {
+  color: #d88c00;
+  font-size: 1em;
+  font-weight: bold;
+}
+
+/* Archetype powers/perks */
+.archetype-section {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f3f7fb;
+  border-radius: 6px;
+}
+.power-list, .perk-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 6px;
+}
+.power-list li, .perk-list li {
+  background: #e6eaff;
+  padding: 4px 10px;
+  border-radius: 3px;
+  margin-bottom: 3px;
+}
+.archetype-subtitle {
+  color: #3366cc;
+  font-size: 1em;
+  margin-bottom: 0.4em;
+}
+
+/* Hide magic powers for Human archetype */
+.hide-magic {
+  display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  #ark-wizard {
+    padding: 5px;
+  }
+  #ark-wizard h2 {
+    font-size: 13px;
+  }
+  #ark-wizard h3 {
+    font-size: 11px;
+  }
+  .group, .archetype-section {
+    padding: 5px;
+  }
+}
