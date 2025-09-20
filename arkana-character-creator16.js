@@ -32,7 +32,7 @@ window.onload = function() {
     const urls = [
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/flaws1.json",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/common_powers2.json?nocache=1",
-      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/perks1.json?nocache=1",
+      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/perks2.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/archetype_powers3.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/cybernetics1.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/magic_schools1.json?nocache=1"
