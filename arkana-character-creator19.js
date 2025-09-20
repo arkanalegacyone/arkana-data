@@ -33,7 +33,7 @@ window.onload = function() {
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/flaws2.json",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/common_powers2.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/perks2.json?nocache=1",
-      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/archetype_powers3.json?nocache=1",
+      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/archetype_powers4.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/cybernetics1.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/magic_schools1.json?nocache=1"
     ];
@@ -49,7 +49,6 @@ window.onload = function() {
     magicSchools = magicData;
   }
 
-  // Updated flaw filtering logic for Strigoi and Gaki (and all races)
   function flawsForRace(race, arch) {
     if (!race) return [];
     var r = lc(race);
@@ -60,7 +59,6 @@ window.onload = function() {
       if (r === "gaki" && tags.indexOf("race:gaki") >= 0) return true;
       if(tags.indexOf("race:" + r) >= 0) return true;
       if(a && (tags.indexOf("arch:" + a) >= 0 || tags.indexOf("spec:" + a) >= 0)) return true;
-      // fallback for humans and others
       if (r === "human" && tags.indexOf("race:human") >= 0) return true;
       return false;
     });
@@ -132,7 +130,7 @@ window.onload = function() {
   function page2_render(){
     var races = [
       { name: "Human", arches: ["Human (no powers)","Arcanist","Synthral","Psion"] },
-      { name: "Veilborn", arches: ["Echoes","Veils","Blossoms","Glass","Unaffiliated"] },
+      { name: "Veilborn", arches: ["Echoes","Veils","Blossoms","Glass"] },
       { name: "Spliced", arches: ["Predators","Avian","Aquatic","Reptilian","Insectoid","Chimeric"] },
       { name: "Strigoi", arches: ["Life","Death","Warrior","Ruler"] },
       { name: "Gaki", arches: ["Yin","Hun","Yang","P’o","Chudo"] }
@@ -157,7 +155,7 @@ window.onload = function() {
           arches.map(function(a){return '<option value="'+esc(a)+'"'+(a===arch?' selected':'')+'>'+esc(a)+'</option>';}).join('') +
         '</select>' +
       '</div>' +
-      '<div class="note" style="margin-top:10px">Humans include <b>Human (no powers)</b>. Veilborn may select <b>Unaffiliated</b>.</div>'
+      '<div class="note" style="margin-top:10px">Humans include <b>Human (no powers)</b>. Veilborn no longer include Unaffiliated.</div>'
     );
   }
   function page2_wire(){
@@ -176,7 +174,7 @@ window.onload = function() {
         M.magicSchools.clear();
         var races = [
           { name: "Human", arches: ["Human (no powers)","Arcanist","Synthral","Psion"] },
-          { name: "Veilborn", arches: ["Echoes","Veils","Blossoms","Glass","Unaffiliated"] },
+          { name: "Veilborn", arches: ["Echoes","Veils","Blossoms","Glass"] },
           { name: "Spliced", arches: ["Predators","Avian","Aquatic","Reptilian","Insectoid","Chimeric"] },
           { name: "Strigoi", arches: ["Life","Death","Warrior","Ruler"] },
           { name: "Gaki", arches: ["Yin","Hun","Yang","P’o","Chudo"] }
