@@ -1,5 +1,6 @@
-// Core logic for Arkana Character Creator (v1) with requested updates
+// Arkana Character Creator v1 - Full JS
 
+// Initial stat values (start at 0, not 1)
 const stats = [
     { name: "Strength", value: 0 },
     { name: "Agility", value: 0 },
@@ -7,7 +8,7 @@ const stats = [
     { name: "Charisma", value: 0 }
 ];
 
-// Example powers/perks data for archetypes
+// Example archetype powers/perks data
 const archetypeData = {
     Human: {
         powers: [], // No magic powers
@@ -31,8 +32,10 @@ const archetypeData = {
 let selectedArchetype = "Human";
 let cyberneticSlots = 0;
 
+// Render functions
 function renderStatRows() {
     return stats.map((stat, idx) => {
+        // Modifier logic: if stat is 0, modifier is -3
         const mod = stat.value === 0 ? -3 : stat.value - 1;
         return `
         <div class="arkana-stat-row">
@@ -72,7 +75,7 @@ function renderArchetypeSection() {
 
     // Common powers for Strigoi
     if (selectedArchetype === "Strigoi" && data.common && data.common.length) {
-        commonHtml = `<div><strong>Common Powers:</strong><ul class="arkana-power-list">${data.common.map(p => `<li>${p}</li>`).join('')}</ul></div>`;
+        commonHtml = `<div class="arkana-section-subtitle">Common Powers:</div><ul class="arkana-power-list">${data.common.map(p => `<li>${p}</li>`).join('')}</ul>`;
     }
 
     // Perks for archetype
@@ -84,16 +87,16 @@ function renderArchetypeSection() {
 
     return `
     <div class="arkana-archetype-section">
-        <div><strong>Powers:</strong> ${powersHtml}</div>
+        <div class="arkana-section-subtitle">Powers:</div> ${powersHtml}
         ${commonHtml}
-        <div><strong>Perks:</strong> ${perksHtml}</div>
+        <div class="arkana-section-subtitle">Perks:</div> ${perksHtml}
     </div>
     `;
 }
 
 function renderArchetypeSelect() {
     return `
-    <div>
+    <div style="margin-bottom: 1em;">
         <label for="archetype-select"><strong>Choose Archetype:</strong></label>
         <select id="archetype-select">
             ${Object.keys(archetypeData).map(a => `<option value="${a}" ${selectedArchetype===a?'selected':''}>${a}</option>`).join('')}
