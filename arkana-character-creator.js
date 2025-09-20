@@ -30,11 +30,11 @@ window.onload = function() {
   async function loadAllData() {
     const urls = [
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/flaws.json",
-      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/common_powers.json",
-      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/perks.json",
-      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/archetype_powers.json",
-      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/cybernetics.json",
-      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/magic_schools.json"
+      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/common_powers.json?nocache=1",
+      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/perks.json?nocache=1",
+      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/archetype_powers.json?nocache=1",
+      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/cybernetics.json?nocache=1",
+      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/magic_schools.json?nocache=1"
     ];
     var [flawsData, commonData, perksData, archData, cyberData, magicData] = await Promise.all(urls.map(u=>fetch(u).then(r=>{
       if (!r.ok) throw new Error("Failed to fetch "+u);
