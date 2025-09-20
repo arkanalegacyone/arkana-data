@@ -1,6 +1,4 @@
 [
-  // ---- Strigoi Vampire Archetypes ----
-  // Path of Life
   {
     "id": "strigoi_life_crimson_allure",
     "name": "Crimson Allure",
@@ -34,7 +32,6 @@
     "arch": "life"
   },
 
-  // Path of Death
   {
     "id": "strigoi_death_carrion_call",
     "name": "Carrion Call",
@@ -68,7 +65,6 @@
     "arch": "death"
   },
 
-  // Path of Warrior
   {
     "id": "strigoi_warrior_hungering_grip",
     "name": "Hungering Grip",
@@ -102,7 +98,6 @@
     "arch": "warrior"
   },
 
-  // Path of Ruler
   {
     "id": "strigoi_ruler_pale_host",
     "name": "Pale Host",
@@ -136,8 +131,6 @@
     "arch": "ruler"
   },
 
-  // ---- Gaki Archetypes (Do Powers) ----
-  // Yin
   {
     "id": "gaki_yin_corpse_flesh",
     "name": "Corpse Flesh",
@@ -171,7 +164,6 @@
     "arch": "yin"
   },
 
-  // Hun
   {
     "id": "gaki_hun_aura_of_judgment",
     "name": "Aura of Judgment",
@@ -205,7 +197,6 @@
     "arch": "hun"
   },
 
-  // Yang
   {
     "id": "gaki_yang_life_mask",
     "name": "Life Mask",
@@ -239,7 +230,6 @@
     "arch": "yang"
   },
 
-  // P’o
   {
     "id": "gaki_po_searing_agony",
     "name": "Searing Agony",
@@ -273,7 +263,6 @@
     "arch": "po"
   },
 
-  // Chudo
   {
     "id": "gaki_chudo_mortal_veil",
     "name": "Mortal Veil",
@@ -307,8 +296,6 @@
     "arch": "chudo"
   },
 
-  // ---- Spliced Archetypes ----
-  // Chimeric
   {
     "id": "spliced_chim_hybrid_senses",
     "name": "Hybrid Senses",
@@ -405,10 +392,7 @@
     "species": "spliced",
     "arch": "chimeric"
   },
-  // TODO: Add Insectoid, Reptilian, Avian, Aquatic, Predator archetype powers in similar format
 
-  // ---- Veilborn Archetypes ----
-  // Court of Echoes
   {
     "id": "veil_echo_dream_recall",
     "name": "Dream Recall",
@@ -425,7 +409,6 @@
     "species": "veilborn",
     "arch": "echoes"
   },
-  // Court of Veils
   {
     "id": "veil_veils_identity_mask",
     "name": "Identity Mask",
@@ -442,7 +425,6 @@
     "species": "veilborn",
     "arch": "veils"
   },
-  // Court of Blossoms
   {
     "id": "veil_blossoms_verdant_surge",
     "name": "Verdant Surge",
@@ -459,7 +441,6 @@
     "species": "veilborn",
     "arch": "blossoms"
   },
-  // Court of Glass
   {
     "id": "veil_glass_starlit_gaze",
     "name": "Starlit Gaze",
@@ -477,8 +458,6 @@
     "arch": "glass"
   },
 
-  // ---- Human Archetype Powers ----
-  // Arcanist
   {
     "id": "human_arc_thaumaturgy",
     "name": "Thaumaturgy",
@@ -519,7 +498,6 @@
     "species": "human",
     "arch": "arcanist"
   },
-  // Synthral
   {
     "id": "human_synthral_ritual_magitech",
     "name": "Ritual Magitech",
@@ -553,7 +531,6 @@
     "arch": "synthral"
   },
 
-  // Psion
   {
     "id": "human_psion_mindshatter_pulse",
     "name": "Mindshatter Pulse",
