@@ -4,15 +4,6 @@ window.onload = function() {
   var flaws = [], commonPowers = [], perks = [], archPowers = [], cybernetics = [], magicSchools = [];
   var M = loadModel();
 
-  // Collapsible state for each section (for page 5 only)
-  let sectionOpen = {
-    common: false,
-    perks: false,
-    archetype: false,
-    cyber: false,
-    magic: false
-  };
-
   function esc(s){ return String(s||'').replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
   function lc(s){ return String(s||'').toLowerCase(); }
   function loadModel(){
@@ -446,7 +437,7 @@ window.onload = function() {
   function collapsibleSection(id, title, content, open) {
     return `
       <div class="ark-collapsible-section" id="section-${id}">
-        <div class="ark-collapse-btn" data-section="${id}" tabindex="0" aria-expanded="${open?'true':'false'}">
+        <div class="ark-collapse-btn" data-target="section-${id}-body" tabindex="0" aria-expanded="${open?'true':'false'}">
           ${esc(title)} <span class="arrow">${open ? '▼' : '►'}</span>
         </div>
         <div class="ark-collapsible-body" id="section-${id}-body" style="display:${open?'block':'none'};">
@@ -508,11 +499,11 @@ window.onload = function() {
       '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
       '<div class="totals">Points: <b>'+total+'</b> • Spent <b>'+spent+'</b> • Remaining <b>'+remain+'</b></div>' +
       '<div class="note">Select any combination of powers, perks, archetype powers, cybernetics (requires slot), magic school weaves, and cybernetic slots. You cannot spend more points than you have.</div>' +
-      collapsibleSection("common", "Common Powers", commonPowersHtml, sectionOpen.common) +
-      collapsibleSection("perks", "Perks", perksHtml, sectionOpen.perks) +
-      collapsibleSection("archetype", "Archetype Powers", archPowersHtml, sectionOpen.archetype) +
-      collapsibleSection("cyber", "Cybernetic Augmentations & Hacking", cyberneticsHtml, sectionOpen.cyber) +
-      collapsibleSection("magic", "Magic Schools & Weaves", magicHtml, sectionOpen.magic) +
+      collapsibleSection("common", "Common Powers", commonPowersHtml, false) +
+      collapsibleSection("perks", "Perks", perksHtml, false) +
+      collapsibleSection("archetype", "Archetype Powers", archPowersHtml, false) +
+      collapsibleSection("cyber", "Cybernetic Augmentations & Hacking", cyberneticsHtml, false) +
+      collapsibleSection("magic", "Magic Schools & Weaves", magicHtml, false) +
       `<div class="ark-nav">
         <button id="back-btn" type="button">Back</button>
         <button id="next-btn" type="button">Next</button>
@@ -619,19 +610,24 @@ window.onload = function() {
     });
     enforceCyberModLimit();
 
-    // Collapsible toggle: Only toggle when you click the header, update state, then re-render
+    // Collapsible toggle: Only toggle when you click the header, not form controls
     Array.prototype.forEach.call(document.querySelectorAll('.ark-collapse-btn'), function(btn){
       btn.addEventListener('click', function(e){
-        var sec = btn.getAttribute('data-section');
-        sectionOpen[sec] = !sectionOpen[sec];
-        render();
+        if (e.target !== btn) return; // Only toggle if clicking the header itself!
+        var targetId = btn.getAttribute('data-target');
+        var body = document.getElementById(targetId);
+        var expanded = btn.getAttribute('aria-expanded') === 'true';
+        body.style.display = expanded ? 'none' : 'block';
+        btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+        var arrow = btn.querySelector('.arrow');
+        if (arrow) arrow.textContent = expanded ? '►' : '▼';
       });
-      btn.addEventListener('keydown', function(e){
-        if(e.key === 'Enter' || e.key === ' ') {
-          var sec = btn.getAttribute('data-section');
-          sectionOpen[sec] = !sectionOpen[sec];
-          render();
-        }
+    });
+
+    // Prevent collapse when interacting with inputs/labels inside the collapsible body
+    Array.prototype.forEach.call(document.querySelectorAll('.ark-collapsible-body input, .ark-collapsible-body label'), function(el){
+      el.addEventListener('click', function(e){
+        e.stopPropagation();
       });
     });
 
@@ -687,7 +683,6 @@ window.onload = function() {
     };
   }
 
-  // --- Main render and wire function ---
   function render(){
     root.innerHTML = '<div id="page"></div>';
     var host = document.getElementById('page');
