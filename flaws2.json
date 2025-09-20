@@ -207,48 +207,69 @@
     "name": "Feeding Addiction",
     "desc": "Feeding thrills you beyond reason. Limits control.",
     "cost": 2,
-    "tags": ["race:vampire"]
+    "tags": ["race:strigoi"]
   },
   {
     "id": "v_blood_madness",
     "name": "Blood Madness",
     "desc": "Starvation drives you toward frenzy.",
     "cost": 3,
-    "tags": ["race:vampire"]
-  },
-  {
-    "id": "v_resonance_conflict_gaki",
-    "name": "Resonance Conflict (Gaki Only)",
-    "desc": "Feeding from Supernaturals risks corruption and madness.",
-    "cost": 2,
-    "tags": ["race:vampire"]
+    "tags": ["race:strigoi"]
   },
   {
     "id": "v_shameful_hunger",
     "name": "Shameful Hunger",
     "desc": "Recoil at feeding on living. May abstain.",
     "cost": 2,
-    "tags": ["race:vampire"]
+    "tags": ["race:strigoi"]
   },
   {
     "id": "v_parasitic_reputation_strigoi",
     "name": "Parasitic Reputation",
     "desc": "Seen as parasitic predators, alliances suffer suspicion.",
     "cost": 1,
-    "tags": ["race:vampire"]
+    "tags": ["race:strigoi"]
   },
   {
     "id": "v_lustful_feeding_strigoi",
     "name": "Lustful Feeding",
     "desc": "Cannot drink blood. Feed on sexual energy and lust.",
     "cost": 2,
-    "tags": ["race:vampire"]
+    "tags": ["race:strigoi"]
+  },
+    {
+    "id": "v_feed_addiction",
+    "name": "Feeding Addiction",
+    "desc": "Feeding thrills you beyond reason. Limits control.",
+    "cost": 2,
+    "tags": ["race:gaki"]
+  },
+  {
+    "id": "v_blood_madness",
+    "name": "Blood Madness",
+    "desc": "Starvation drives you toward frenzy.",
+    "cost": 3,
+    "tags": ["race:gaki"]
+  },
+  {
+    "id": "v_shameful_hunger",
+    "name": "Shameful Hunger",
+    "desc": "Recoil at feeding on living. May abstain.",
+    "cost": 2,
+    "tags": ["race:gaki"]
+  },
+   {
+    "id": "v_resonance_conflict_gaki",
+    "name": "Resonance Conflict",
+    "desc": "Feeding from Supernaturals risks corruption and madness.",
+    "cost": 2,
+    "tags": ["race:gaki"]
   },
   {
     "id": "v_chi_hunger_gaki",
     "name": "Chi Hunger",
     "desc": "Mortal blood does not sustain you. Only supernatural Chi will.",
     "cost": 3,
-    "tags": ["race:vampire"]
+    "tags": ["race:gaki"]
   }
 ]
