@@ -31,7 +31,6 @@
     "species": "vampire",
     "arch": "life"
   },
-
   {
     "id": "strigoi_death_carrion_call",
     "name": "Carrion Call",
@@ -64,7 +63,6 @@
     "species": "vampire",
     "arch": "death"
   },
-
   {
     "id": "strigoi_warrior_hungering_grip",
     "name": "Hungering Grip",
@@ -97,7 +95,6 @@
     "species": "vampire",
     "arch": "warrior"
   },
-
   {
     "id": "strigoi_ruler_pale_host",
     "name": "Pale Host",
@@ -130,7 +127,6 @@
     "species": "vampire",
     "arch": "ruler"
   },
-
   {
     "id": "gaki_yin_corpse_flesh",
     "name": "Corpse Flesh",
@@ -163,7 +159,6 @@
     "species": "gaki",
     "arch": "yin"
   },
-
   {
     "id": "gaki_hun_aura_of_judgment",
     "name": "Aura of Judgment",
@@ -196,7 +191,6 @@
     "species": "gaki",
     "arch": "hun"
   },
-
   {
     "id": "gaki_yang_life_mask",
     "name": "Life Mask",
@@ -229,7 +223,6 @@
     "species": "gaki",
     "arch": "yang"
   },
-
   {
     "id": "gaki_po_searing_agony",
     "name": "Searing Agony",
@@ -262,7 +255,6 @@
     "species": "gaki",
     "arch": "po"
   },
-
   {
     "id": "gaki_chudo_mortal_veil",
     "name": "Mortal Veil",
@@ -295,7 +287,6 @@
     "species": "gaki",
     "arch": "chudo"
   },
-
   {
     "id": "spliced_chim_hybrid_senses",
     "name": "Hybrid Senses",
@@ -392,7 +383,398 @@
     "species": "spliced",
     "arch": "chimeric"
   },
-
+  {
+    "id": "spliced_insect_web_spinning",
+    "name": "Web Spinning",
+    "desc": "Create restraints or barriers from silk.",
+    "cost": 2,
+    "species": "spliced",
+    "arch": "insectoid"
+  },
+  {
+    "id": "spliced_insect_carapace_armor",
+    "name": "Carapace Armor",
+    "desc": "Harden carapace, reducing physical damage by 3 for 2 turns; can only be used once per scene.",
+    "cost": 3,
+    "species": "spliced",
+    "arch": "insectoid"
+  },
+  {
+    "id": "spliced_insect_venom_sting",
+    "name": "Venom Sting",
+    "desc": "Inject paralytic or necrotic venom with a successful attack.",
+    "cost": 3,
+    "species": "spliced",
+    "arch": "insectoid"
+  },
+  {
+    "id": "spliced_insect_wall_crawl",
+    "name": "Wall-Crawl",
+    "desc": "Scale walls and ceilings effortlessly.",
+    "cost": 1,
+    "species": "spliced",
+    "arch": "insectoid"
+  },
+  {
+    "id": "spliced_insect_hive_mind",
+    "name": "Hive Mind",
+    "desc": "Telepathic communication with nearby Insectoids who share this power.",
+    "cost": 2,
+    "species": "spliced",
+    "arch": "insectoid"
+  },
+  {
+    "id": "spliced_insect_stink_cloud",
+    "name": "Stink Cloud",
+    "desc": "Emit noxious gas impairing mental stats (-3) in a 5 ft radius for 3 turns.",
+    "cost": 5,
+    "species": "spliced",
+    "arch": "insectoid"
+  },
+  {
+    "id": "spliced_insect_buzzing",
+    "name": "Buzzing",
+    "desc": "Create a droning sound that disrupts concentration and actions; can maintain each turn but forbids other actions.",
+    "cost": 4,
+    "species": "spliced",
+    "arch": "insectoid"
+  },
+  {
+    "id": "spliced_insect_compound_eyes",
+    "name": "Compound Eyes",
+    "desc": "Grants 360° vision even in human form.",
+    "cost": 2,
+    "species": "spliced",
+    "arch": "insectoid"
+  },
+  {
+    "id": "spliced_insect_wasp_sting",
+    "name": "Wasp Sting",
+    "desc": "Paralyzing sting grants an extra attack each turn; target rolls Physical to resist paralysis.",
+    "cost": 5,
+    "species": "spliced",
+    "arch": "insectoid"
+  },
+  {
+    "id": "spliced_insect_mana_cocoon",
+    "name": "Mana Cocoon",
+    "desc": "Restrain target with a mana cocoon; target can resist with a Mental roll.",
+    "cost": 2,
+    "species": "spliced",
+    "arch": "insectoid"
+  },
+  {
+    "id": "spliced_insect_bugs_might",
+    "name": "Bugs Might",
+    "desc": "Temporarily lift, carry, or throw objects several times their size; +1 Strength.",
+    "cost": 1,
+    "species": "spliced",
+    "arch": "insectoid"
+  },
+  {
+    "id": "spliced_reptilian_venom_fang",
+    "name": "Venom Fang",
+    "desc": "Bite delivers poison that slows victim (-1 Dex); resisted by Physical roll.",
+    "cost": 3,
+    "species": "spliced",
+    "arch": "reptilian"
+  },
+  {
+    "id": "spliced_reptilian_scalehide",
+    "name": "Scalehide",
+    "desc": "Natural armor reduces incoming damage by 2 for 3 turns.",
+    "cost": 5,
+    "species": "spliced",
+    "arch": "reptilian"
+  },
+  {
+    "id": "spliced_reptilian_constrictors_coil",
+    "name": "Constrictor’s Coil",
+    "desc": "Grapple target and optionally constrict each turn; target may resist with Physical roll.",
+    "cost": 4,
+    "species": "spliced",
+    "arch": "reptilian"
+  },
+  {
+    "id": "spliced_reptilian_detach",
+    "name": "Detach",
+    "desc": "Detach a limb harmlessly; limb regenerates before reuse.",
+    "cost": 1,
+    "species": "spliced",
+    "arch": "reptilian"
+  },
+  {
+    "id": "spliced_reptilian_shed_skin",
+    "name": "Shed Skin",
+    "desc": "Remove maladies, sickness, or poison; cleanses conditions.",
+    "cost": 2,
+    "species": "spliced",
+    "arch": "reptilian"
+  },
+  {
+    "id": "spliced_reptilian_poison_spit",
+    "name": "Poison Spit",
+    "desc": "Spit poisonous projectile; target rolls Physical to resist poison and damage.",
+    "cost": 2,
+    "species": "spliced",
+    "arch": "reptilian"
+  },
+  {
+    "id": "spliced_reptilian_chameleons_mantle",
+    "name": "Chameleon’s Mantle",
+    "desc": "Blend with surroundings; grants +2 to Hide checks while stationary.",
+    "cost": 2,
+    "species": "spliced",
+    "arch": "reptilian"
+  },
+  {
+    "id": "spliced_reptilian_hypnotizing_gaze",
+    "name": "Hypnotizing Gaze",
+    "desc": "Temporarily trance target; can last one scene. Mental roll to resist every 2 turns.",
+    "cost": 3,
+    "species": "spliced",
+    "arch": "reptilian"
+  },
+  {
+    "id": "spliced_reptilian_heat_sense",
+    "name": "Heat Sense",
+    "desc": "Detect heat and thermal differences.",
+    "cost": 1,
+    "species": "spliced",
+    "arch": "reptilian"
+  },
+  {
+    "id": "spliced_avian_keen_sight",
+    "name": "Keen Sight",
+    "desc": "Perfect clarity at range and in darkness.",
+    "cost": 1,
+    "species": "spliced",
+    "arch": "avian"
+  },
+  {
+    "id": "spliced_avian_piercing_cry",
+    "name": "Piercing Cry",
+    "desc": "Disorient/stun targets; Mental roll to resist.",
+    "cost": 2,
+    "species": "spliced",
+    "arch": "avian"
+  },
+  {
+    "id": "spliced_avian_predatory_dive",
+    "name": "Predatory Dive",
+    "desc": "Strike from above; knock target prone on failed Dex.",
+    "cost": 3,
+    "species": "spliced",
+    "arch": "avian"
+  },
+  {
+    "id": "spliced_avian_wing_blades",
+    "name": "Wing Blades",
+    "desc": "Reinforce wings with blade structures; add Dex to attack when flying.",
+    "cost": 3,
+    "species": "spliced",
+    "arch": "avian"
+  },
+  {
+    "id": "spliced_avian_wing_darts",
+    "name": "Wing Darts",
+    "desc": "Fire wing blades as projectiles; requires Wing Blades active.",
+    "cost": 2,
+    "species": "spliced",
+    "arch": "avian"
+  },
+  {
+    "id": "spliced_avian_conspiracy_to_murder",
+    "name": "Conspiracy to Murder",
+    "desc": "Summon mana spirit flock to scout or attack; see through their eyes.",
+    "cost": 4,
+    "species": "spliced",
+    "arch": "avian"
+  },
+  {
+    "id": "spliced_avian_voice_mimic",
+    "name": "Voice Mimic",
+    "desc": "Mimic a voice heard in last 24 hours.",
+    "cost": 1,
+    "species": "spliced",
+    "arch": "avian"
+  },
+  {
+    "id": "spliced_avian_a_little_bird_told_me",
+    "name": "A Little Bird Told Me",
+    "desc": "Send message via summoned spirit to a familiar target.",
+    "cost": 2,
+    "species": "spliced",
+    "arch": "avian"
+  },
+  {
+    "id": "spliced_avian_moving_at_hyper_squawk",
+    "name": "Moving at Hyper Squawk",
+    "desc": "Enhanced flight speed.",
+    "cost": 1,
+    "species": "spliced",
+    "arch": "avian"
+  },
+  {
+    "id": "spliced_avian_ripping_pecks",
+    "name": "Ripping Pecks",
+    "desc": "Jagged beak causes bleeding effect; +1 damage per turn.",
+    "cost": 3,
+    "species": "spliced",
+    "arch": "avian"
+  },
+  {
+    "id": "spliced_aquatic_abyssal_sense",
+    "name": "Abyssal Sense",
+    "desc": "Echolocation or pressure detection; reveals hidden/invisible creatures, traps, and doors.",
+    "cost": 3,
+    "species": "spliced",
+    "arch": "aquatic"
+  },
+  {
+    "id": "spliced_aquatic_surge_strike",
+    "name": "Surge Strike",
+    "desc": "Burst of speed in water or zero-G.",
+    "cost": 2,
+    "species": "spliced",
+    "arch": "aquatic"
+  },
+  {
+    "id": "spliced_aquatic_crushing_bite",
+    "name": "Crushing Bite",
+    "desc": "Bite that can shear most materials; +3 damage.",
+    "cost": 4,
+    "species": "spliced",
+    "arch": "aquatic"
+  },
+  {
+    "id": "spliced_aquatic_rough_skin",
+    "name": "Rough Skin",
+    "desc": "Damage attackers who strike the Aquatic with claws/flesh; 1 damage per strike.",
+    "cost": 3,
+    "species": "spliced",
+    "arch": "aquatic"
+  },
+  {
+    "id": "spliced_aquatic_aqua_shot",
+    "name": "Aqua Shot",
+    "desc": "Pull water from air to fire as projectile; 3 uses per scene without external water source.",
+    "cost": 3,
+    "species": "spliced",
+    "arch": "aquatic"
+  },
+  {
+    "id": "spliced_aquatic_consume",
+    "name": "Consume",
+    "desc": "Consume inorganic items harmlessly.",
+    "cost": 1,
+    "species": "spliced",
+    "arch": "aquatic"
+  },
+  {
+    "id": "spliced_aquatic_chomp_chomp",
+    "name": "Chomp-Chomp",
+    "desc": "Sharpen teeth in human form to perform bite attacks.",
+    "cost": 1,
+    "species": "spliced",
+    "arch": "aquatic"
+  },
+  {
+    "id": "spliced_aquatic_eels_spite",
+    "name": "Eel’s Spite",
+    "desc": "Conduct electricity through body; shocks target, 2 uses per scene.",
+    "cost": 4,
+    "species": "spliced",
+    "arch": "aquatic"
+  },
+  {
+    "id": "spliced_aquatic_still_water",
+    "name": "Still Water",
+    "desc": "Camouflage in water; +2 to Hide checks if perfectly still.",
+    "cost": 1,
+    "species": "spliced",
+    "arch": "aquatic"
+  },
+  {
+    "id": "spliced_aquatic_echo_pulse",
+    "name": "Echo Pulse",
+    "desc": "Sonic ring pushes enemies away; resisted with Physical roll.",
+    "cost": 2,
+    "species": "spliced",
+    "arch": "aquatic"
+  },
+  {
+    "id": "spliced_aquatic_death_roll",
+    "name": "Death Roll",
+    "desc": "After successful bite, lock jaws and spin prey; damage + disorient; hold 3 turns or until released.",
+    "cost": 5,
+    "species": "spliced",
+    "arch": "aquatic"
+  },
+  {
+    "id": "spliced_predator_savage_rend",
+    "name": "Savage Rend",
+    "desc": "Claws and teeth deal devastating damage.",
+    "cost": 2,
+    "species": "spliced",
+    "arch": "predators"
+  },
+  {
+    "id": "spliced_predator_alphas_roar",
+    "name": "Alpha’s Roar",
+    "desc": "Creatures within earshot must roll Mental; failure: cannot approach and attack rolls suffer -1.",
+    "cost": 1,
+    "species": "spliced",
+    "arch": "predators"
+  },
+  {
+    "id": "spliced_predator_unstoppable_charge",
+    "name": "Unstoppable Charge",
+    "desc": "Charge in straight line; deals damage; Dex roll to resist knockdown.",
+    "cost": 2,
+    "species": "spliced",
+    "arch": "predators"
+  },
+  {
+    "id": "spliced_predator_scent_lock",
+    "name": "Scent Lock",
+    "desc": "Track chosen scent; lasts 24 hours or until dispelled.",
+    "cost": 1,
+    "species": "spliced",
+    "arch": "predators"
+  },
+  {
+    "id": "spliced_predator_cat_scratch_fever",
+    "name": "Cat Scratch Fever",
+    "desc": "Claws may cause sickness/poison; -2 Strength & Fortitude; resisted by Physical roll.",
+    "cost": 3,
+    "species": "spliced",
+    "arch": "predators"
+  },
+  {
+    "id": "spliced_predator_howling_cannon",
+    "name": "Howling Cannon",
+    "desc": "Cone of force from roar/howl; Physical roll to resist.",
+    "cost": 3,
+    "species": "spliced",
+    "arch": "predators"
+  },
+  {
+    "id": "spliced_predator_cats_eye",
+    "name": "Cat’s Eye",
+    "desc": "See in total darkness; visualize infrared.",
+    "cost": 1,
+    "species": "spliced",
+    "arch": "predators"
+  },
+  {
+    "id": "spliced_predator_marking_territory",
+    "name": "Marking Territory",
+    "desc": "Mark area with scent, claws, or other method; supernatural awareness of mark; alerts allies.",
+    "cost": 1,
+    "species": "spliced",
+    "arch": "predators"
+  },
   {
     "id": "veil_echo_dream_recall",
     "name": "Dream Recall",
@@ -457,7 +839,6 @@
     "species": "veilborn",
     "arch": "glass"
   },
-
   {
     "id": "human_arc_thaumaturgy",
     "name": "Thaumaturgy",
@@ -530,7 +911,6 @@
     "species": "human",
     "arch": "synthral"
   },
-
   {
     "id": "human_psion_mindshatter_pulse",
     "name": "Mindshatter Pulse",
