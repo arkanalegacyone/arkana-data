@@ -255,7 +255,6 @@ window.onload = function() {
     });
   }
 
-  // Flaws only; cybernetic slots input moved to page 5
   function page4_render() {
     var race = M.race || "Human";
     var arch = M.arch || "";
@@ -298,7 +297,6 @@ window.onload = function() {
     });
   }
 
-  // Powers/Perks/Cybernetics/Magic + cybernetic slots input (with overspending prevention)
   function page5_render(){
     var race = M.race || "";
     var arch = M.arch || "";
@@ -310,7 +308,6 @@ window.onload = function() {
     // Calculate cybernetic slot cost (2 points/slot)
     var cyberSlotCost = (M.cyberSlots || 0) * 2;
 
-    // Calculate points spent on picks
     var allPicks = Array.from(M.picks);
     var spent = allPicks.map(function(pid){
       var arrs = [commonPowers, perks, archPowers, cybernetics, magicSchools];
@@ -327,18 +324,33 @@ window.onload = function() {
 
     var canMagic = canUseMagic(race, arch);
 
-    // Prevent overspending: disable checkboxes and cyber slot input when no points remain
     function willOverspend(extra) {
       return spent + extra > total;
     }
 
-    // Cybernetic slot input section
-    var cyberHtml = '<div class="cybernetic-section">' +
+    // Section order: Common Powers, Perks, Cybernetic Slots, Cybernetic Augmentations, [Magic]
+    var sections = [];
+
+    sections.push(
+      renderList("Common Powers", commonPowersForRace(race), M.picks)
+    );
+    sections.push(
+      renderList("Perks", perksForRace(race, arch), M.picks)
+    );
+
+    // Cybernetic slot input section (after perks, before cybernetics)
+    sections.push(
+      '<div class="cybernetic-section">' +
       '<label class="cybernetic-label">Cybernetic Slots:</label>' +
       '<input type="number" min="0" max="10" class="cybernetic-input" id="cyberneticSlotInput" value="'+(M.cyberSlots||0)+'"'+((remain<2 && M.cyberSlots < 10)?' disabled':'')+'>' +
       '<span class="cybernetic-cost">Cost: '+cyberSlotCost+' points</span>' +
       ((remain<2 && M.cyberSlots < 10) ? '<span class="muted" style="margin-left:10px;">No points left for more slots</span>':'') +
-      '</div>';
+      '</div>'
+    );
+
+    sections.push(
+      renderList("Cybernetic Augmentations & Hacking", cyberneticsAll(), M.picks)
+    );
 
     function renderList(title, arr, selectedSet, opt) {
       opt = opt||{};
@@ -360,11 +372,7 @@ window.onload = function() {
       '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
       '<div class="totals">Points: <b>'+total+'</b> • Spent <b>'+spent+'</b> • Remaining <b>'+remain+'</b></div>' +
       '<div class="note">Select any combination of powers, perks, cybernetics, magic school weaves, and cybernetic slots. You cannot spend more points than you have.</div>' +
-      cyberHtml +
-      renderList("Common Powers", commonPowersForRace(race), M.picks) +
-      renderList("Perks", perksForRace(race, arch), M.picks) +
-      renderList("Archetype Powers", archPowersForRaceArch(race, arch), M.picks) +
-      renderList("Cybernetic Augmentations & Hacking", cyberneticsAll(), M.picks);
+      sections.join('');
 
     if (canMagic) {
       html += renderList("Magic Schools & Weaves", magicSchoolsAll(), M.magicSchools);
@@ -375,7 +383,6 @@ window.onload = function() {
     return html;
   }
   function page5_wire(){
-    // Powers/perks/magic/cybernetics
     Array.prototype.forEach.call(document.querySelectorAll('#page5 input[type="checkbox"][data-id]'),function(ch){
       ch.onchange = function(){
         var id = ch.dataset.id;
@@ -411,7 +418,6 @@ window.onload = function() {
         render();
       };
     });
-    // Magic school picks
     Array.prototype.forEach.call(document.querySelectorAll('#page5 input[type="checkbox"][data-id]'),function(ch){
       if (magicSchools.find(function(x){return x.id===ch.dataset.id;})) {
         ch.onchange = function(){
@@ -444,7 +450,6 @@ window.onload = function() {
         };
       }
     });
-    // Cybernetic slot input
     var slotInput = document.getElementById('cyberneticSlotInput');
     if (slotInput) {
       slotInput.oninput = function(e){
@@ -464,9 +469,8 @@ window.onload = function() {
         }).reduce(function(a,b){return a+b;},0);
         var spent = picksSpent + (val*2);
         var remain = total - spent;
-        // Only allow increasing if enough points remain
         if ((val > M.cyberSlots) && remain < 2) {
-          val = M.cyberSlots; // Can't increase
+          val = M.cyberSlots;
         }
         M.cyberSlots = val;
         saveModel();
