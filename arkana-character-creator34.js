@@ -434,8 +434,11 @@ window.onload = function() {
       };
     });
     enforceCyberModLimit();
+    // Only toggle collapsible when clicking the header, not when clicking inside!
     Array.prototype.forEach.call(document.querySelectorAll('.ark-collapse-btn'), function(btn){
-      btn.onclick = function(){
+      btn.addEventListener('click', function(e){
+        // Only toggle if the click is inside the header, not inside the body content
+        if (e.target.closest('.ark-collapse-btn') !== btn) return;
         var targetId = btn.getAttribute('data-target');
         var body = document.getElementById(targetId);
         var expanded = btn.getAttribute('aria-expanded') === 'true';
@@ -443,9 +446,13 @@ window.onload = function() {
         btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
         var arrow = btn.querySelector('.arrow');
         if (arrow) arrow.textContent = expanded ? '►' : '▼';
-      };
+      });
     });
   }
+
+  // ...rest of script unchanged (page1_render, page1_wire, page2_render, etc.)...
+  // (No changes to those blocks; only page5_wire was updated for collapsible behavior)
+  // Full script as previously provided.
 
   function page1_render(){
     var I = M.identity || (M.identity={});
@@ -467,7 +474,6 @@ window.onload = function() {
     [['i_name','name'],['i_sl','sl'],['i_alias','alias'],['i_faction','faction'],['i_concept','concept'],['i_job','job'],['i_bg','background']]
       .forEach(function(pair){ var id=pair[0],key=pair[1]; var n=document.getElementById(id); if(n) n.oninput=function(e){ I[key]=e.target.value; saveModel(); }; });
   }
-
   function page2_render(){
     var races = [
       { name: "Human", arches: ["Human (no powers)","Arcanist","Synthral","Psion"] },
@@ -541,7 +547,6 @@ window.onload = function() {
       }, { passive:true });
     }
   }
-
   function page3_render(){
     var S = normalizeStats();
     function row(k,label){
@@ -583,7 +588,6 @@ window.onload = function() {
       plus.onclick  = function(e){ e.preventDefault(); normalizeStats(); if (M.stats[k]<5 && M.stats.pool>0){ M.stats[k]++; normalizeStats(); refreshRow(row); saveModel(); } };
     });
   }
-
   function page4_render() {
     var race = M.race || "Human";
     var arch = M.arch || "";
@@ -625,7 +629,6 @@ window.onload = function() {
       };
     });
   }
-
   function page6_render(){
     var S = M.stats || {phys:0,dex:0,mental:0,perc:0};
     var hp = (S.phys||0)*5;
@@ -655,7 +658,6 @@ window.onload = function() {
       '</div>'
     );
   }
-
   function render(){
     var steps = ['Identity','Race & Archetype','Stats','Optional Flaws','Powers/Perks/Cybernetics/Magic','Summary'];
     root.innerHTML =
