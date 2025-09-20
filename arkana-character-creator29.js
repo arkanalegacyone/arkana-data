@@ -35,7 +35,7 @@ window.onload = function() {
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/perks2.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/archetype_powers4.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/cybernetics2.json?nocache=1",
-      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/magic_schools3.json?nocache=1"
+      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/magic_schools4.json?nocache=1"
     ];
     var [flawsData, commonData, perksData, archData, cyberData, magicData] = await Promise.all(urls.map(u=>fetch(u).then(r=>{
       if (!r.ok) throw new Error("Failed to fetch "+u);
