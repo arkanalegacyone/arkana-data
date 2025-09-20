@@ -4,6 +4,7 @@ window.onload = function() {
   var flaws = [], commonPowers = [], perks = [], archPowers = [], cybernetics = [], magicSchools = [];
   var M = loadModel();
 
+  // --- Utility functions ---
   function esc(s){ return String(s||'').replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
   function lc(s){ return String(s||'').toLowerCase(); }
   function loadModel(){
@@ -50,7 +51,6 @@ window.onload = function() {
     magicSchools = magicData;
   }
 
-  // Utility functions for filtering, grouping, stats, points
   function flawsForRace(race, arch) {
     if (!race) return [];
     var r = lc(race);
@@ -252,7 +252,137 @@ window.onload = function() {
     return html;
   }
 
-  // ----------- Page 5: Collapsible Section (improved fix) ----------- //
+  // --- Page 1: Identity ---
+  function page1_render() {
+    return `
+      <h2>Identity</h2>
+      <div class="group">
+        <label>Name</label>
+        <input class="ark-input" id="identity-name" value="${esc(M.identity.name||'')}" maxlength="32" autocomplete="off">
+        <label>Background</label>
+        <textarea class="ark-input" id="identity-bg" rows="3" maxlength="256">${esc(M.identity.bg||'')}</textarea>
+      </div>
+    `;
+  }
+  function page1_wire(){
+    document.getElementById('identity-name').oninput = function(e){
+      M.identity.name = e.target.value;
+      saveModel();
+    };
+    document.getElementById('identity-bg').oninput = function(e){
+      M.identity.bg = e.target.value;
+      saveModel();
+    };
+  }
+
+  // --- Page 2: Race & Archetype ---
+  function page2_render() {
+    const races = ["Human","Strigoi","Gaki","Spliced"];
+    const archs = {
+      "Human": ["Human (No Powers)","Arcanist","Synthral","Psion"],
+      "Strigoi": ["Blooded","Shadowed"],
+      "Gaki": ["Haunted","Possessed"],
+      "Spliced": ["Spliced"]
+    };
+    return `
+      <h2>Race & Archetype</h2>
+      <div class="group">
+        <label>Race</label>
+        <select class="ark-input" id="race-select">
+          <option value="">Select Race</option>
+          ${races.map(r=>`<option${M.race===r?' selected':''}>${esc(r)}</option>`).join('')}
+        </select>
+        <label>Archetype</label>
+        <select class="ark-input" id="arch-select">
+          <option value="">Select Archetype</option>
+          ${(archs[M.race]||[]).map(a=>`<option${M.arch===a?' selected':''}>${esc(a)}</option>`).join('')}
+        </select>
+      </div>
+    `;
+  }
+  function page2_wire(){
+    document.getElementById('race-select').onchange = function(e){
+      M.race = e.target.value;
+      M.arch = '';
+      saveModel();
+      render();
+    };
+    document.getElementById('arch-select').onchange = function(e){
+      M.arch = e.target.value;
+      saveModel();
+      render();
+    };
+  }
+
+  // --- Page 3: Stats ---
+  function page3_render() {
+    const statNames = ["Physique","Dexterity","Mental","Perception"];
+    const statKeys = ["phys","dex","mental","perc"];
+    normalizeStats();
+    return `
+      <h2>Stats</h2>
+      <div class="group">
+        ${statKeys.map((k,i)=>`
+          <div class="stat">
+            <label>${statNames[i]}</label>
+            <button type="button" class="stat-minus" data-stat="${k}">-</button>
+            <span>${M.stats[k]}</span>
+            <button type="button" class="stat-plus" data-stat="${k}">+</button>
+          </div>
+        `).join("")}
+        <div class="muted">You have <b>${M.stats.pool}</b> points left to assign. Maximum per stat: 5.</div>
+      </div>
+    `;
+  }
+  function page3_wire(){
+    Array.prototype.forEach.call(document.querySelectorAll('.stat-minus'),function(btn){
+      btn.onclick = function(){
+        var k = btn.dataset.stat;
+        if(M.stats[k]>0){ M.stats[k]--; saveModel(); render(); }
+      };
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.stat-plus'),function(btn){
+      btn.onclick = function(){
+        var k = btn.dataset.stat;
+        if(M.stats[k]<5 && M.stats.pool>0){ M.stats[k]++; saveModel(); render(); }
+      };
+    });
+  }
+
+  // --- Page 4: Flaws ---
+  function page4_render() {
+    var fls = flawsForRace(M.race, M.arch);
+    var html = `
+      <h2>Flaws</h2>
+      <div class="group">
+        <div class="muted">Select flaws to gain extra points. You may pick up to 2 flaws. Each flaw grants extra points for spending on powers and perks.</div>
+        <div class="list">
+          ${fls.map(f=>`
+            <label class="item">
+              <input type="checkbox" data-flaw="${f.id}"${M.flaws.has(f.id)?' checked':''}${M.flaws.size>=2&&!M.flaws.has(f.id)?' disabled':''}>
+              ${esc(f.name)}: ${esc(f.desc)}
+              <span class="pill">+${f.cost} pts</span>
+            </label>
+          `).join("")}
+        </div>
+        <div class="muted">Flaws selected: <b>${M.flaws.size}</b> / 2</div>
+      </div>
+    `;
+    return html;
+  }
+  function page4_wire(){
+    Array.prototype.forEach.call(document.querySelectorAll('input[data-flaw]'),function(ch){
+      ch.onchange = function(){
+        var id = ch.dataset.flaw;
+        if(ch.checked) M.flaws.add(id);
+        else M.flaws.delete(id);
+        saveModel();
+        render();
+      };
+    });
+  }
+
+  // --- Page 5: Powers, Perks, Augmentations, Magic, and Hacking ---
   function collapsibleSection(id, title, content, open) {
     return `
       <div class="ark-collapsible-section" id="section-${id}">
@@ -275,6 +405,24 @@ window.onload = function() {
 
     var cyberSlots = M.cyberSlots || 0;
     var groupedMods = groupCyberneticsBySection(cyberneticsAll());
+
+    function cyberSectionHtml(section, arr) {
+      var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
+      var modsSelected = numCyberModsSelected();
+      arr.forEach(function(item){
+        var sel = M.picks.has(item.id) ? ' checked' : '';
+        var costVal = (typeof item.cost !== "undefined") ? item.cost : 1;
+        var disabled = '';
+        if (cyberSlots < 1) disabled = ' disabled';
+        else if (!sel && modsSelected >= cyberSlots) disabled = ' disabled';
+        else if (!sel && willOverspend(costVal)) disabled = ' disabled';
+        var cost = (typeof item.cost !== "undefined") ? '<span class="pill">'+item.cost+' pts</span>' : '';
+        html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-cyber="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
+      });
+      html += '</div>';
+      return html;
+    }
+
     var cyberneticsHtml =
       '<div class="cybernetic-section" style="margin-bottom:12px;">' +
       '<div class="muted" style="margin-bottom:8px;font-size:1em;">To purchase <b>Cybernetic Augmentations & Hacking</b> items, you must first purchase a slot.</div>' +
@@ -283,30 +431,11 @@ window.onload = function() {
       '<span class="cybernetic-cost" style="margin-left:10px;">Cost: '+(cyberSlots*2)+' points</span>' +
       ((remain<2 && cyberSlots < 10) ? '<span class="muted" style="margin-left:10px;">No points left for more slots</span>':'') +
       '</div>' +
-      Object.keys(groupedMods).map(function(section){
-        var arr = groupedMods[section];
-        var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
-        var modsSelected = numCyberModsSelected();
-        arr.forEach(function(item){
-          var sel = M.picks.has(item.id) ? ' checked' : '';
-          var costVal = (typeof item.cost !== "undefined") ? item.cost : 1;
-          var disabled = '';
-          if (cyberSlots < 1) disabled = ' disabled';
-          else if (!sel && modsSelected >= cyberSlots) disabled = ' disabled';
-          else if (!sel && willOverspend(costVal)) disabled = ' disabled';
-          var cost = (typeof item.cost !== "undefined") ? '<span class="pill">'+item.cost+' pts</span>' : '';
-          html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-cyber="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
-        });
-        html += '</div>';
-        return html;
-      }).join('');
-
+      Object.keys(groupedMods).map(section=>cyberSectionHtml(section, groupedMods[section])).join('');
     var groupedMagicSchools = magicSchoolsAllGrouped(race, arch);
     var magicHtml = canMagic
       ? Object.keys(groupedMagicSchools).length
-          ? Object.keys(groupedMagicSchools).map(function(section){
-            return magicSectionHtml(section, groupedMagicSchools[section]);
-          }).join('')
+          ? Object.keys(groupedMagicSchools).map(section=>magicSectionHtml(section, groupedMagicSchools[section])).join('')
           : '<div class="muted">No magic schools available for this archetype.</div>'
       : '<h3>Magic Schools & Weaves</h3><div class="muted">Not available for '+esc(race)+(arch?' ('+esc(arch)+')':'')+'.</div>';
 
@@ -426,7 +555,7 @@ window.onload = function() {
     });
     enforceCyberModLimit();
 
-    // Improved collapse fix: Only toggle if header itself clicked
+    // Only toggle collapse if the header itself is clicked!
     Array.prototype.forEach.call(document.querySelectorAll('.ark-collapse-btn'), function(btn){
       btn.addEventListener('click', function(e){
         if (e.target !== btn) return;
@@ -441,32 +570,71 @@ window.onload = function() {
     });
   }
 
-  // Other page renderers and wire functions (page1_render, page1_wire, page2_render, page2_wire, page3_render, page3_wire, page4_render, page4_wire, page6_render, page6_wire)
-  // These are unchanged and present in your previous script.
+  // --- Page 6: Summary ---
+  function page6_render() {
+    return `
+      <h2>Summary</h2>
+      <div class="group">
+        <div><b>Name:</b> ${esc(M.identity.name||'')}</div>
+        <div><b>Background:</b> ${esc(M.identity.bg||'')}</div>
+        <div><b>Race:</b> ${esc(M.race||'')}</div>
+        <div><b>Archetype:</b> ${esc(M.arch||'')}</div>
+        <div><b>Stats:</b> Physique ${M.stats.phys}, Dexterity ${M.stats.dex}, Mental ${M.stats.mental}, Perception ${M.stats.perc}</div>
+        <div><b>Flaws:</b> ${Array.from(M.flaws).map(fid=>{
+          var f=flaws.find(x=>x.id===fid); return esc(f?f.name:'');
+        }).join(', ')}</div>
+        <div><b>Powers/Perks:</b> ${Array.from(M.picks).map(pid=>{
+          var arrs = [commonPowers, perks, archPowers, cybernetics];
+          var found;
+          for(var i=0;i<arrs.length;i++){
+            found = arrs[i].find(x=>x.id===pid);
+            if(found) break;
+          }
+          return esc(found?found.name:'');
+        }).join(', ')}</div>
+        <div><b>Magic:</b> ${Array.from(M.magicSchools).map(mid=>{
+          var m = magicSchools.find(x=>x.id===mid); return esc(m?m.name:'');
+        }).join(', ')}</div>
+      </div>
+    `;
+  }
 
+  // --- Main render/navigation ---
   function render(){
-    var steps = ['Identity','Race & Archetype','Stats','Optional Flaws','Powers/Perks/Cybernetics/Magic','Summary'];
-    root.innerHTML =
+    var host = document.getElementById('page');
+    let pageHtml = '';
+    if(M.page === 1) pageHtml = page1_render();
+    else if(M.page === 2) pageHtml = page2_render();
+    else if(M.page === 3) pageHtml = page3_render();
+    else if(M.page === 4) pageHtml = page4_render();
+    else if(M.page === 5) pageHtml = '<div id="page5">'+page5_render()+'</div>';
+    else if(M.page === 6) pageHtml = page6_render();
+    host.innerHTML = pageHtml;
+
+    // Navigation buttons
+    document.getElementById('backBtn').onclick = function(){
+      M.page=Math.max(1,M.page-1); saveModel(); render();
+    };
+    document.getElementById('nextBtn').onclick = function(){
+      M.page=Math.min(6,M.page+1); saveModel(); render();
+    };
+
+    if(M.page === 1) page1_wire();
+    else if(M.page === 2) page2_wire();
+    else if(M.page === 3) page3_wire();
+    else if(M.page === 4) page4_wire();
+    else if(M.page === 5) page5_wire();
+    // Page 6 doesn't need wiring
+  }
+
+  // Initial layout
+  root.innerHTML =
       '<h2>Arkana Character Creator</h2>' +
-      '<div class="ark-steps" id="steps">' +
-      steps.map(function(t,i){return '<div class="ark-step'+(M.page===i+1?' current':'')+'">'+(i+1)+'</div>';}).join('') +
-      '</div>' +
       '<div id="page"></div>' +
       '<div class="ark-nav">' +
         '<button id="backBtn" type="button">← Back</button>' +
         '<button id="nextBtn" type="button">Next →</button>' +
-      '</div>' +
-      '<div class="diag" id="diag">page '+M.page+'</div>';
-    document.getElementById('backBtn').onclick = function(){ M.page=Math.max(1,M.page-1); saveModel(); render(); };
-    document.getElementById('nextBtn').onclick = function(){ M.page=Math.min(6,M.page+1); saveModel(); render(); };
-    var host = document.getElementById('page');
-    if (M.page===1){ host.innerHTML = page1_render(); page1_wire(); }
-    if (M.page===2){ host.innerHTML = page2_render(); page2_wire(); }
-    if (M.page===3){ host.innerHTML = page3_render(); page3_wire(); }
-    if (M.page===4){ host.innerHTML = page4_render(); page4_wire(); }
-    if (M.page===5){ host.innerHTML = '<div id="page5">'+page5_render()+'</div>'; page5_wire(); }
-    if (M.page===6){ host.innerHTML = page6_render(); }
-  }
+      '</div>';
 
   try {
     await loadAllData();
