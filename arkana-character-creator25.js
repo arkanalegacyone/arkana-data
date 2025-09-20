@@ -217,6 +217,7 @@ window.onload = function() {
 
     var cyberneticsHtml =
       '<div class="cybernetic-section" style="margin-bottom:12px;">' +
+      '<div class="muted" style="margin-bottom:8px;font-size:1em;">To purchase <b>Cybernetic Augmentations & Hacking</b> items, you must first purchase a slot.</div>' +
       '<label class="ark-input" style="font-weight:600;width:auto;display:inline-block;margin-right:12px;">Cybernetic Slots</label>' +
       '<input type="number" min="0" max="10" class="cybernetic-input" id="cyberneticSlotInput" value="'+cyberSlots+'"'+((remain<2 && cyberSlots < 10)?' disabled':'')+'">' +
       '<span class="cybernetic-cost" style="margin-left:10px;">Cost: '+cyberSlotCost+' points</span>' +
