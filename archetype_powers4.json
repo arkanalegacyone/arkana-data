@@ -872,14 +872,6 @@
     "arch": "arcanist"
   },
   {
-    "id": "human_arc_magical_aptitude",
-    "name": "Magical Aptitude",
-    "desc": "Grants access to multiple schools of magic; each school requires separate purchase.",
-    "cost": 1,
-    "species": "human",
-    "arch": "arcanist"
-  },
-  {
     "id": "human_synthral_ritual_magitech",
     "name": "Ritual Magitech",
     "desc": "Influence devices/systems with technomancy; ritualized activation.",
