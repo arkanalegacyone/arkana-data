@@ -1,5 +1,4 @@
 [
-  // ---- Vampires ----
   {
     "id": "vamp_emotional_resonance",
     "name": "Emotional Resonance",
@@ -71,7 +70,6 @@
     "species": "vampire"
   },
 
-  // ---- Spliced ----
   {
     "id": "spliced_ssl_hsl",
     "name": "SSL & HSL",
@@ -130,7 +128,6 @@
     "species": "spliced"
   },
 
-  // ---- Veilborn ----
   {
     "id": "veil_pulse_sense",
     "name": "Pulse Sense",
@@ -228,7 +225,6 @@
     "tier": 3
   },
 
-  // ---- Human ----
   {
     "id": "human_adaptive_instinct",
     "name": "Adaptive Instinct",
