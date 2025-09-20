@@ -1,0 +1,67 @@
+/* Collapsible header and toggle button styles */
+.ark-collapse-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #222;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px 4px 0 0;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.ark-collapse-title {
+  flex: 1 1 auto;
+  margin-right: 10px;
+}
+
+/* Collapsible toggle button styles */
+.ark-collapse-toggle {
+  background: #444;
+  border: none;
+  outline: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.15em;
+  border-radius: 3px;
+  padding: 2px 8px;
+  transition: background 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.ark-collapse-toggle:hover,
+.ark-collapse-toggle:focus {
+  background: #666;
+  color: #ffd700;
+}
+
+.ark-collapse-toggle .arrow {
+  font-size: 1.15em;
+  margin-left: 2px;
+  transition: color 0.2s;
+}
+
+/* Collapsible body styles */
+.ark-collapsible-body {
+  background: #181818;
+  color: #eee;
+  padding: 12px 14px 14px 14px;
+  border-radius: 0 0 4px 4px;
+  border-top: 1px solid #333;
+  margin-bottom: 18px;
+}
+
+/* Section container for spacing */
+.ark-collapsible-section {
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Example for checkbox lists inside collapsible body */
+.ark-collapsible-body .list label.item {
+  display: block;
+  padding: 5px 0;
+  cursor: pointer;
+}
