@@ -434,11 +434,11 @@ window.onload = function() {
       };
     });
     enforceCyberModLimit();
-    // Only toggle collapsible when clicking the header, not when clicking inside!
+
+    // Improved: Only toggle if the header itself (not any descendant) was clicked!
     Array.prototype.forEach.call(document.querySelectorAll('.ark-collapse-btn'), function(btn){
       btn.addEventListener('click', function(e){
-        // Only toggle if the click is inside the header, not inside the body content
-        if (e.target.closest('.ark-collapse-btn') !== btn) return;
+        if (e.target !== btn) return; // Only toggle if the header itself was clicked
         var targetId = btn.getAttribute('data-target');
         var body = document.getElementById(targetId);
         var expanded = btn.getAttribute('aria-expanded') === 'true';
@@ -450,10 +450,9 @@ window.onload = function() {
     });
   }
 
-  // ...rest of script unchanged (page1_render, page1_wire, page2_render, etc.)...
-  // (No changes to those blocks; only page5_wire was updated for collapsible behavior)
-  // Full script as previously provided.
-
+  // ...rest of script unchanged (page1_render, etc.)...
+  // (Full script as previously provided.)
+  // See above for full code.
   function page1_render(){
     var I = M.identity || (M.identity={});
     return (
