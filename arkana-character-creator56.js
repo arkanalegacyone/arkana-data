@@ -260,7 +260,7 @@ window.onload = function() {
     return spentPicks + spentMagic + cyberSlotCost;
   }
 
-  // --- Page 5: Powers, Perks, Augmentations, Magic, and Hacking (Tabbed UI) ---
+// --- Page 5: Powers, Perks, Augmentations, Magic, and Hacking (Tabbed UI) ---
 function page5_render(){
   var race = M.race || "";
   var arch = M.arch || "";
@@ -455,6 +455,54 @@ function page5_wire(){
     render();
   };
 }
+
+    var cyberneticsHtml =
+      '<div class="cybernetic-section" style="margin-bottom:12px;">' +
+      '<div class="muted" style="margin-bottom:8px;font-size:1em;">To purchase <b>Cybernetic Augmentations & Hacking</b> items, you must first purchase a slot.</div>' +
+      '<label class="ark-input" style="font-weight:600;width:auto;display:inline-block;margin-right:12px;">Cybernetic Slots</label>' +
+      '<input type="number" min="0" max="10" class="cybernetic-input" id="cyberneticSlotInput" value="'+cyberSlots+'"'+((remain<2 && cyberSlots < 10)?' disabled':'')+'">' +
+      '<span class="cybernetic-cost" style="margin-left:10px;">Cost: '+(cyberSlots*2)+' points</span>' +
+      ((remain<2 && cyberSlots < 10) ? '<span class="muted" style="margin-left:10px;">No points left for more slots</span>':'') +
+      '</div>' +
+      Object.keys(groupedMods).map(section=>cyberSectionHtml(section, groupedMods[section])).join('');
+
+    var groupedMagicSchools = magicSchoolsAllGrouped(race, arch);
+    var magicHtml = canMagic
+      ? Object.keys(groupedMagicSchools).length
+          ? Object.keys(groupedMagicSchools).map(section=>magicSectionHtml(section, groupedMagicSchools[section])).join('')
+          : '<div class="muted">No magic schools available for this archetype.</div>'
+      : '<h3>Magic Schools & Weaves</h3><div class="muted">Not available for '+esc(race)+(arch?' ('+esc(arch)+')':'')+'.</div>';
+
+    var commonPowersHtml = renderList("Common Powers", commonPowersForRace(race), M.picks);
+    var perksHtml = renderList("Perks", perksForRace(race, arch), M.picks);
+    var archPowersHtml = renderList("Archetype Powers", archPowersForRaceArch(race, arch), M.picks);
+
+    function collapsibleSection(id, title, content, open) {
+      return `
+        <div class="ark-collapsible-section" id="section-${id}">
+          <div class="ark-collapse-btn" data-target="section-${id}-body" tabindex="0" aria-expanded="${open?'true':'false'}">
+            ${esc(title)} <span class="arrow">${open ? '▼' : '►'}</span>
+          </div>
+          <div class="ark-collapsible-body" id="section-${id}-body" style="display:${open?'block':'none'};">
+            ${content}
+          </div>
+        </div>
+      `;
+    }
+
+    var html =
+      '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
+      '<div class="totals">Points: <b>'+total+'</b> • Spent <b>'+spent+'</b> • Remaining <b>'+remain+'</b></div>' +
+      '<div class="note">Select any combination of powers, perks, archetype powers, cybernetics (requires slot), magic school weaves, and cybernetic slots. You cannot spend more points than you have.</div>' +
+      collapsibleSection("common", "Common Powers", commonPowersHtml, false) +
+      collapsibleSection("perks", "Perks", perksHtml, false) +
+      collapsibleSection("archetype", "Archetype Powers", archPowersHtml, false) +
+      collapsibleSection("cyber", "Cybernetic Augmentations & Hacking", cyberneticsHtml, false) +
+      collapsibleSection("magic", "Magic Schools & Weaves", magicHtml, false);
+
+    return html;
+  }
+    }
     Array.prototype.forEach.call(document.querySelectorAll('#page5 input[type="checkbox"][data-id]'),function(ch){
       if(!ch.dataset.cyber && !ch.dataset.magic){
         ch.onchange = function(){
