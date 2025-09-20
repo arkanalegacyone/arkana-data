@@ -260,6 +260,20 @@ window.onload = function() {
     return spentPicks + spentMagic + cyberSlotCost;
   }
 
+  function collapsibleSection(id, title, content, open) {
+    // Classic formatting: header is a whole clickable div, not flex/button
+    return `
+      <div class="ark-collapsible-section" id="section-${id}">
+        <div class="ark-collapse-btn" data-target="section-${id}-body" tabindex="0" aria-expanded="${open?'true':'false'}">
+          ${esc(title)} <span class="arrow">${open ? '▼' : '►'}</span>
+        </div>
+        <div class="ark-collapsible-body" id="section-${id}-body" style="display:${open?'block':'none'};">
+          ${content}
+        </div>
+      </div>
+    `;
+  }
+
   function page5_render(){
     var race = M.race || "";
     var arch = M.arch || "";
@@ -308,23 +322,6 @@ window.onload = function() {
     var commonPowersHtml = renderList("Common Powers", commonPowersForRace(race), M.picks);
     var perksHtml = renderList("Perks", perksForRace(race, arch), M.picks);
     var archPowersHtml = renderList("Archetype Powers", archPowersForRaceArch(race, arch), M.picks);
-
-    // Toggle button markup in header
-    function collapsibleSection(id, title, content, open) {
-      return `
-        <div class="ark-collapsible-section" id="section-${id}">
-          <div class="ark-collapse-header" style="display:flex;align-items:center;justify-content:space-between;">
-            <span class="ark-collapse-title">${esc(title)}</span>
-            <button type="button" class="ark-collapse-toggle" data-target="section-${id}-body" aria-expanded="${open?'true':'false'}" style="margin-left:8px;">
-              <span class="arrow">${open ? '▼' : '►'}</span>
-            </button>
-          </div>
-          <div class="ark-collapsible-body" id="section-${id}-body" style="display:${open?'block':'none'};">
-            ${content}
-          </div>
-        </div>
-      `;
-    }
 
     var html =
       '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
@@ -439,10 +436,10 @@ window.onload = function() {
     });
     enforceCyberModLimit();
 
-    // Toggle only when clicking the toggle button
-    Array.prototype.forEach.call(document.querySelectorAll('.ark-collapse-toggle'), function(btn){
+    // Collapsible toggle: Only toggle when you click the header, not form controls
+    Array.prototype.forEach.call(document.querySelectorAll('.ark-collapse-btn'), function(btn){
       btn.addEventListener('click', function(e){
-        e.stopPropagation();
+        if (e.target !== btn) return; // Only toggle if clicking the header itself!
         var targetId = btn.getAttribute('data-target');
         var body = document.getElementById(targetId);
         var expanded = btn.getAttribute('aria-expanded') === 'true';
@@ -450,6 +447,13 @@ window.onload = function() {
         btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
         var arrow = btn.querySelector('.arrow');
         if (arrow) arrow.textContent = expanded ? '►' : '▼';
+      });
+    });
+
+    // Prevent collapse when interacting with inputs/labels inside the collapsible body
+    Array.prototype.forEach.call(document.querySelectorAll('.ark-collapsible-body input, .ark-collapsible-body label'), function(el){
+      el.addEventListener('click', function(e){
+        e.stopPropagation();
       });
     });
   }
