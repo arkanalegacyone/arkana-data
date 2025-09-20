@@ -1,5 +1,4 @@
 [
-  // --- Vampires (Strigoi) ---
   {
     "id": "strigoi_hypnosis",
     "name": "Hypnosis",
@@ -64,7 +63,6 @@
     "species": "vampire"
   },
 
-  // --- Gaki ---
   {
     "id": "gaki_chi_manipulation",
     "name": "Chi Manipulation",
@@ -108,7 +106,6 @@
     "species": "gaki"
   },
 
-  // --- Spliced ---
   {
     "id": "spliced_climbing",
     "name": "Climbing",
@@ -145,7 +142,6 @@
     "species": "spliced"
   },
 
-  // --- Veilborn ---
   {
     "id": "veil_biofusion",
     "name": "Biofusion",
