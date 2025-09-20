@@ -51,6 +51,7 @@ window.onload = function() {
     magicSchools = magicData;
   }
 
+  // --- Utility logic
   function flawsForRace(race, arch) {
     if (!race) return [];
     var r = lc(race);
