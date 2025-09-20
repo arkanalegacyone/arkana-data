@@ -4,7 +4,7 @@
     "name": "Crimson Allure",
     "desc": "Exude an irresistible aura of attraction; mortals drawn like moths to flame.",
     "cost": 3,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "life"
   },
   {
@@ -12,7 +12,7 @@
     "name": "Sanguine Glamour",
     "desc": "Manipulate appearance subtly, masking pallor, wounds, or hunger to look radiant and alive.",
     "cost": 2,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "life"
   },
   {
@@ -20,7 +20,7 @@
     "name": "Cradle of Hunger",
     "desc": "Touch can sap energy, leaving mortals weak as if struck by days of exhaustion.",
     "cost": 3,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "life"
   },
   {
@@ -28,7 +28,7 @@
     "name": "Blood Seed",
     "desc": "Plant a blood seed of desire in a mortal; supernatural yearning until accepted or spurned.",
     "cost": 4,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "life"
   },
   {
@@ -36,7 +36,7 @@
     "name": "Carrion Call",
     "desc": "Draw vermin and scavengers; influence swarms. Spliced may resist with Mental roll.",
     "cost": 2,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "death"
   },
   {
@@ -44,7 +44,7 @@
     "name": "Bone Whisper",
     "desc": "Touch a corpse to glean fragments of its memories or final sensations.",
     "cost": 2,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "death"
   },
   {
@@ -52,7 +52,7 @@
     "name": "Rotting Grasp",
     "desc": "Corrode wood, cloth, or weak flesh; spoil food, weaken doors, inflict painful wounds.",
     "cost": 3,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "death"
   },
   {
@@ -60,7 +60,7 @@
     "name": "Echo of the Barrow",
     "desc": "Voice heard as a whisper from a grave, carrying dread into minds.",
     "cost": 2,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "death"
   },
   {
@@ -68,7 +68,7 @@
     "name": "Hungering Grip",
     "desc": "A clutch drains blood and stamina, weakening prey.",
     "cost": 3,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "warrior"
   },
   {
@@ -76,7 +76,7 @@
     "name": "Unholy Endurance",
     "desc": "Fight through wounds that would incapacitate mortals; -3 damage reduction for scene.",
     "cost": 4,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "warrior"
   },
   {
@@ -84,7 +84,7 @@
     "name": "Ferine Snarl",
     "desc": "Growl startles animals, causes stampedes, or mortals hesitate in fear; -1 to attack rolls.",
     "cost": 2,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "warrior"
   },
   {
@@ -92,7 +92,7 @@
     "name": "Crimson Frenzy",
     "desc": "Gain automatic +2 to all attack rolls when activated in battle.",
     "cost": 4,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "warrior"
   },
   {
@@ -100,7 +100,7 @@
     "name": "Pale Host",
     "desc": "Gatherings bend to your rhythm; conversations stall, eyes fix, people forget time.",
     "cost": 3,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "ruler"
   },
   {
@@ -108,7 +108,7 @@
     "name": "Oathbreaker’s Curse",
     "desc": "Curse those who break loyalty/pacts; torments in dreams until reparations.",
     "cost": 4,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "ruler"
   },
   {
@@ -116,7 +116,7 @@
     "name": "Lineage’s Weight",
     "desc": "Blood carries nobility; mortals treat you as authority.",
     "cost": 3,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "ruler"
   },
   {
@@ -124,7 +124,7 @@
     "name": "Crown of Silence",
     "desc": "Silence an individual's voice for minutes.",
     "cost": 4,
-    "species": "vampire",
+    "species": "strigoi",
     "arch": "ruler"
   },
   {
