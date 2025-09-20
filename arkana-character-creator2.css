@@ -1,24 +1,48 @@
-/* Reduced title fonts for better readability */
+/* Arkana Character Creator v1 - Full CSS */
+
+/* General Styles */
+body {
+    background: #14141a;
+    color: #eaeaea;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+}
+
+#ark-wizard {
+    max-width: 750px;
+    margin: 2em auto;
+    padding: 1.5em;
+    background: #181820;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px 0 rgba(20,20,40,0.4);
+    color: #eaeaea;
+}
+
+/* Titles */
 .arkana-title, .arkana-section-title {
     font-size: 1.6rem;
     font-weight: bold;
     margin-bottom: 0.5em;
 }
+
+.arkana-title {
+    font-size: 2rem;
+    text-align: center;
+    letter-spacing: 1px;
+    margin-bottom: 1.2em;
+}
+
+.arkana-section-title {
+    margin-bottom: 0.5em;
+    color: #ffd700;
+    font-size: 1.6rem;
+}
+
 .arkana-subtitle {
     font-size: 1.2rem;
     margin-bottom: 0.4em;
 }
 
-#ark-wizard {
-    max-width: 750px;
-    margin: 0 auto;
-    padding: 1em;
-    background: #181820;
-    border-radius: 10px;
-    color: #eaeaea;
-    font-family: 'Segoe UI', 'Arial', sans-serif;
-}
-
+/* Stats section */
 .arkana-stat-row {
     display: flex;
     align-items: center;
@@ -26,17 +50,25 @@
 }
 .arkana-stat-label {
     flex: 1;
+    font-weight: 500;
 }
 .arkana-stat-value {
     width: 2.5em;
     text-align: center;
     margin: 0 0.5em;
+    background: #232340;
+    border: none;
+    border-radius: 4px;
+    color: #ffd700;
+    font-size: 1.1em;
+    padding: 0.15em;
 }
 .arkana-stat-mod {
     width: 2.0em;
     text-align: center;
     font-weight: bold;
     color: #ff8260;
+    font-size: 1.1em;
 }
 
 /* Cybernetics slot section */
@@ -45,27 +77,46 @@
     background: #232340;
     border-radius: 6px;
     padding: 0.8em;
+    display: flex;
+    align-items: center;
+    gap: 1.5em;
 }
 .arkana-cybernetic-label {
     font-weight: bold;
     margin-bottom: 0.5em;
+    color: #ffd700;
 }
 .arkana-cybernetic-input {
     width: 3em;
     padding: 0.2em;
     text-align: center;
+    background: #181820;
+    border: none;
+    border-radius: 4px;
+    color: #ffd700;
+    font-size: 1em;
     margin-right: 1em;
 }
 .arkana-cybernetic-cost {
     color: #ffd700;
-    font-size: 1em;
+    font-size: 1.1em;
     font-weight: bold;
 }
 
 /* Archetype powers/perks */
 .arkana-archetype-section {
     margin-top: 1em;
+    padding: 1em;
+    background: #232340;
+    border-radius: 6px;
 }
+
+.arkana-section-subtitle {
+    color: #ff8260;
+    font-size: 1.15em;
+    margin-bottom: 0.4em;
+}
+
 .arkana-power-list, .arkana-perk-list {
     list-style: none;
     padding-left: 0;
@@ -76,6 +127,23 @@
     padding: 0.3em 0.7em;
     border-radius: 3px;
     margin-bottom: 0.2em;
+}
+
+/* Archetype select dropdown */
+#archetype-select {
+    background: #232340;
+    color: #ffd700;
+    border-radius: 4px;
+    border: none;
+    font-size: 1.1em;
+    padding: 0.3em 0.7em;
+    margin-bottom: 1em;
+}
+
+label[for="archetype-select"] {
+    font-weight: bold;
+    margin-right: 1em;
+    color: #ffd700;
 }
 
 /* Hide magic powers for Human archetype */
@@ -89,9 +157,12 @@
         padding: 0.5em;
     }
     .arkana-title {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
     }
     .arkana-section-title {
         font-size: 1.1rem;
+    }
+    .arkana-archetype-section {
+        padding: 0.5em;
     }
 }
