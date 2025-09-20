@@ -1,5 +1,5 @@
 [
-  // --- Sensory Mods (Perc) ---
+
   {
     "id": "cyb_spectra_vision",
     "name": "Spectra-Vision",
@@ -36,7 +36,6 @@
     "type": "sensory"
   },
 
-  // --- Combat / Utility Mods (Dex/Phys) ---
   {
     "id": "cyb_razorjack_interface",
     "name": "Razorjack Interface",
@@ -73,7 +72,6 @@
     "type": "combat"
   },
 
-  // --- Stealth / Infiltration Mods (Dex) ---
   {
     "id": "cyb_shadeskin",
     "name": "ShadeSkin",
@@ -110,7 +108,6 @@
     "type": "stealth"
   },
 
-  // --- Augmented Strength / Durability (Phys) ---
   {
     "id": "cyb_titan_frame",
     "name": "Titan Frame",
@@ -153,8 +150,7 @@
     "cost": 5,
     "type": "durability"
   },
-
-  // --- Street-Level Popular Mods (Dex/Phys) ---
+ (Dex/Phys) ---
   {
     "id": "cyb_meatjackers",
     "name": "Meatjackers",
@@ -184,8 +180,6 @@
     "type": "street"
   },
 
-  // --- Hacking Programs ---
-  // Stealth / Infiltration
   {
     "id": "hack_silkveil",
     "name": "Silkveil",
@@ -250,7 +244,6 @@
     "mk": "III"
   },
 
-  // Defensive / Countermeasures
   {
     "id": "hack_wardhalo",
     "name": "WardHalo",
@@ -288,7 +281,6 @@
     "mk": "III"
   },
 
-  // Breaching / Intrusion Protocols
   {
     "id": "hack_brickwave",
     "name": "Brickwave",
