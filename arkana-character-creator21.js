@@ -49,7 +49,7 @@ window.onload = function() {
     magicSchools = magicData;
   }
 
-  // Flaw filter: handles human archetype-specific flaws
+  // STRONG flaw filter logic for humans with archetype-specific flaws
   function flawsForRace(race, arch) {
     if (!race) return [];
     var r = lc(race);
@@ -64,16 +64,17 @@ window.onload = function() {
       if(tags.indexOf("race:" + r) >= 0) return true;
       if(a && (tags.indexOf("arch:" + a) >= 0 || tags.indexOf("spec:" + a) >= 0)) return true;
 
-      // Human race: filter by species/archetype tags
+      // Human race: filter by archetype-specific tags
       if (r === "human") {
-        // If flaw is tagged with species:psion, only show if arch is psion
-        var hasPsion = tags.indexOf("species:psion") >= 0;
-        var hasArcanist = tags.indexOf("species:arcanist") >= 0;
-        var hasSynthral = tags.indexOf("species:synthral") >= 0;
+        // If flaw has species/archetype tags, only show if it matches the archetype
+        var hasPsion = tags.indexOf("species:psion") >= 0 || tags.indexOf("arch:psion") >= 0;
+        var hasArcanist = tags.indexOf("species:arcanist") >= 0 || tags.indexOf("arch:arcanist") >= 0;
+        var hasSynthral = tags.indexOf("species:synthral") >= 0 || tags.indexOf("arch:synthral") >= 0;
+        // Only show if matching archetype
         if (hasPsion && a === "psion") return true;
         if (hasArcanist && a === "arcanist") return true;
         if (hasSynthral && a === "synthral") return true;
-        // If flaw has no species tag, but has race:human, show for any human
+        // If flaw is NOT tagged with any archetype/species, but is race:human, show always
         if (!hasPsion && !hasArcanist && !hasSynthral && tags.indexOf("race:human") >= 0) return true;
         return false;
       }
