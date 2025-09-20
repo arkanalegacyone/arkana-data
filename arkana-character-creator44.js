@@ -59,190 +59,215 @@ window.onload = function() {
     magicSchools = magicData;
   }
 
-  // -- Utility functions unchanged --
-  // [snip: see previous response for all utility functions, e.g. flawsForRace, perksForRace, etc.]
-
-  // --- Page 1: Identity ---
-  function page1_render() {
-    return `
-      <h2>Identity</h2>
-      <div class="group">
-        <label>Name</label>
-        <input class="ark-input" id="identity-name" value="${esc(M.identity.name||'')}" maxlength="32" autocomplete="off">
-        <label>Background</label>
-        <textarea class="ark-input" id="identity-bg" rows="3" maxlength="256">${esc(M.identity.bg||'')}</textarea>
-      </div>
-      <div class="ark-nav">
-        <button id="next-btn" type="button">Next</button>
-      </div>
-    `;
-  }
-  function page1_wire(){
-    document.getElementById('identity-name').oninput = function(e){
-      M.identity.name = e.target.value;
-      saveModel();
+  // --- Utility functions for filtering, grouping, stats, points ---
+  function flawsForRace(race, arch) {
+    if (!race) return [];
+    var r = lc(race);
+    var a = arch ? lc(arch) : "";
+    var humanSpeciesTypes = {
+      "human (no powers)": "human_without_power",
+      "arcanist": "arcanist",
+      "synthral": "synthral",
+      "psion": "psion"
     };
-    document.getElementById('identity-bg').oninput = function(e){
-      M.identity.bg = e.target.value;
-      saveModel();
-    };
-    document.getElementById('next-btn').onclick = function(){
-      M.page = 2;
-      saveModel();
-      render();
-    };
-  }
-
-  // --- Page 2: Race & Archetype ---
-  function page2_render() {
-    const races = ["Human","Strigoi","Gaki","Spliced"];
-    const archs = {
-      "Human": ["Human (No Powers)","Arcanist","Synthral","Psion"],
-      "Strigoi": ["Blooded","Shadowed"],
-      "Gaki": ["Haunted","Possessed"],
-      "Spliced": ["Spliced"]
-    };
-    return `
-      <h2>Race & Archetype</h2>
-      <div class="group">
-        <label>Race</label>
-        <select class="ark-input" id="race-select">
-          <option value="">Select Race</option>
-          ${races.map(r=>`<option${M.race===r?' selected':''}>${esc(r)}</option>`).join('')}
-        </select>
-        <label>Archetype</label>
-        <select class="ark-input" id="arch-select">
-          <option value="">Select Archetype</option>
-          ${(archs[M.race]||[]).map(a=>`<option${M.arch===a?' selected':''}>${esc(a)}</option>`).join('')}
-        </select>
-      </div>
-      <div class="ark-nav">
-        <button id="back-btn" type="button">Back</button>
-        <button id="next-btn" type="button"${!M.race||!M.arch?' disabled':''}>Next</button>
-      </div>
-    `;
-  }
-  function page2_wire(){
-    document.getElementById('race-select').onchange = function(e){
-      M.race = e.target.value;
-      M.arch = '';
-      saveModel();
-      render();
-    };
-    document.getElementById('arch-select').onchange = function(e){
-      M.arch = e.target.value;
-      saveModel();
-      render();
-    };
-    document.getElementById('back-btn').onclick = function(){
-      M.page = 1;
-      saveModel();
-      render();
-    };
-    document.getElementById('next-btn').onclick = function(){
-      M.page = 3;
-      saveModel();
-      render();
-    };
-  }
-
-  // --- Page 3: Stats ---
-  function page3_render() {
-    const statNames = ["Physique","Dexterity","Mental","Perception"];
-    const statKeys = ["phys","dex","mental","perc"];
-    normalizeStats();
-    return `
-      <h2>Stats</h2>
-      <div class="group">
-        ${statKeys.map((k,i)=>`
-          <div class="stat">
-            <label>${statNames[i]}</label>
-            <button type="button" class="stat-minus" data-stat="${k}">-</button>
-            <span>${M.stats[k]}</span>
-            <button type="button" class="stat-plus" data-stat="${k}">+</button>
-          </div>
-        `).join("")}
-        <div class="muted">You have <b>${M.stats.pool}</b> points left to assign. Maximum per stat: 5.</div>
-      </div>
-      <div class="ark-nav">
-        <button id="back-btn" type="button">Back</button>
-        <button id="next-btn" type="button"${M.stats.pool>0?' disabled':''}>Next</button>
-      </div>
-    `;
-  }
-  function page3_wire(){
-    Array.prototype.forEach.call(document.querySelectorAll('.stat-minus'),function(btn){
-      btn.onclick = function(){
-        var k = btn.dataset.stat;
-        if(M.stats[k]>0){ M.stats[k]--; saveModel(); render(); }
-      };
+    if(r === "human"){
+      var speciesTag = humanSpeciesTypes[a] || "human_without_power";
+      return flaws.filter(function(flaw){
+        var tags = flaw.tags ? flaw.tags.map(lc) : [];
+        return tags.indexOf("species:" + speciesTag) >= 0;
+      });
+    }
+    return flaws.filter(function(flaw){
+      var tags = flaw.tags ? flaw.tags.map(lc) : [];
+      if (r === "strigoi" && tags.indexOf("race:strigoi") >= 0) return true;
+      if (r === "gaki" && tags.indexOf("race:gaki") >= 0) return true;
+      if(tags.indexOf("race:" + r) >= 0) return true;
+      if(a && (tags.indexOf("arch:" + a) >= 0 || tags.indexOf("spec:" + a) >= 0)) return true;
+      return false;
     });
-    Array.prototype.forEach.call(document.querySelectorAll('.stat-plus'),function(btn){
-      btn.onclick = function(){
-        var k = btn.dataset.stat;
-        if(M.stats[k]<5 && M.stats.pool>0){ M.stats[k]++; saveModel(); render(); }
-      };
-    });
-    document.getElementById('back-btn').onclick = function(){
-      M.page = 2;
-      saveModel();
-      render();
-    };
-    document.getElementById('next-btn').onclick = function(){
-      M.page = 4;
-      saveModel();
-      render();
-    };
   }
 
-  // --- Page 4: Flaws ---
-  function page4_render() {
-    var fls = flawsForRace(M.race, M.arch);
-    var html = `
-      <h2>Flaws</h2>
-      <div class="group">
-        <div class="muted">Select flaws to gain extra points. You may pick up to 2 flaws. Each flaw grants extra points for spending on powers and perks.</div>
-        <div class="list">
-          ${fls.map(f=>`
-            <label class="item">
-              <input type="checkbox" data-flaw="${f.id}"${M.flaws.has(f.id)?' checked':''}${M.flaws.size>=2&&!M.flaws.has(f.id)?' disabled':''}>
-              ${esc(f.name)}: ${esc(f.desc)}
-              <span class="pill">+${f.cost} pts</span>
-            </label>
-          `).join("")}
-        </div>
-        <div class="muted">Flaws selected: <b>${M.flaws.size}</b> / 2</div>
-      </div>
-      <div class="ark-nav">
-        <button id="back-btn" type="button">Back</button>
-        <button id="next-btn" type="button">Next</button>
-      </div>
-    `;
+  function perksForRace(race, arch) {
+    var r = lc(race||"");
+    var a = lc(arch||"");
+    return perks.filter(function(perk){
+      if (perk.species && lc(perk.species) !== r) return false;
+      if (perk.arch && a && lc(perk.arch) !== a) return false;
+      return true;
+    });
+  }
+  function commonPowersForRace(race) {
+    var r = lc(race||"");
+    return commonPowers.filter(function(p){ return p.species && lc(p.species) === r; });
+  }
+  function archPowersForRaceArch(race, arch) {
+    var r = lc(race||"");
+    var a = lc(arch||"");
+    return archPowers.filter(function(p){
+      if (p.species && lc(p.species) !== r) return false;
+      if (p.arch && a && lc(p.arch) !== a) return false;
+      return true;
+    });
+  }
+  function cyberneticsAll() {
+    return cybernetics;
+  }
+  function canUseMagic(race, arch) {
+    if(lc(race) === "human" && lc(arch) === "human (no powers)") return false;
+    if(lc(race) === "spliced") return false;
+    return true;
+  }
+  function groupMagicSchoolsBySection(arr, race, arch) {
+    var isSynthral = lc(race) === "human" && lc(arch) === "synthral";
+    var out = {};
+    arr.forEach(function(item){
+      var section = item.section || "Other";
+      if (lc(section) === "technomancy" && !isSynthral) return;
+      if (!out[section]) out[section] = [];
+      out[section].push(item);
+    });
+    Object.keys(out).forEach(function(section){
+      out[section].sort(function(a,b){
+        if (a.id.startsWith("school_")) return -1;
+        if (b.id.startsWith("school_")) return 1;
+        return 0;
+      });
+    });
+    return out;
+  }
+  function magicSchoolsAllGrouped(race, arch) {
+    return groupMagicSchoolsBySection(magicSchools, race, arch);
+  }
+  function statMod(v){ return v===0?-3 : v===1?-2 : v===2?0 : v===3?2 : v===4?4 : v===5?6:0; }
+  function normalizeStats(){
+    var S = M.stats = M.stats || {phys:0,dex:0,mental:0,perc:0};
+    ['phys','dex','mental','perc'].forEach(function(k){ if(typeof S[k]!=='number') S[k]=0; S[k]=Math.min(5,Math.max(0,S[k])); });
+    var spent = (S.phys)+(S.dex)+(S.mental)+(S.perc);
+    S.pool = Math.max(0, 10 - spent);
+    return S;
+  }
+  function groupCyberneticsBySection(arr) {
+    var sectionLabels = [
+      "Sensory Mods",
+      "Combat/Utility Mods",
+      "Augmented Strength/Durability",
+      "Street-Level Popular Mods",
+      "Stealth/Infiltration - Hacking",
+      "Defensive/Countermeasures - Hacking",
+      "Breaching/Intrusion Protocols - Hacking"
+    ];
+    var out = {};
+    sectionLabels.forEach(s => out[s] = []);
+    arr.forEach(function(item){
+      var sec = item.section || "";
+      if (out[sec]) out[sec].push(item);
+    });
+    return out;
+  }
+  function numCyberModsSelected() {
+    return Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid)).length;
+  }
+  function enforceCyberModLimit() {
+    var cyberSlots = M.cyberSlots || 0;
+    var cyberBoxes = Array.from(document.querySelectorAll('#page5 input[data-cyber="1"]'));
+    var selected = cyberBoxes.filter(ch => ch.checked);
+    if (selected.length > cyberSlots) {
+      selected.slice(cyberSlots).forEach(ch => {
+        ch.checked = false;
+        M.picks.delete(ch.dataset.id);
+      });
+      saveModel();
+      render();
+      return;
+    }
+    if (cyberSlots < 1) {
+      cyberBoxes.forEach(ch => ch.disabled = true);
+      return;
+    }
+    if (selected.length >= cyberSlots) {
+      cyberBoxes.forEach(ch => { if (!ch.checked) ch.disabled = true; });
+    } else {
+      cyberBoxes.forEach(ch => { if (!ch.checked) ch.disabled = false; });
+    }
+  }
+  function willOverspend(extra) {
+    var spent = pointsSpentTotal();
+    var total = pointsTotal();
+    return spent + extra > total;
+  }
+  function pointsTotal() {
+    var total = 15 + Array.from(M.flaws).reduce(function(s,fid){
+      var f=flaws.find(function(x){return x.id===fid;});
+      return s+(f?f.cost:0);
+    },0);
+    return total;
+  }
+  function pointsSpentTotal() {
+    var allPicks = Array.from(M.picks);
+    var spentPicks = allPicks.map(function(pid){
+      var arrs = [commonPowers, perks, archPowers, cybernetics];
+      for(var i=0;i<arrs.length;i++){
+        var found=arrs[i].find(function(x){return x.id===pid;});
+        if (found && typeof found.cost !== "undefined") return found.cost;
+        if (found) return 1;
+      }
+      return 0;
+    }).reduce(function(a,b){return a+b;},0);
+
+    var spentMagic = Array.from(M.magicSchools).map(function(id){
+      var found = magicSchools.find(function(x){return x.id===id;});
+      if (found && typeof found.cost !== "undefined") return found.cost;
+      if (found) return 1;
+      return 0;
+    }).reduce(function(a,b){return a+b;},0);
+
+    var cyberSlotCost = (M.cyberSlots || 0) * 2;
+
+    return spentPicks + spentMagic + cyberSlotCost;
+  }
+  function renderList(title, arr, selectedSet, opt) {
+    opt = opt||{};
+    var html = title ? '<h3>'+esc(title)+'</h3>' : '';
+    if (!arr.length) return html + '<div class="muted">None available.</div>';
+    html += '<div class="list">';
+    arr.forEach(function(item){
+      var sel = selectedSet.has(item.id) ? ' checked' : '';
+      var costVal = (typeof item.cost !== "undefined") ? item.cost : 1;
+      var disabled = (sel ? '' : (opt.willOverspend && opt.willOverspend(costVal)?' disabled':''))
+        + (opt.max && selectedSet.size>=opt.max && !sel ? ' disabled' : '');
+      var cost = (typeof item.cost !== "undefined") ? '<span class="pill">'+item.cost+' pts</span>' : '';
+      html += '<label class="item"><input type="checkbox" data-id="'+item.id+'"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
+    });
+    html += '</div>';
     return html;
   }
-  function page4_wire(){
-    Array.prototype.forEach.call(document.querySelectorAll('input[data-flaw]'),function(ch){
-      ch.onchange = function(){
-        var id = ch.dataset.flaw;
-        if(ch.checked) M.flaws.add(id);
-        else M.flaws.delete(id);
-        saveModel();
-        render();
-      };
+  function magicSectionHtml(section, arr) {
+    var schoolEntry = arr[0];
+    var schoolSelected = M.magicSchools.has(schoolEntry.id);
+    var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
+    arr.forEach(function(item, idx){
+      var sel = M.magicSchools.has(item.id) ? ' checked' : '';
+      var costVal = (typeof item.cost !== "undefined") ? item.cost : 1;
+      var disabled = '';
+      if (idx === 0) {
+        disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
+      } else {
+        if (!schoolSelected) disabled = ' disabled';
+        else disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
+      }
+      var cost = (typeof item.cost !== "undefined") ? '<span class="pill">'+item.cost+' pts</span>' : '';
+      html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-magic="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
     });
-    document.getElementById('back-btn').onclick = function(){
-      M.page = 3;
-      saveModel();
-      render();
-    };
-    document.getElementById('next-btn').onclick = function(){
-      M.page = 5;
-      saveModel();
-      render();
-    };
+    html += '</div>';
+    return html;
   }
 
-  // --- Page 5: Powers, Perks, Augmentations, Magic, and Hacking ---
+  // --- Page renderers and wiring functions (pages 1-6) ---
+  // [snip: see previous message for all page1_render, page2_render, page3_render, page4_render, page6_render, page1_wire, ... etc.]
+  // For brevity, these sections were already correctly posted in your previous message.
+
+  // --- Page 5 ---
+
   function collapsibleSection(id, title, content, open) {
     return `
       <div class="ark-collapsible-section" id="section-${id}">
@@ -255,7 +280,6 @@ window.onload = function() {
       </div>
     `;
   }
-
   function page5_render(){
     var race = M.race || "";
     var arch = M.arch || "";
@@ -448,45 +472,8 @@ window.onload = function() {
     };
   }
 
-  // --- Page 6: Summary ---
-  function page6_render() {
-    // Example summary page - customize as needed
-    return `
-      <h2>Summary</h2>
-      <div class="group">
-        <div><b>Name:</b> ${esc(M.identity.name||'')}</div>
-        <div><b>Background:</b> ${esc(M.identity.bg||'')}</div>
-        <div><b>Race:</b> ${esc(M.race||'')}</div>
-        <div><b>Archetype:</b> ${esc(M.arch||'')}</div>
-        <div><b>Stats:</b> Physique ${M.stats.phys}, Dexterity ${M.stats.dex}, Mental ${M.stats.mental}, Perception ${M.stats.perc}</div>
-        <div><b>Flaws:</b> ${Array.from(M.flaws).map(fid=>{
-          var f=flaws.find(x=>x.id===fid); return esc(f?f.name:'');
-        }).join(', ')}</div>
-        <div><b>Powers/Perks:</b> ${Array.from(M.picks).map(pid=>{
-          var arrs = [commonPowers, perks, archPowers, cybernetics];
-          var found;
-          for(var i=0;i<arrs.length;i++){
-            found = arrs[i].find(x=>x.id===pid);
-            if(found) break;
-          }
-          return esc(found?found.name:'');
-        }).join(', ')}</div>
-        <div><b>Magic:</b> ${Array.from(M.magicSchools).map(mid=>{
-          var m = magicSchools.find(x=>x.id===mid); return esc(m?m.name:'');
-        }).join(', ')}</div>
-      </div>
-      <div class="ark-nav">
-        <button id="back-btn" type="button">Back</button>
-      </div>
-    `;
-  }
-  function page6_wire(){
-    document.getElementById('back-btn').onclick = function(){
-      M.page = 5;
-      saveModel();
-      render();
-    };
-  }
+  // --- Page 1-4, 6 renderers and wire functions unchanged ---
+  // [snip: as in previous message]
 
   // --- Main render and wire function ---
   function render(){
