@@ -110,17 +110,14 @@ window.onload = function() {
   function groupMagicSchoolsBySection(arr, race, arch) {
     var isSynthral = lc(race) === "human" && lc(arch) === "synthral";
     var out = {};
-    // Group by section and filter Technomancy if not synthral
     arr.forEach(function(item){
       var section = item.section || "Other";
       if (lc(section) === "technomancy" && !isSynthral) return;
       if (!out[section]) out[section] = [];
       out[section].push(item);
     });
-    // Sort each section so school entry is first
     Object.keys(out).forEach(function(section){
       out[section].sort(function(a,b){
-        // School entry is always cost 1 or 0 and has id starting with "school_"
         if (a.id.startsWith("school_")) return -1;
         if (b.id.startsWith("school_")) return 1;
         return 0;
@@ -194,10 +191,10 @@ window.onload = function() {
     html += '<div class="list">';
     arr.forEach(function(item){
       var sel = selectedSet.has(item.id) ? ' checked' : '';
-      var costVal = item.cost||1;
+      var costVal = (typeof item.cost !== "undefined") ? item.cost : 1;
       var disabled = (sel ? '' : (opt.willOverspend && opt.willOverspend(costVal)?' disabled':''))
         + (opt.max && selectedSet.size>=opt.max && !sel ? ' disabled' : '');
-      var cost = item.cost ? '<span class="pill">'+item.cost+' pts</span>' : '';
+      var cost = (typeof item.cost !== "undefined") ? '<span class="pill">'+item.cost+' pts</span>' : '';
       html += '<label class="item"><input type="checkbox" data-id="'+item.id+'"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
     });
     html += '</div>';
@@ -210,7 +207,7 @@ window.onload = function() {
     var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
     arr.forEach(function(item, idx){
       var sel = M.magicSchools.has(item.id) ? ' checked' : '';
-      var costVal = item.cost || 1;
+      var costVal = (typeof item.cost !== "undefined") ? item.cost : 1;
       var disabled = '';
       if (idx === 0) {
         disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
@@ -218,7 +215,7 @@ window.onload = function() {
         if (!schoolSelected) disabled = ' disabled';
         else disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
       }
-      var cost = item.cost ? '<span class="pill">'+item.cost+' pts</span>' : '';
+      var cost = (typeof item.cost !== "undefined") ? '<span class="pill">'+item.cost+' pts</span>' : '';
       html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-magic="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
     });
     html += '</div>';
@@ -240,20 +237,22 @@ window.onload = function() {
   }
 
   function pointsSpentTotal() {
-    // Count picks and magicSchools together
     var allPicks = Array.from(M.picks);
     var spentPicks = allPicks.map(function(pid){
       var arrs = [commonPowers, perks, archPowers, cybernetics];
       for(var i=0;i<arrs.length;i++){
         var found=arrs[i].find(function(x){return x.id===pid;});
-        if(found) return found.cost||1;
+        if (found && typeof found.cost !== "undefined") return found.cost;
+        if (found) return 1;
       }
       return 0;
     }).reduce(function(a,b){return a+b;},0);
 
     var spentMagic = Array.from(M.magicSchools).map(function(id){
       var found = magicSchools.find(function(x){return x.id===id;});
-      return found ? found.cost||1 : 0;
+      if (found && typeof found.cost !== "undefined") return found.cost;
+      if (found) return 1;
+      return 0;
     }).reduce(function(a,b){return a+b;},0);
 
     var cyberSlotCost = (M.cyberSlots || 0) * 2;
@@ -277,12 +276,12 @@ window.onload = function() {
       var modsSelected = numCyberModsSelected();
       arr.forEach(function(item){
         var sel = M.picks.has(item.id) ? ' checked' : '';
-        var costVal = item.cost||1;
+        var costVal = (typeof item.cost !== "undefined") ? item.cost : 1;
         var disabled = '';
         if (cyberSlots < 1) disabled = ' disabled';
         else if (!sel && modsSelected >= cyberSlots) disabled = ' disabled';
         else if (!sel && willOverspend(costVal)) disabled = ' disabled';
-        var cost = item.cost ? '<span class="pill">'+item.cost+' pts</span>' : '';
+        var cost = (typeof item.cost !== "undefined") ? '<span class="pill">'+item.cost+' pts</span>' : '';
         html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-cyber="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
       });
       html += '</div>';
@@ -327,11 +326,11 @@ window.onload = function() {
       '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
       '<div class="totals">Points: <b>'+total+'</b> • Spent <b>'+spent+'</b> • Remaining <b>'+remain+'</b></div>' +
       '<div class="note">Select any combination of powers, perks, archetype powers, cybernetics (requires slot), magic school weaves, and cybernetic slots. You cannot spend more points than you have.</div>' +
-      collapsibleSection("common", "Common Powers", commonPowersHtml, true) +
-      collapsibleSection("perks", "Perks", perksHtml, true) +
-      collapsibleSection("archetype", "Archetype Powers", archPowersHtml, true) +
-      collapsibleSection("cyber", "Cybernetic Augmentations & Hacking", cyberneticsHtml, true) +
-      collapsibleSection("magic", "Magic Schools & Weaves", magicHtml, true);
+      collapsibleSection("common", "Common Powers", commonPowersHtml, false) +
+      collapsibleSection("perks", "Perks", perksHtml, false) +
+      collapsibleSection("archetype", "Archetype Powers", archPowersHtml, false) +
+      collapsibleSection("cyber", "Cybernetic Augmentations & Hacking", cyberneticsHtml, false) +
+      collapsibleSection("magic", "Magic Schools & Weaves", magicHtml, false);
 
     return html;
   }
@@ -366,7 +365,7 @@ window.onload = function() {
             found = arrs[i].find(function(x){return x.id===id;});
             if(found) break;
           }
-          var costVal = found ? (found.cost||1) : 1;
+          var costVal = (found && typeof found.cost !== "undefined") ? found.cost : 1;
           var total = pointsTotal();
           var spent = pointsSpentTotal();
           var remain = total - spent;
@@ -380,12 +379,11 @@ window.onload = function() {
           render();
         };
       }
-      // Magic school checkboxes
       if(ch.dataset.magic){
         ch.onchange = function(){
           var id = ch.dataset.id;
           var school = magicSchools.find(function(x){return x.id===id;});
-          var costVal = school ? (school.cost||1) : 1;
+          var costVal = (school && typeof school.cost !== "undefined") ? school.cost : 1;
           var section = school.section;
           var grouped = magicSchoolsAllGrouped(M.race, M.arch);
           var arr = grouped[section] || [];
@@ -393,7 +391,6 @@ window.onload = function() {
           var total = pointsTotal();
           var spent = pointsSpentTotal();
           var remain = total - spent;
-          // If trying to check a weave without school entry, block (should already be disabled)
           if (!isSchoolEntry && !M.magicSchools.has(arr[0].id)) {
             ch.checked = false;
             return;
@@ -406,7 +403,6 @@ window.onload = function() {
             M.magicSchools.add(id);
           } else {
             M.magicSchools.delete(id);
-            // If school entry unchecked, uncheck all weaves in section
             if (isSchoolEntry) {
               arr.slice(1).forEach(item => M.magicSchools.delete(item.id));
             }
@@ -420,7 +416,7 @@ window.onload = function() {
       ch.onchange = function(){
         var id = ch.dataset.id;
         var found = cybernetics.find(function(x){return x.id===id;});
-        var costVal = found ? (found.cost||1) : 1;
+        var costVal = (found && typeof found.cost !== "undefined") ? found.cost : 1;
         var total = pointsTotal();
         var spent = pointsSpentTotal();
         var remain = total - spent;
