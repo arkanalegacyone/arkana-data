@@ -4,63 +4,63 @@
     "name": "Hypnosis",
     "desc": "Implant suggestions and triggers. (MEN)",
     "cost": 2,
-    "species": "vampire"
+    "species": "strigoi"
   },
   {
     "id": "strigoi_shapeshifting",
     "name": "Shapeshifting",
     "desc": "Mist forms, wolf-like attributes, or bat-like wings. (PHYS)",
     "cost": 2,
-    "species": "vampire"
+    "species": "strigoi"
   },
   {
     "id": "strigoi_wall_walking",
     "name": "Wall-Walking",
     "desc": "Scale sheer surfaces like a spider.",
     "cost": 1,
-    "species": "vampire"
+    "species": "strigoi"
   },
   {
     "id": "strigoi_dreamwalking",
     "name": "Dreamwalking",
     "desc": "Invade and shape dreams, feed subtly. (MEN)",
     "cost": 3,
-    "species": "vampire"
+    "species": "strigoi"
   },
   {
     "id": "strigoi_voice_of_command",
     "name": "Voice of Command",
     "desc": "Direct orders instantly obeyed by thralls/weaker minds. (MEN)",
     "cost": 3,
-    "species": "vampire"
+    "species": "strigoi"
   },
   {
     "id": "strigoi_shadowform",
     "name": "Shadowform",
     "desc": "Become a living shadow, slip through cracks/hide. (PHYS)",
     "cost": 4,
-    "species": "vampire"
+    "species": "strigoi"
   },
   {
     "id": "strigoi_true_polymorph",
     "name": "True Polymorph",
     "desc": "Full animal transformation (wolf or bat). (PHYS)",
     "cost": 4,
-    "species": "vampire"
+    "species": "strigoi"
   },
   {
     "id": "strigoi_domination",
     "name": "Domination",
     "desc": "Full mental control over mortals; rivals may resist. (MEN)",
     "cost": 5,
-    "species": "vampire"
+    "species": "strigoi"
   },
   {
     "id": "strigoi_mist_form",
     "name": "Mist Form (Full)",
     "desc": "Dissolve into fog, immune to physical harm for a short time. (PHYS)",
     "cost": 5,
-    "species": "vampire"
+    "species": "strigoi"
   },
 
   {
