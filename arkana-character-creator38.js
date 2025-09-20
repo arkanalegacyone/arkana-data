@@ -454,10 +454,19 @@ window.onload = function() {
     });
   }
 
-  // ... rest of your code unchanged (page1_render, page2_render, etc.) ...
-  // See previous completions for those blocks.
-  // (The main change is above: only the toggle button opens/closes the section.)
-  // You may want to add CSS like:
-  // .ark-collapse-toggle { background: none; border: none; cursor: pointer; font-size: 1.2em; }
+  // Minimal render function to display page 5
+  function render(){
+    root.innerHTML = '<div id="page"></div>';
+    var host = document.getElementById('page');
+    host.innerHTML = '<div id="page5">'+page5_render()+'</div>';
+    page5_wire();
+  }
+
+  try {
+    await loadAllData();
+    render();
+  } catch(e) {
+    root.innerHTML = '<div class="note">Error loading public Arkana data: '+esc(e.message)+'</div>';
+  }
 })();
 };
