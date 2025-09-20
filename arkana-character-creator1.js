@@ -6,9 +6,19 @@ window.onload = function() {
 
   function esc(s){ return String(s||'').replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
   function lc(s){ return String(s||'').toLowerCase(); }
+  function mapRaceToSpecies(race) {
+    var mapping = {
+      'strigoi': 'vampire',
+      'gaki': 'gaki',
+      'spliced': 'spliced',
+      'human': 'human',
+      'veilborn': 'veilborn'
+    };
+    return mapping[lc(race)] || lc(race);
+  }
   function loadModel(){
     var raw=window.localStorage ? localStorage.getItem('arkModel') : null;
-    var base = { page:1, identity:{}, race:'', arch:'', stats:{phys:1,dex:1,mental:1,perc:1,pool:10}, flaws:[], picks:[], magicSchools:[] };
+    var base = { page:1, identity:{}, race:'', arch:'', stats:{phys:0,dex:0,mental:0,perc:0,pool:10}, flaws:[], picks:[], magicSchools:[], cyberSlots:0 };
     try{
       var m = raw ? JSON.parse(raw) : base;
       m.flaws = new Set(m.flaws||[]);
@@ -16,13 +26,13 @@ window.onload = function() {
       m.magicSchools = new Set(m.magicSchools||[]);
       return Object.assign(base,m);
     }catch(_){
-      return { page:1, identity:{}, race:'', arch:'', stats:{phys:1,dex:1,mental:1,perc:1,pool:10}, flaws:new Set(), picks:new Set(), magicSchools:new Set() };
+      return { page:1, identity:{}, race:'', arch:'', stats:{phys:0,dex:0,mental:0,perc:0,pool:10}, flaws:new Set(), picks:new Set(), magicSchools:new Set(), cyberSlots:0 };
     }
   }
   function saveModel(){
     try{
       if(window.localStorage){
-        var dump = {page:M.page, identity:M.identity, race:M.race, arch:M.arch, stats:M.stats, flaws:Array.from(M.flaws), picks:Array.from(M.picks), magicSchools:Array.from(M.magicSchools)};
+        var dump = {page:M.page, identity:M.identity, race:M.race, arch:M.arch, stats:M.stats, flaws:Array.from(M.flaws), picks:Array.from(M.picks), magicSchools:Array.from(M.magicSchools), cyberSlots:M.cyberSlots||0};
         localStorage.setItem('arkModel', JSON.stringify(dump));
       }
     }catch(_){}
@@ -76,23 +86,23 @@ window.onload = function() {
     });
   }
   function perksForRace(race, arch) {
-    var r = lc(race||"");
+    var species = mapRaceToSpecies(race);
     var a = lc(arch||"");
     return perks.filter(function(perk){
-      if (perk.species && lc(perk.species) !== r) return false;
+      if (perk.species && lc(perk.species) !== species) return false;
       if (perk.arch && a && lc(perk.arch) !== a) return false;
       return true;
     });
   }
   function commonPowersForRace(race) {
-    var r = lc(race||"");
-    return commonPowers.filter(function(p){ return p.species && lc(p.species) === r; });
+    var species = mapRaceToSpecies(race);
+    return commonPowers.filter(function(p){ return p.species && lc(p.species) === species; });
   }
   function archPowersForRaceArch(race, arch) {
-    var r = lc(race||"");
+    var species = mapRaceToSpecies(race);
     var a = lc(arch||"");
     return archPowers.filter(function(p){
-      if (p.species && lc(p.species) !== r) return false;
+      if (p.species && lc(p.species) !== species) return false;
       if (p.arch && a && lc(p.arch) !== a) return false;
       return true;
     });
@@ -100,8 +110,10 @@ window.onload = function() {
   function cyberneticsAll() {
     return cybernetics;
   }
-  function canUseMagic(race) {
-    return lc(race) !== "spliced";
+  function canUseMagic(race, arch) {
+    if (lc(race) === "spliced") return false;
+    if (lc(race) === "human" && lc(arch||"") === "human (no powers)") return false;
+    return true;
   }
   function magicSchoolsAll() {
     return magicSchools.filter(function(s){ return true; });
@@ -202,11 +214,11 @@ window.onload = function() {
     }
   }
 
-  function statMod(v){ return v===1?-2 : v===2?0 : v===3?2 : v===4?4 : 6; }
+  function statMod(v){ return v===0?-3 : v===1?-2 : v===2?0 : v===3?2 : v===4?4 : 6; }
   function normalizeStats(){
-    var S = M.stats = M.stats || {phys:1,dex:1,mental:1,perc:1};
-    ['phys','dex','mental','perc'].forEach(function(k){ if(typeof S[k]!=='number') S[k]=1; S[k]=Math.min(5,Math.max(1,S[k])); });
-    var spent = (S.phys-1)+(S.dex-1)+(S.mental-1)+(S.perc-1);
+    var S = M.stats = M.stats || {phys:0,dex:0,mental:0,perc:0};
+    ['phys','dex','mental','perc'].forEach(function(k){ if(typeof S[k]!=='number') S[k]=0; S[k]=Math.min(5,Math.max(0,S[k])); });
+    var spent = S.phys+S.dex+S.mental+S.perc;
     S.pool = Math.max(0, 10 - spent);
     return S;
   }
@@ -224,7 +236,7 @@ window.onload = function() {
       );
     }
     return (
-      '<h2>Stats (10 points total; each stat 1–5)</h2>' +
+      '<h2>Stats (10 points total; each stat 0–5)</h2>' +
       '<div class="totals">Points Remaining: <b id="pts">'+S.pool+'</b></div>' +
       row('phys','Physical (HP = ×5)') +
       row('dex','Dexterity') +
@@ -240,14 +252,14 @@ window.onload = function() {
       var minus=row.querySelector('.minus'), plus=row.querySelector('.plus');
       val.textContent = M.stats[k];
       pill.textContent = 'mod: ' + (statMod(M.stats[k])>=0?'+':'') + statMod(M.stats[k]);
-      minus.disabled = (M.stats[k]===1);
+      minus.disabled = (M.stats[k]===0);
       plus.disabled  = (M.stats[k]===5 || M.stats.pool===0);
       ptsEl.textContent = M.stats.pool;
     }
     Array.prototype.forEach.call(document.querySelectorAll('.stat'),function(row){
       refreshRow(row);
       var k=row.dataset.k, minus=row.querySelector('.minus'), plus=row.querySelector('.plus');
-      minus.onclick = function(e){ e.preventDefault(); if (M.stats[k]>1){ M.stats[k]--; normalizeStats(); refreshRow(row); saveModel(); } };
+      minus.onclick = function(e){ e.preventDefault(); if (M.stats[k]>0){ M.stats[k]--; normalizeStats(); refreshRow(row); saveModel(); } };
       plus.onclick  = function(e){ e.preventDefault(); normalizeStats(); if (M.stats[k]<5 && M.stats.pool>0){ M.stats[k]++; normalizeStats(); refreshRow(row); saveModel(); } };
     });
   }
@@ -312,9 +324,13 @@ window.onload = function() {
       return 0;
     }).reduce(function(a,b){return a+b;},0);
 
+    // Add cybernetic slots cost
+    var cyberSlotsCost = (M.cyberSlots||0) * 2;
+    spent += cyberSlotsCost;
+
     var remain = total - spent;
 
-    var canMagic = canUseMagic(race);
+    var canMagic = canUseMagic(race, arch);
 
     function renderList(title, arr, selectedSet, opt) {
       opt = opt||{};
@@ -331,6 +347,30 @@ window.onload = function() {
       return html;
     }
 
+    function renderCyberneticsSection() {
+      var cyberSlots = M.cyberSlots || 0;
+      var slotsCost = cyberSlots * 2;
+      var html = '<h3>Cybernetic Augmentations & Hacking</h3>';
+      html += '<div style="margin-bottom:10px;">';
+      html += '<label>Cybernetic Slots (2 points each): <input type="number" id="cyberSlotsInput" value="'+cyberSlots+'" min="0" max="10" style="width:60px;margin-left:5px;"></label>';
+      html += '<span class="pill" style="margin-left:10px;">Cost: '+slotsCost+' pts</span>';
+      html += '</div>';
+      
+      var arr = cyberneticsAll();
+      if (!arr.length) {
+        html += '<div class="muted">None available.</div>';
+      } else {
+        html += '<div class="list">';
+        arr.forEach(function(item){
+          var sel = M.picks.has(item.id) ? ' checked' : '';
+          var cost = item.cost ? '<span class="pill">'+item.cost+' pts</span>' : '';
+          html += '<label class="item"><input type="checkbox" data-id="'+item.id+'"'+sel+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
+        });
+        html += '</div>';
+      }
+      return html;
+    }
+
     var html =
       '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
       '<div class="totals">Points: <b>'+total+'</b> • Spent <b>'+spent+'</b> • Remaining <b>'+remain+'</b></div>' +
@@ -338,12 +378,22 @@ window.onload = function() {
       renderList("Common Powers", commonPowersForRace(race), M.picks) +
       renderList("Perks", perksForRace(race, arch), M.picks) +
       renderList("Archetype Powers", archPowersForRaceArch(race, arch), M.picks) +
-      renderList("Cybernetic Augmentations & Hacking", cyberneticsAll(), M.picks) +
-      (canMagic ? renderList("Magic Schools & Weaves", magicSchoolsAll(), M.magicSchools) : '<h3>Magic Schools & Weaves</h3><div class="muted">Not available for Spliced.</div>');
+      renderCyberneticsSection() +
+      (canMagic ? renderList("Magic Schools & Weaves", magicSchoolsAll(), M.magicSchools) : '<h3>Magic Schools & Weaves</h3><div class="muted">Not available for Spliced or Human (no powers).</div>');
 
     return html;
   }
   function page5_wire(){
+    // Handle cybernetic slots input
+    var cyberSlotsInput = document.getElementById('cyberSlotsInput');
+    if (cyberSlotsInput) {
+      cyberSlotsInput.oninput = function() {
+        M.cyberSlots = Math.max(0, parseInt(this.value) || 0);
+        saveModel();
+        render();
+      };
+    }
+
     Array.prototype.forEach.call(document.querySelectorAll('#page5 input[type="checkbox"][data-id]'),function(ch){
       ch.onchange = function(){
         var id = ch.dataset.id;
@@ -367,8 +417,8 @@ window.onload = function() {
   }
 
   function page6_render(){
-    var S = M.stats || {phys:1,dex:1,mental:1,perc:1};
-    var hp = (S.phys||1)*5;
+    var S = M.stats || {phys:0,dex:0,mental:0,perc:0};
+    var hp = Math.max(1, S.phys*5);
     var base = 15 + Array.from(M.flaws).reduce(function(s,fid){ var f=flaws.find(function(x){return x.id===fid;}); return s+(f?f.cost:0); },0);
     var spent = Array.from(M.picks).reduce(function(s,pid){
       var arrs = [commonPowers, perks, archPowers, cybernetics, magicSchools];
@@ -378,6 +428,9 @@ window.onload = function() {
       }
       return s;
     },0);
+    // Add cybernetic slots cost
+    var cyberSlotsCost = (M.cyberSlots||0) * 2;
+    spent += cyberSlotsCost;
     var remain = base - spent;
     var magicPicks = Array.from(M.magicSchools).map(function(id){
       return esc((magicSchools.find(function(x){return x.id===id;})||{}).name||id);
@@ -396,6 +449,7 @@ window.onload = function() {
         '<div><b>Perks:</b> '+getNames(perks, M.picks)+'</div>' +
         '<div><b>Archetype Powers:</b> '+getNames(archPowers, M.picks)+'</div>' +
         '<div><b>Cybernetics:</b> '+getNames(cybernetics, M.picks)+'</div>' +
+        '<div><b>Cybernetic Slots:</b> '+(M.cyberSlots||0)+' (Cost: '+cyberSlotsCost+' pts)</div>' +
         '<div><b>Magic Schools & Weaves:</b> '+magicPicks+'</div>' +
         '<div class="totals">Power Points: '+base+' • Spent '+spent+' • Remaining '+remain+'</div>' +
       '</div>'
