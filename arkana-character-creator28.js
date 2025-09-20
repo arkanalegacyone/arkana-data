@@ -30,7 +30,7 @@ window.onload = function() {
   }
   async function loadAllData() {
     const urls = [
-      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/flaws3.json",
+       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/flaws3.json",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/common_powers2.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/perks2.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/archetype_powers4.json?nocache=1",
@@ -106,23 +106,20 @@ window.onload = function() {
     if(lc(race) === "spliced") return false;
     return true;
   }
+
   function groupMagicSchoolsBySection(arr, race, arch) {
-    // Only show Technomancy if synthral
     var isSynthral = lc(race) === "human" && lc(arch) === "synthral";
     var out = {};
     arr.forEach(function(item){
-      // Only show technomancy if synthral
-      if (lc(item.section) === "technomancy" && !isSynthral) return;
-      // Otherwise, show all other schools
-      if (!out[item.section]) out[item.section] = [];
-      out[item.section].push(item);
+      var section = item.section || "Other";
+      if (lc(section) === "technomancy" && !isSynthral) return;
+      if (!out[section]) out[section] = [];
+      out[section].push(item);
     });
     return out;
   }
-  function magicSchoolsAll(race, arch) {
-    // Return only allowed schools for this archetype
-    var grouped = groupMagicSchoolsBySection(magicSchools, race, arch);
-    return grouped;
+  function magicSchoolsAllGrouped(race, arch) {
+    return groupMagicSchoolsBySection(magicSchools, race, arch);
   }
   function statMod(v){ return v===0?-3 : v===1?-2 : v===2?0 : v===3?2 : v===4?4 : v===5?6:0; }
   function normalizeStats(){
@@ -160,7 +157,6 @@ window.onload = function() {
     var cyberSlots = M.cyberSlots || 0;
     var cyberBoxes = Array.from(document.querySelectorAll('#page5 input[data-cyber="1"]'));
     var selected = cyberBoxes.filter(ch => ch.checked);
-    // Deselect extras if selected > slots
     if (selected.length > cyberSlots) {
       selected.slice(cyberSlots).forEach(ch => {
         ch.checked = false;
@@ -170,17 +166,32 @@ window.onload = function() {
       render();
       return;
     }
-    // Disable all if slots == 0
     if (cyberSlots < 1) {
       cyberBoxes.forEach(ch => ch.disabled = true);
       return;
     }
-    // If selected == slots, disable unchecked
     if (selected.length >= cyberSlots) {
       cyberBoxes.forEach(ch => { if (!ch.checked) ch.disabled = true; });
     } else {
       cyberBoxes.forEach(ch => { if (!ch.checked) ch.disabled = false; });
     }
+  }
+
+  function renderList(title, arr, selectedSet, opt) {
+    opt = opt||{};
+    var html = title ? '<h3>'+esc(title)+'</h3>' : '';
+    if (!arr.length) return html + '<div class="muted">None available.</div>';
+    html += '<div class="list">';
+    arr.forEach(function(item){
+      var sel = selectedSet.has(item.id) ? ' checked' : '';
+      var costVal = item.cost||1;
+      var disabled = (sel ? '' : (opt.willOverspend && opt.willOverspend(costVal)?' disabled':''))
+        + (opt.max && selectedSet.size>=opt.max && !sel ? ' disabled' : '');
+      var cost = item.cost ? '<span class="pill">'+item.cost+' pts</span>' : '';
+      html += '<label class="item"><input type="checkbox" data-id="'+item.id+'"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
+    });
+    html += '</div>';
+    return html;
   }
 
   function page5_render(){
@@ -245,7 +256,7 @@ window.onload = function() {
       arr.forEach(function(item){
         var sel = M.magicSchools.has(item.id) ? ' checked' : '';
         var costVal = item.cost || 1;
-        var disabled = (sel ? '' : (willOverspend(costVal)?' disabled':'')); // Could add further restrictions here
+        var disabled = (sel ? '' : (willOverspend(costVal)?' disabled':'')); 
         var cost = item.cost ? '<span class="pill">'+item.cost+' pts</span>' : '';
         html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-magic="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
       });
@@ -253,14 +264,29 @@ window.onload = function() {
       return html;
     }
 
-    var groupedMagicSchools = magicSchoolsAll(race, arch);
+    var groupedMagicSchools = magicSchoolsAllGrouped(race, arch);
     var magicHtml = canMagic
-      ? Object.keys(groupedMagicSchools).map(section=>magicSectionHtml(section, groupedMagicSchools[section])).join('')
+      ? Object.keys(groupedMagicSchools).length
+          ? Object.keys(groupedMagicSchools).map(section=>magicSectionHtml(section, groupedMagicSchools[section])).join('')
+          : '<div class="muted">No magic schools available for this archetype.</div>'
       : '<h3>Magic Schools & Weaves</h3><div class="muted">Not available for '+esc(race)+(arch?' ('+esc(arch)+')':'')+'.</div>';
 
     var commonPowersHtml = renderList("Common Powers", commonPowersForRace(race), M.picks);
     var perksHtml = renderList("Perks", perksForRace(race, arch), M.picks);
     var archPowersHtml = renderList("Archetype Powers", archPowersForRaceArch(race, arch), M.picks);
+
+    function collapsibleSection(id, title, content, open) {
+      return `
+        <div class="ark-collapsible-section" id="section-${id}">
+          <div class="ark-collapse-btn" data-target="section-${id}-body" tabindex="0" aria-expanded="${open?'true':'false'}">
+            ${esc(title)} <span class="arrow">${open ? '▼' : '►'}</span>
+          </div>
+          <div class="ark-collapsible-body" id="section-${id}-body" style="display:${open?'block':'none'};">
+            ${content}
+          </div>
+        </div>
+      `;
+    }
 
     var html =
       '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
@@ -336,7 +362,6 @@ window.onload = function() {
           render();
         };
       }
-      // Magic school checkboxes
       if(ch.dataset.magic){
         ch.onchange = function(){
           var id = ch.dataset.id;
