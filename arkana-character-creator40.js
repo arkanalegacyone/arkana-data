@@ -436,10 +436,11 @@ window.onload = function() {
     });
     enforceCyberModLimit();
 
-    // Collapsible toggle: Only toggle when you click the header, not form controls
+    // Collapsible toggle: Only toggle when you click the header, not form controls or children
     Array.prototype.forEach.call(document.querySelectorAll('.ark-collapse-btn'), function(btn){
       btn.addEventListener('click', function(e){
-        if (e.target !== btn) return; // Only toggle if clicking the header itself!
+        // Only toggle if the header itself is clicked, not any children
+        if (e.target !== btn) return;
         var targetId = btn.getAttribute('data-target');
         var body = document.getElementById(targetId);
         var expanded = btn.getAttribute('aria-expanded') === 'true';
@@ -448,14 +449,12 @@ window.onload = function() {
         var arrow = btn.querySelector('.arrow');
         if (arrow) arrow.textContent = expanded ? '►' : '▼';
       });
-    });
-
-    // Prevent collapse when interacting with inputs/labels inside the collapsible body
-    Array.prototype.forEach.call(document.querySelectorAll('.ark-collapsible-body input, .ark-collapsible-body label'), function(el){
-      el.addEventListener('click', function(e){
-        e.stopPropagation();
+      // Keyboard accessibility
+      btn.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' ') btn.click();
       });
     });
+    // No listeners on the body or inner elements!
   }
 
   // Minimal render function to display page 5
