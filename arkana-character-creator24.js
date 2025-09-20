@@ -137,6 +137,37 @@ window.onload = function() {
     return out;
   }
 
+  function numCyberModsSelected() {
+    return Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid)).length;
+  }
+
+  function enforceCyberModLimit() {
+    var cyberSlots = M.cyberSlots || 0;
+    var cyberBoxes = Array.from(document.querySelectorAll('#page5 input[data-cyber="1"]'));
+    var selected = cyberBoxes.filter(ch => ch.checked);
+    // Deselect extras if selected > slots
+    if (selected.length > cyberSlots) {
+      selected.slice(cyberSlots).forEach(ch => {
+        ch.checked = false;
+        M.picks.delete(ch.dataset.id);
+      });
+      saveModel();
+      render();
+      return;
+    }
+    // Disable all if slots == 0
+    if (cyberSlots < 1) {
+      cyberBoxes.forEach(ch => ch.disabled = true);
+      return;
+    }
+    // If selected == slots, disable unchecked
+    if (selected.length >= cyberSlots) {
+      cyberBoxes.forEach(ch => { if (!ch.checked) ch.disabled = true; });
+    } else {
+      cyberBoxes.forEach(ch => { if (!ch.checked) ch.disabled = false; });
+    }
+  }
+
   function page5_render(){
     var race = M.race || "";
     var arch = M.arch || "";
@@ -164,19 +195,15 @@ window.onload = function() {
       return spent + extra > total;
     }
 
-    // Cybernetic section enforcement
     var cyberSlots = M.cyberSlots || 0;
     var groupedMods = groupCyberneticsBySection(cyberneticsAll());
-    function numCyberModsSelected() {
-      return Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid)).length;
-    }
+
     function cyberSectionHtml(section, arr) {
       var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
       var modsSelected = numCyberModsSelected();
       arr.forEach(function(item){
         var sel = M.picks.has(item.id) ? ' checked' : '';
         var costVal = item.cost||1;
-        // Enforce slot logic: if slots == 0, disable all. If selected mods == slots, disable unchecked. If selected mods < slots, enable unchecked unless overspend.
         var disabled = '';
         if (cyberSlots < 1) disabled = ' disabled';
         else if (!sel && modsSelected >= cyberSlots) disabled = ' disabled';
@@ -264,8 +291,6 @@ window.onload = function() {
           return 0;
         }).reduce(function(a,b){return a+b;},0);
         var spent = picksSpent + (val*2);
-        var remain = total - spent;
-        // Remove mods if slots set to zero or reduce mods to fit slot count
         var cyberMods = Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid));
         if (val === 0) {
           cyberMods.forEach(pid=>M.picks.delete(pid));
@@ -277,7 +302,6 @@ window.onload = function() {
         render();
       };
     }
-    // Powers, Perks, Arch mods
     Array.prototype.forEach.call(document.querySelectorAll('#page5 input[type="checkbox"][data-id]'),function(ch){
       if(!ch.dataset.cyber){
         ch.onchange = function(){
@@ -312,7 +336,6 @@ window.onload = function() {
         };
       }
     });
-    // Cyber mods enforcement
     Array.prototype.forEach.call(document.querySelectorAll('#page5 input[data-cyber="1"]'), function(ch){
       ch.onchange = function(){
         var id = ch.dataset.id;
@@ -339,10 +362,12 @@ window.onload = function() {
         }
         if (ch.checked) M.picks.add(id);
         else M.picks.delete(id);
+        enforceCyberModLimit();
         saveModel();
         render();
       };
     });
+    enforceCyberModLimit();
     Array.prototype.forEach.call(document.querySelectorAll('.ark-collapse-btn'), function(btn){
       btn.onclick = function(){
         var targetId = btn.getAttribute('data-target');
@@ -460,7 +485,7 @@ window.onload = function() {
           '<button type="button" class="minus">–</button>' +
           '<strong class="val">'+S[k]+'</strong>' +
           '<button type="button" class="plus">+</button>' +
-          '<span class="stat-mod">mod: '+(statMod(S[k])>=0?'+':'')+statMod(S[k])+'</span>' +
+          '<span class="stat-mod">mod: '+(statMod(M.stats[k])>=0?'+':'')+statMod(M.stats[k])+'</span>' +
         '</div>'
       );
     }
@@ -480,7 +505,7 @@ window.onload = function() {
       var k=row.dataset.k, val=row.querySelector('.val'), pill=row.querySelector('.stat-mod');
       var minus=row.querySelector('.minus'), plus=row.querySelector('.plus');
       val.textContent = M.stats[k];
-      pill.textContent = 'mod: ' + (statMod(M.stats[k])>=0?'+':'') + statMod(S[k]);
+      pill.textContent = 'mod: ' + (statMod(M.stats[k])>=0?'+':'') + statMod(M.stats[k]);
       minus.disabled = (M.stats[k]===0);
       plus.disabled  = (M.stats[k]===5 || M.stats.pool===0);
       ptsEl.textContent = M.stats.pool;
