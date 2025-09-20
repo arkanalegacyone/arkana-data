@@ -30,7 +30,7 @@ window.onload = function() {
   }
   async function loadAllData() {
     const urls = [
-       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/flaws3.json",
+      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/flaws3.json",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/common_powers2.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/perks2.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/archetype_powers4.json?nocache=1",
@@ -110,11 +110,21 @@ window.onload = function() {
   function groupMagicSchoolsBySection(arr, race, arch) {
     var isSynthral = lc(race) === "human" && lc(arch) === "synthral";
     var out = {};
+    // Group by section and filter Technomancy if not synthral
     arr.forEach(function(item){
       var section = item.section || "Other";
       if (lc(section) === "technomancy" && !isSynthral) return;
       if (!out[section]) out[section] = [];
       out[section].push(item);
+    });
+    // Sort each section so school entry is first
+    Object.keys(out).forEach(function(section){
+      out[section].sort(function(a,b){
+        // School entry is always cost 1 or 0 and has id starting with "school_"
+        if (a.id.startsWith("school_")) return -1;
+        if (b.id.startsWith("school_")) return 1;
+        return 0;
+      });
     });
     return out;
   }
@@ -194,18 +204,46 @@ window.onload = function() {
     return html;
   }
 
-  function page5_render(){
-    var race = M.race || "";
-    var arch = M.arch || "";
+  function magicSectionHtml(section, arr) {
+    var schoolEntry = arr[0];
+    var schoolSelected = M.magicSchools.has(schoolEntry.id);
+    var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
+    arr.forEach(function(item, idx){
+      var sel = M.magicSchools.has(item.id) ? ' checked' : '';
+      var costVal = item.cost || 1;
+      var disabled = '';
+      if (idx === 0) {
+        disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
+      } else {
+        if (!schoolSelected) disabled = ' disabled';
+        else disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
+      }
+      var cost = item.cost ? '<span class="pill">'+item.cost+' pts</span>' : '';
+      html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-magic="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function willOverspend(extra) {
+    var spent = pointsSpentTotal();
+    var total = pointsTotal();
+    return spent + extra > total;
+  }
+
+  function pointsTotal() {
     var total = 15 + Array.from(M.flaws).reduce(function(s,fid){
       var f=flaws.find(function(x){return x.id===fid;});
       return s+(f?f.cost:0);
     },0);
+    return total;
+  }
 
-    var cyberSlotCost = (M.cyberSlots || 0) * 2;
+  function pointsSpentTotal() {
+    // Count picks and magicSchools together
     var allPicks = Array.from(M.picks);
-    var spent = allPicks.map(function(pid){
-      var arrs = [commonPowers, perks, archPowers, cybernetics, magicSchools];
+    var spentPicks = allPicks.map(function(pid){
+      var arrs = [commonPowers, perks, archPowers, cybernetics];
       for(var i=0;i<arrs.length;i++){
         var found=arrs[i].find(function(x){return x.id===pid;});
         if(found) return found.cost||1;
@@ -213,13 +251,23 @@ window.onload = function() {
       return 0;
     }).reduce(function(a,b){return a+b;},0);
 
-    spent += cyberSlotCost;
+    var spentMagic = Array.from(M.magicSchools).map(function(id){
+      var found = magicSchools.find(function(x){return x.id===id;});
+      return found ? found.cost||1 : 0;
+    }).reduce(function(a,b){return a+b;},0);
+
+    var cyberSlotCost = (M.cyberSlots || 0) * 2;
+
+    return spentPicks + spentMagic + cyberSlotCost;
+  }
+
+  function page5_render(){
+    var race = M.race || "";
+    var arch = M.arch || "";
+    var total = pointsTotal();
+    var spent = pointsSpentTotal();
     var remain = total - spent;
     var canMagic = canUseMagic(race, arch);
-
-    function willOverspend(extra) {
-      return spent + extra > total;
-    }
 
     var cyberSlots = M.cyberSlots || 0;
     var groupedMods = groupCyberneticsBySection(cyberneticsAll());
@@ -246,23 +294,10 @@ window.onload = function() {
       '<div class="muted" style="margin-bottom:8px;font-size:1em;">To purchase <b>Cybernetic Augmentations & Hacking</b> items, you must first purchase a slot.</div>' +
       '<label class="ark-input" style="font-weight:600;width:auto;display:inline-block;margin-right:12px;">Cybernetic Slots</label>' +
       '<input type="number" min="0" max="10" class="cybernetic-input" id="cyberneticSlotInput" value="'+cyberSlots+'"'+((remain<2 && cyberSlots < 10)?' disabled':'')+'">' +
-      '<span class="cybernetic-cost" style="margin-left:10px;">Cost: '+cyberSlotCost+' points</span>' +
+      '<span class="cybernetic-cost" style="margin-left:10px;">Cost: '+(cyberSlots*2)+' points</span>' +
       ((remain<2 && cyberSlots < 10) ? '<span class="muted" style="margin-left:10px;">No points left for more slots</span>':'') +
       '</div>' +
       Object.keys(groupedMods).map(section=>cyberSectionHtml(section, groupedMods[section])).join('');
-
-    function magicSectionHtml(section, arr) {
-      var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
-      arr.forEach(function(item){
-        var sel = M.magicSchools.has(item.id) ? ' checked' : '';
-        var costVal = item.cost || 1;
-        var disabled = (sel ? '' : (willOverspend(costVal)?' disabled':'')); 
-        var cost = item.cost ? '<span class="pill">'+item.cost+' pts</span>' : '';
-        html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-magic="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
-      });
-      html += '</div>';
-      return html;
-    }
 
     var groupedMagicSchools = magicSchoolsAllGrouped(race, arch);
     var magicHtml = canMagic
@@ -306,18 +341,10 @@ window.onload = function() {
     if (cyberSlotInput) {
       cyberSlotInput.oninput = function(e){
         var val = Math.max(0, Math.min(10, parseInt(e.target.value)||0));
-        var total = 15 + Array.from(M.flaws).reduce(function(s,fid){
-          var f=flaws.find(function(x){return x.id===fid;}); return s+(f?f.cost:0);
-        },0);
-        var allPicks = Array.from(M.picks);
-        var picksSpent = allPicks.map(function(pid){
-          var arrs = [commonPowers, perks, archPowers, cybernetics, magicSchools];
-          for(var i=0;i<arrs.length;i++){
-            var found=arrs[i].find(function(x){return x.id===pid;}); if(found) return found.cost||1;
-          }
-          return 0;
-        }).reduce(function(a,b){return a+b;},0);
-        var spent = picksSpent + (val*2);
+        var total = pointsTotal();
+        var spent = pointsSpentTotal();
+        if (val < 0) val = 0;
+        if (val > 10) val = 10;
         var cyberMods = Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid));
         if (val === 0) {
           cyberMods.forEach(pid=>M.picks.delete(pid));
@@ -340,17 +367,8 @@ window.onload = function() {
             if(found) break;
           }
           var costVal = found ? (found.cost||1) : 1;
-          var total = 15 + Array.from(M.flaws).reduce(function(s,fid){
-            var f=flaws.find(function(x){return x.id===fid;}); return s+(f?f.cost:0);
-          },0);
-          var cyberSlotCost = (M.cyberSlots || 0) * 2;
-          var picksSpent = Array.from(M.picks).map(function(pid){
-            for(var i=0;i<arrs.length;i++){
-              var f=arrs[i].find(function(x){return x.id===pid;}); if(f) return f.cost||1;
-            }
-            return 0;
-          }).reduce(function(a,b){return a+b;},0);
-          var spent = picksSpent + cyberSlotCost;
+          var total = pointsTotal();
+          var spent = pointsSpentTotal();
           var remain = total - spent;
           if (ch.checked && remain < costVal) {
             ch.checked = false;
@@ -362,30 +380,37 @@ window.onload = function() {
           render();
         };
       }
+      // Magic school checkboxes
       if(ch.dataset.magic){
         ch.onchange = function(){
           var id = ch.dataset.id;
           var school = magicSchools.find(function(x){return x.id===id;});
           var costVal = school ? (school.cost||1) : 1;
-          var total = 15 + Array.from(M.flaws).reduce(function(s,fid){
-            var f=flaws.find(function(x){return x.id===fid;}); return s+(f?f.cost:0);
-          },0);
-          var cyberSlotCost = (M.cyberSlots || 0) * 2;
-          var picksSpent = Array.from(M.picks).map(function(pid){
-            var arrs = [commonPowers, perks, archPowers, cybernetics];
-            for(var i=0;i<arrs.length;i++){
-              var f=arrs[i].find(function(x){return x.id===pid;}); if(f) return f.cost||1;
-            }
-            return 0;
-          }).reduce(function(a,b){return a+b;},0);
-          var spent = picksSpent + cyberSlotCost;
+          var section = school.section;
+          var grouped = magicSchoolsAllGrouped(M.race, M.arch);
+          var arr = grouped[section] || [];
+          var isSchoolEntry = arr.length && arr[0].id === id;
+          var total = pointsTotal();
+          var spent = pointsSpentTotal();
           var remain = total - spent;
+          // If trying to check a weave without school entry, block (should already be disabled)
+          if (!isSchoolEntry && !M.magicSchools.has(arr[0].id)) {
+            ch.checked = false;
+            return;
+          }
           if (ch.checked && remain < costVal) {
             ch.checked = false;
             return;
           }
-          if (ch.checked) M.magicSchools.add(id);
-          else M.magicSchools.delete(id);
+          if (ch.checked) {
+            M.magicSchools.add(id);
+          } else {
+            M.magicSchools.delete(id);
+            // If school entry unchecked, uncheck all weaves in section
+            if (isSchoolEntry) {
+              arr.slice(1).forEach(item => M.magicSchools.delete(item.id));
+            }
+          }
           saveModel();
           render();
         };
@@ -396,18 +421,8 @@ window.onload = function() {
         var id = ch.dataset.id;
         var found = cybernetics.find(function(x){return x.id===id;});
         var costVal = found ? (found.cost||1) : 1;
-        var total = 15 + Array.from(M.flaws).reduce(function(s,fid){
-          var f=flaws.find(function(x){return x.id===fid;}); return s+(f?f.cost:0);
-        },0);
-        var cyberSlotCost = (M.cyberSlots || 0) * 2;
-        var picksSpent = Array.from(M.picks).map(function(pid){
-          var arrs = [commonPowers, perks, archPowers, cybernetics, magicSchools];
-          for(var i=0;i<arrs.length;i++){
-            var f=arrs[i].find(function(x){return x.id===pid;}); if(f) return f.cost||1;
-          }
-          return 0;
-        }).reduce(function(a,b){return a+b;},0);
-        var spent = picksSpent + cyberSlotCost;
+        var total = pointsTotal();
+        var spent = pointsSpentTotal();
         var remain = total - spent;
         var cyberSlots = M.cyberSlots || 0;
         var numModsSelected = Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid)).length;
@@ -618,16 +633,8 @@ window.onload = function() {
   function page6_render(){
     var S = M.stats || {phys:0,dex:0,mental:0,perc:0};
     var hp = (S.phys||0)*5;
-    var base = 15 + Array.from(M.flaws).reduce(function(s,fid){ var f=flaws.find(function(x){return x.id===fid;}); return s+(f?f.cost:0); },0);
-    base -= (M.cyberSlots || 0) * 2;
-    var spent = Array.from(M.picks).reduce(function(s,pid){
-      var arrs = [commonPowers, perks, archPowers, cybernetics, magicSchools];
-      for(var i=0;i<arrs.length;i++){
-        var found=arrs[i].find(function(x){return x.id===pid;});
-        if(found) return s+(found.cost||1);
-      }
-      return s;
-    },0);
+    var base = pointsTotal();
+    var spent = pointsSpentTotal();
     var remain = base - spent;
     var magicPicks = Array.from(M.magicSchools).map(function(id){
       return esc((magicSchools.find(function(x){return x.id===id;})||{}).name||id);
