@@ -40,10 +40,6 @@
     "desc": "Instinctual magic integrated with machines; not purchasable by non-Synthrals."
   },
 
-  // --- Invocation Weaves ---
-  // (Add invocation weaves if needed)
-
-  // --- Evocation Weaves ---
   {
     "id": "evocation_create_element_minor",
     "name": "Create Element (Minor)",
@@ -65,7 +61,6 @@
     "desc": "Shape moderate effect or elemental construct. Cost: 3 points. TN12."
   },
 
-  // --- Conjuring Weaves ---
   {
     "id": "conjure_weapon",
     "name": "Conjure Weapon",
@@ -97,7 +92,6 @@
     "desc": "Summon cloud of minor entities. Enemies in area take –1 to physical/mental rolls for 2 turns. Cost: 2 points. Mental vs TN12."
   },
 
-  // --- Necromancy Weaves ---
   {
     "id": "necromancy_animate_corpse",
     "name": "Animate Corpse",
@@ -129,7 +123,6 @@
     "desc": "Restore 6 HP. Cost: 2 points. Mental vs TN12."
   },
 
-  // --- Enchantment Weaves ---
   {
     "id": "enchant_item",
     "name": "Enchant Item",
@@ -231,7 +224,6 @@
     "desc": "Makes an enchantment permanent. Must be applied at creation with another weave. Cost: 5 points."
   },
 
-  // --- Abjuration Weaves ---
   {
     "id": "abjuration_create_barrier",
     "name": "Create Barrier (Minor)",
@@ -258,7 +250,6 @@
     "desc": "Deals minor magical damage 6 + Mental. Cost: 2 points. TN12."
   },
 
-  // --- Divination Weaves ---
   {
     "id": "divination_veilglimpse",
     "name": "Veilglimpse",
@@ -305,7 +296,6 @@
     "desc": "Divine ill intent of others; sense tainted or poisoned food/drink. Cost: 2 points."
   },
 
-  // --- Technomancy Weaves (Synthrals only) ---
   {
     "id": "technomancy_sync_device",
     "name": "Sync with Device",
