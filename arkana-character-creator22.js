@@ -30,7 +30,7 @@ window.onload = function() {
   }
   async function loadAllData() {
     const urls = [
-      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/flaws2.json",
+      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/flaws3.json",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/common_powers2.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/perks2.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/archetype_powers4.json?nocache=1",
@@ -49,35 +49,33 @@ window.onload = function() {
     magicSchools = magicData;
   }
 
-  // STRONG flaw filter logic for humans with archetype-specific flaws
+  // Flaw filter: show flaws based on species type for humans
   function flawsForRace(race, arch) {
     if (!race) return [];
     var r = lc(race);
     var a = arch ? lc(arch) : "";
-
+    // These are the canonical human species types
+    var humanSpeciesTypes = {
+      "human (no powers)": "human_without_power",
+      "arcanist": "arcanist",
+      "synthral": "synthral",
+      "psion": "psion"
+    };
+    // For human, match species tag
+    if(r === "human"){
+      var speciesTag = humanSpeciesTypes[a] || "human_without_power";
+      return flaws.filter(function(flaw){
+        var tags = flaw.tags ? flaw.tags.map(lc) : [];
+        return tags.indexOf("species:" + speciesTag) >= 0;
+      });
+    }
+    // For other races, match by race tag
     return flaws.filter(function(flaw){
       var tags = flaw.tags ? flaw.tags.map(lc) : [];
-      // Strigoi and Gaki
       if (r === "strigoi" && tags.indexOf("race:strigoi") >= 0) return true;
       if (r === "gaki" && tags.indexOf("race:gaki") >= 0) return true;
-      // Veilborn, Spliced, etc
       if(tags.indexOf("race:" + r) >= 0) return true;
       if(a && (tags.indexOf("arch:" + a) >= 0 || tags.indexOf("spec:" + a) >= 0)) return true;
-
-      // Human race: filter by archetype-specific tags
-      if (r === "human") {
-        // If flaw has species/archetype tags, only show if it matches the archetype
-        var hasPsion = tags.indexOf("species:psion") >= 0 || tags.indexOf("arch:psion") >= 0;
-        var hasArcanist = tags.indexOf("species:arcanist") >= 0 || tags.indexOf("arch:arcanist") >= 0;
-        var hasSynthral = tags.indexOf("species:synthral") >= 0 || tags.indexOf("arch:synthral") >= 0;
-        // Only show if matching archetype
-        if (hasPsion && a === "psion") return true;
-        if (hasArcanist && a === "arcanist") return true;
-        if (hasSynthral && a === "synthral") return true;
-        // If flaw is NOT tagged with any archetype/species, but is race:human, show always
-        if (!hasPsion && !hasArcanist && !hasSynthral && tags.indexOf("race:human") >= 0) return true;
-        return false;
-      }
       return false;
     });
   }
