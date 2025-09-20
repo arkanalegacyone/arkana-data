@@ -1,66 +1,153 @@
 [
-  {
-    "id": "hum_stasis_degradation",
+ {
+    "id": "hum_stasis_degradation_hnp",
     "name": "Stasis Degradation",
     "desc": "Powers weakened after cryosleep; first activation after sleep rolls –2 to Stat modifier for activation until trained/adjusted (1–2 scenes).",
     "cost": 3,
-    "tags": ["race:human"]
+    "tags": ["species:human_without_power"]
   },
+  {
+    "id": "hum_stasis_degradation_arc",
+    "name": "Stasis Degradation",
+    "desc": "Powers weakened after cryosleep; first activation after sleep rolls –2 to Stat modifier for activation until trained/adjusted (1–2 scenes).",
+    "cost": 3,
+    "tags": ["species:arcanist"]
+  },
+  {
+    "id": "hum_stasis_degradation_syn",
+    "name": "Stasis Degradation",
+    "desc": "Powers weakened after cryosleep; first activation after sleep rolls –2 to Stat modifier for activation until trained/adjusted (1–2 scenes).",
+    "cost": 3,
+    "tags": ["species:synthral"]
+  },
+  {
+    "id": "hum_stasis_degradation_psion",
+    "name": "Stasis Degradation",
+    "desc": "Powers weakened after cryosleep; first activation after sleep rolls –2 to Stat modifier for activation until trained/adjusted (1–2 scenes).",
+    "cost": 3,
+    "tags": ["species:psion"]
+  },
+
   {
     "id": "hum_system_vulnerability",
     "name": "System Vulnerability",
     "desc": "Neural link to the Ark can be hijacked; failed TN 12 Mental roll may allow rogue code or AI to manipulate the Synthral.",
     "cost": 4,
-    "tags": ["race:human","spec:synthral"]
+    "tags": ["species:synthral"]
   },
+
   {
-    "id": "hum_cognitive_drift",
+    "id": "hum_cognitive_drift_hnp",
     "name": "Cognitive Drift",
     "desc": "Exposure to Ark anomalies or magic causes –1 to Mental rolls and occasional confusion (DM discretion).",
     "cost": 2,
-    "tags": ["race:human"]
+    "tags": ["species:human_without_power"]
   },
+  {
+    "id": "hum_cognitive_drift_arc",
+    "name": "Cognitive Drift",
+    "desc": "Exposure to Ark anomalies or magic causes –1 to Mental rolls and occasional confusion (DM discretion).",
+    "cost": 2,
+    "tags": ["species:arcanist"]
+  },
+  {
+    "id": "hum_cognitive_drift_syn",
+    "name": "Cognitive Drift",
+    "desc": "Exposure to Ark anomalies or magic causes –1 to Mental rolls and occasional confusion (DM discretion).",
+    "cost": 2,
+    "tags": ["species:synthral"]
+  },
+  {
+    "id": "hum_cognitive_drift_psion",
+    "name": "Cognitive Drift",
+    "desc": "Exposure to Ark anomalies or magic causes –1 to Mental rolls and occasional confusion (DM discretion).",
+    "cost": 2,
+    "tags": ["species:psion"]
+  },
+
   {
     "id": "hum_temporal_dislocation",
     "name": "Temporal Dislocation",
     "desc": "(Psion only) Precognition may leave character distracted; –1 to Physical and Dex rolls during or immediately after visions.",
     "cost": 3,
-    "tags": ["race:human","spec:psion"]
+    "tags": ["species:psion"]
   },
   {
     "id": "hum_psychic_overload",
     "name": "Psychic Overload",
     "desc": "(Psion only) Crowds or emotional intensity impose –1 Mental while active; may skip one action per scene if overloaded.",
     "cost": 2,
-    "tags": ["race:human","spec:psion"]
+    "tags": ["species:psion"]
   },
   {
-    "id": "hum_cult_stigma",
+    "id": "hum_cult_stigma_hnp",
     "name": "Cult Stigma",
     "desc": "Viewed with suspicion by other factions; –1 Social roll in interactions with non-allied factions.",
     "cost": 2,
-    "tags": ["race:human"]
+    "tags": ["species:human_without_power"]
   },
   {
-    "id": "hum_tech_obsession",
+    "id": "hum_cult_stigma_arc",
+    "name": "Cult Stigma",
+    "desc": "Viewed with suspicion by other factions; –1 Social roll in interactions with non-allied factions.",
+    "cost": 2,
+    "tags": ["species:arcanist"]
+  },
+  {
+    "id": "hum_cult_stigma_syn",
+    "name": "Cult Stigma",
+    "desc": "Viewed with suspicion by other factions; –1 Social roll in interactions with non-allied factions.",
+    "cost": 2,
+    "tags": ["species:synthral"]
+  },
+  {
+    "id": "hum_cult_stigma_psion",
+    "name": "Cult Stigma",
+    "desc": "Viewed with suspicion by other factions; –1 Social roll in interactions with non-allied factions.",
+    "cost": 2,
+    "tags": ["species:psion"]
+  },
+  {
+    "id": "hum_tech_obsession_hnp",
     "name": "Tech-obsession",
     "desc": "Obsessed with tech; –1 Perception while interacting with environment or non-tech scenarios.",
     "cost": 2,
-    "tags": ["race:human"]
+    "tags": ["species:human_without_power"]
+  },
+  {
+    "id": "hum_tech_obsession_arc",
+    "name": "Tech-obsession",
+    "desc": "Obsessed with tech; –1 Perception while interacting with environment or non-tech scenarios.",
+    "cost": 2,
+    "tags": ["species:arcanist"]
+  },
+  {
+    "id": "hum_tech_obsession_syn",
+    "name": "Tech-obsession",
+    "desc": "Obsessed with tech; –1 Perception while interacting with environment or non-tech scenarios.",
+    "cost": 2,
+    "tags": ["species:synthral"]
+  },
+  {
+    "id": "hum_tech_obsession_psion",
+    "name": "Tech-obsession",
+    "desc": "Obsessed with tech; –1 Perception while interacting with environment or non-tech scenarios.",
+    "cost": 2,
+    "tags": ["species:psion"]
   },
   {
     "id": "hum_arcane_isolation",
     "name": "Arcane Isolation",
     "desc": "(Arcanist only) Withdrawal from non-magical beings; –1 Social rolls outside magical/familiar company.",
     "cost": 2,
-    "tags": ["race:human","spec:arcanist"]
+    "tags": ["species:arcanist"]
   },
   {
     "id": "hum_mental_contagion",
     "name": "Mental Contagion",
     "desc": "(Psion only) Exposure to unstable minds or corrupted systems risks memory lapses; –1 Mental rolls during prolonged exposure.",
     "cost": 3,
-    "tags": ["race:human","spec:psion"]
+    "tags": ["species:psion"]
   },
   {
     "id": "veil_identity_drift",
