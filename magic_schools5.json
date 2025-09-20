@@ -49,14 +49,6 @@
     "cost": 1
   },
   {
-    "id": "school_technomancy",
-    "name": "Technomancy (Synthrals only)",
-    "desc": "Instinctual magic integrated with machines; not purchasable by non-Synthrals.",
-    "section": "Technomancy",
-    "species": "synthral",
-    "cost": 1
-  },
-  {
     "id": "evocation_create_element_minor",
     "name": "Create Element (Minor)",
     "desc": "6 damage + Mental to target, or create small effect (fire, ice, lightning, wind, water, earth). TN12.",
