@@ -1,6 +1,6 @@
 #ark-wizard{font:14px/1.45 system-ui,Segoe UI,Arial,sans-serif; color:#111; max-width:900px; margin:0 auto; padding:10px}
-#ark-wizard h2{font-size:18px;margin:12px 0 8px}
-#ark-wizard h3{font-size:15px;margin:10px 0 6px}
+#ark-wizard h2{font-size:16px;margin:12px 0 8px}
+#ark-wizard h3{font-size:14px;margin:10px 0 6px}
 .ark-steps{display:flex;gap:6px;margin:8px 0}
 .ark-step{padding:4px 8px;border:1px solid #bbb;border-radius:6px;background:#f7f7f7}
 .ark-step.current{background:#e8f0ff;border-color:#7aa2ff}
