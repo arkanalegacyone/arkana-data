@@ -49,21 +49,19 @@ window.onload = function() {
     magicSchools = magicData;
   }
 
-  // Updated flaw filtering logic for Strigoi and Gaki
+  // Updated flaw filtering logic for Strigoi and Gaki (and all races)
   function flawsForRace(race, arch) {
     if (!race) return [];
     var r = lc(race);
     var a = arch ? lc(arch) : "";
-    // Use tags with "race:strigoi" and "race:gaki"
     return flaws.filter(function(flaw){
       var tags = flaw.tags ? flaw.tags.map(lc) : [];
-      // Match by tag for strigoi/gaki
       if (r === "strigoi" && tags.indexOf("race:strigoi") >= 0) return true;
       if (r === "gaki" && tags.indexOf("race:gaki") >= 0) return true;
-      // Otherwise match fallback by race tag
       if(tags.indexOf("race:" + r) >= 0) return true;
-      // If archetype-specific flaws exist
       if(a && (tags.indexOf("arch:" + a) >= 0 || tags.indexOf("spec:" + a) >= 0)) return true;
+      // fallback for humans and others
+      if (r === "human" && tags.indexOf("race:human") >= 0) return true;
       return false;
     });
   }
@@ -110,14 +108,143 @@ window.onload = function() {
     return S;
   }
 
-  function page1_render(){/* unchanged */}
-  function page1_wire(){/* unchanged */}
-  function page2_render(){/* unchanged */}
-  function page2_wire(){/* unchanged */}
-  function page3_render(){/* unchanged */}
-  function page3_wire(){/* unchanged */}
+  function page1_render(){
+    var I = M.identity || (M.identity={});
+    return (
+      '<h2>Identity</h2>' +
+      '<div class="ark-row">' +
+        '<div><label>Character Name</label><input class="ark-input" id="i_name" value="'+esc(I.name||'')+'"></div>' +
+        '<div><label>Second Life Name</label><input class="ark-input" id="i_sl" value="'+esc(I.sl||'')+'"></div>' +
+        '<div><label>Alias / Callsign <span class="muted">(optional)</span></label><input class="ark-input" id="i_alias" value="'+esc(I.alias||'')+'"></div>' +
+        '<div><label>Faction / Allegiance <span class="muted">(optional)</span></label><input class="ark-input" id="i_faction" value="'+esc(I.faction||'')+'"></div>' +
+        '<div><label>Concept / Role</label><input class="ark-input" id="i_concept" value="'+esc(I.concept||'')+'"></div>' +
+        '<div><label>Job</label><input class="ark-input" id="i_job" value="'+esc(I.job||'')+'"></div>' +
+        '<div style="grid-column:1/-1"><label>Background</label><textarea class="ark-input" rows="5" id="i_bg">'+esc(I.background||'')+'</textarea></div>' +
+      '</div>'
+    );
+  }
+  function page1_wire(){
+    var I = M.identity;
+    [['i_name','name'],['i_sl','sl'],['i_alias','alias'],['i_faction','faction'],['i_concept','concept'],['i_job','job'],['i_bg','background']]
+      .forEach(function(pair){ var id=pair[0],key=pair[1]; var n=document.getElementById(id); if(n) n.oninput=function(e){ I[key]=e.target.value; saveModel(); }; });
+  }
 
-  // Updated PAGE 4 (Flaws) rendering/wiring
+  function page2_render(){
+    var races = [
+      { name: "Human", arches: ["Human (no powers)","Arcanist","Synthral","Psion"] },
+      { name: "Veilborn", arches: ["Echoes","Veils","Blossoms","Glass","Unaffiliated"] },
+      { name: "Spliced", arches: ["Predators","Avian","Aquatic","Reptilian","Insectoid","Chimeric"] },
+      { name: "Strigoi", arches: ["Life","Death","Warrior","Ruler"] },
+      { name: "Gaki", arches: ["Yin","Hun","Yang","P’o","Chudo"] }
+    ];
+    var race = M.race || '';
+    var arch = M.arch || '';
+    var current = races.find(function(r){return r.name === race;});
+    var arches  = current ? current.arches : [];
+    return (
+      '<h2>Race & Archetype</h2>' +
+      '<div>' +
+        '<label>Race</label>' +
+        '<select id="raceSel" class="ark-input">' +
+          '<option value="">— choose —</option>' +
+          races.map(function(r){return '<option value="'+esc(r.name)+'"'+(r.name===race?' selected':'')+'>'+esc(r.name)+'</option>';}).join('') +
+        '</select>' +
+      '</div>' +
+      '<div style="margin-top:10px">' +
+        '<label>Archetype / Path / Court <span class="muted">(optional)</span></label>' +
+        '<select id="archSel" class="ark-input"'+(race?'':' disabled')+'>' +
+          '<option value="">— optional —</option>' +
+          arches.map(function(a){return '<option value="'+esc(a)+'"'+(a===arch?' selected':'')+'>'+esc(a)+'</option>';}).join('') +
+        '</select>' +
+      '</div>' +
+      '<div class="note" style="margin-top:10px">Humans include <b>Human (no powers)</b>. Veilborn may select <b>Unaffiliated</b>.</div>'
+    );
+  }
+  function page2_wire(){
+    var raceSel = document.getElementById('raceSel');
+    var archSel = document.getElementById('archSel');
+    if (!(M.flaws instanceof Set)) M.flaws = new Set(M.flaws||[]);
+    if (!(M.picks instanceof Set)) M.picks = new Set(M.picks||[]);
+    if (!(M.magicSchools instanceof Set)) M.magicSchools = new Set(M.magicSchools||[]);
+    if (raceSel){
+      var onRace = function(){
+        var newRace = raceSel.value || '';
+        M.race = newRace;
+        M.arch = '';
+        M.flaws.clear();
+        M.picks.clear();
+        M.magicSchools.clear();
+        var races = [
+          { name: "Human", arches: ["Human (no powers)","Arcanist","Synthral","Psion"] },
+          { name: "Veilborn", arches: ["Echoes","Veils","Blossoms","Glass","Unaffiliated"] },
+          { name: "Spliced", arches: ["Predators","Avian","Aquatic","Reptilian","Insectoid","Chimeric"] },
+          { name: "Strigoi", arches: ["Life","Death","Warrior","Ruler"] },
+          { name: "Gaki", arches: ["Yin","Hun","Yang","P’o","Chudo"] }
+        ];
+        var cur = races.find(function(r){return r.name === newRace;});
+        var arches = cur ? cur.arches : [];
+        if (archSel){
+          archSel.disabled = !newRace;
+          archSel.innerHTML = '<option value="">— optional —</option>' +
+            arches.map(function(a){return '<option value="'+esc(a)+'">'+esc(a)+'</option>';}).join('');
+        }
+        saveModel();
+        render();
+      };
+      raceSel.addEventListener('change', onRace, { passive:true });
+      raceSel.addEventListener('input',  onRace, { passive:true });
+    }
+    if (archSel){
+      archSel.addEventListener('change', function(){
+        M.arch = archSel.value || '';
+        saveModel();
+        render();
+      }, { passive:true });
+    }
+  }
+
+  function page3_render(){
+    var S = normalizeStats();
+    function row(k,label){
+      return (
+        '<div class="stat" data-k="'+k+'">' +
+          '<div style="width:210px">'+label+'</div>' +
+          '<button type="button" class="minus">–</button>' +
+          '<strong class="val">'+S[k]+'</strong>' +
+          '<button type="button" class="plus">+</button>' +
+          '<span class="stat-mod">mod: '+(statMod(S[k])>=0?'+':'')+statMod(S[k])+'</span>' +
+        '</div>'
+      );
+    }
+    return (
+      '<h2>Stats (10 points total; each stat 0–5)</h2>' +
+      '<div class="totals">Points Remaining: <b id="pts">'+S.pool+'</b></div>' +
+      row('phys','Physical (HP = ×5)') +
+      row('dex','Dexterity') +
+      row('mental','Mental') +
+      row('perc','Perception')
+    );
+  }
+  function page3_wire(){
+    normalizeStats();
+    var ptsEl = document.getElementById('pts');
+    function refreshRow(row){
+      var k=row.dataset.k, val=row.querySelector('.val'), pill=row.querySelector('.stat-mod');
+      var minus=row.querySelector('.minus'), plus=row.querySelector('.plus');
+      val.textContent = M.stats[k];
+      pill.textContent = 'mod: ' + (statMod(M.stats[k])>=0?'+':'') + statMod(M.stats[k]);
+      minus.disabled = (M.stats[k]===0);
+      plus.disabled  = (M.stats[k]===5 || M.stats.pool===0);
+      ptsEl.textContent = M.stats.pool;
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.stat'),function(row){
+      refreshRow(row);
+      var k=row.dataset.k, minus=row.querySelector('.minus'), plus=row.querySelector('.plus');
+      minus.onclick = function(e){ e.preventDefault(); if (M.stats[k]>0){ M.stats[k]--; normalizeStats(); refreshRow(row); saveModel(); } };
+      plus.onclick  = function(e){ e.preventDefault(); normalizeStats(); if (M.stats[k]<5 && M.stats.pool>0){ M.stats[k]++; normalizeStats(); refreshRow(row); saveModel(); } };
+    });
+  }
+
   function page4_render() {
     var race = M.race || "Human";
     var arch = M.arch || "";
@@ -159,8 +286,6 @@ window.onload = function() {
       };
     });
   }
-
-  // PAGE 5, 6, and render function unchanged (use previous working versions)
 
   function page5_render(){
     var race = M.race || "";
