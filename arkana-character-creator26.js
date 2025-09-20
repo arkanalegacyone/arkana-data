@@ -35,7 +35,7 @@ window.onload = function() {
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/perks2.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/archetype_powers4.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/cybernetics2.json?nocache=1",
-      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/magic_schools1.json?nocache=1"
+      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/magic_schools2.json?nocache=1"
     ];
     var [flawsData, commonData, perksData, archData, cyberData, magicData] = await Promise.all(urls.map(u=>fetch(u).then(r=>{
       if (!r.ok) throw new Error("Failed to fetch "+u);
@@ -106,8 +106,23 @@ window.onload = function() {
     if(lc(race) === "spliced") return false;
     return true;
   }
-  function magicSchoolsAll() {
-    return magicSchools.filter(function(s){ return true; });
+  function groupMagicSchoolsBySection(arr, race, arch) {
+    // Only show Technomancy if synthral
+    var isSynthral = lc(race) === "human" && lc(arch) === "synthral";
+    var out = {};
+    arr.forEach(function(item){
+      // Only show technomancy if synthral
+      if (lc(item.section) === "technomancy" && !isSynthral) return;
+      // Otherwise, show all other schools
+      if (!out[item.section]) out[item.section] = [];
+      out[item.section].push(item);
+    });
+    return out;
+  }
+  function magicSchoolsAll(race, arch) {
+    // Return only allowed schools for this archetype
+    var grouped = groupMagicSchoolsBySection(magicSchools, race, arch);
+    return grouped;
   }
   function statMod(v){ return v===0?-3 : v===1?-2 : v===2?0 : v===3?2 : v===4?4 : v===5?6:0; }
   function normalizeStats(){
@@ -225,42 +240,27 @@ window.onload = function() {
       '</div>' +
       Object.keys(groupedMods).map(section=>cyberSectionHtml(section, groupedMods[section])).join('');
 
-    function collapsibleSection(id, title, content, open) {
-      return `
-        <div class="ark-collapsible-section" id="section-${id}">
-          <div class="ark-collapse-btn" data-target="section-${id}-body" tabindex="0" aria-expanded="${open?'true':'false'}">
-            ${esc(title)} <span class="arrow">${open ? '▼' : '►'}</span>
-          </div>
-          <div class="ark-collapsible-body" id="section-${id}-body" style="display:${open?'block':'none'};">
-            ${content}
-          </div>
-        </div>
-      `;
-    }
-
-    function renderList(title, arr, selectedSet, opt) {
-      opt = opt||{};
-      var html = title ? '<h3>'+esc(title)+'</h3>' : '';
-      if (!arr.length) return html + '<div class="muted">None available.</div>';
-      html += '<div class="list">';
+    function magicSectionHtml(section, arr) {
+      var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
       arr.forEach(function(item){
-        var sel = selectedSet.has(item.id) ? ' checked' : '';
-        var costVal = item.cost||1;
-        var disabled = (sel ? '' : (willOverspend(costVal)?' disabled':'')) + (opt.max && selectedSet.size>=opt.max && !sel ? ' disabled' : '');
+        var sel = M.magicSchools.has(item.id) ? ' checked' : '';
+        var costVal = item.cost || 1;
+        var disabled = (sel ? '' : (willOverspend(costVal)?' disabled':'')); // Could add further restrictions here
         var cost = item.cost ? '<span class="pill">'+item.cost+' pts</span>' : '';
-        html += '<label class="item"><input type="checkbox" data-id="'+item.id+'"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
+        html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-magic="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
       });
       html += '</div>';
       return html;
     }
 
+    var groupedMagicSchools = magicSchoolsAll(race, arch);
+    var magicHtml = canMagic
+      ? Object.keys(groupedMagicSchools).map(section=>magicSectionHtml(section, groupedMagicSchools[section])).join('')
+      : '<h3>Magic Schools & Weaves</h3><div class="muted">Not available for '+esc(race)+(arch?' ('+esc(arch)+')':'')+'.</div>';
+
     var commonPowersHtml = renderList("Common Powers", commonPowersForRace(race), M.picks);
     var perksHtml = renderList("Perks", perksForRace(race, arch), M.picks);
     var archPowersHtml = renderList("Archetype Powers", archPowersForRaceArch(race, arch), M.picks);
-
-    var magicHtml = canMagic
-      ? renderList("Magic Schools & Weaves", magicSchoolsAll(), M.magicSchools)
-      : '<h3>Magic Schools & Weaves</h3><div class="muted">Not available for '+esc(race)+(arch?' ('+esc(arch)+')':'')+'.</div>';
 
     var html =
       '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
@@ -304,10 +304,10 @@ window.onload = function() {
       };
     }
     Array.prototype.forEach.call(document.querySelectorAll('#page5 input[type="checkbox"][data-id]'),function(ch){
-      if(!ch.dataset.cyber){
+      if(!ch.dataset.cyber && !ch.dataset.magic){
         ch.onchange = function(){
           var id = ch.dataset.id;
-          var arrs = [commonPowers, perks, archPowers, magicSchools];
+          var arrs = [commonPowers, perks, archPowers];
           var found;
           for(var i=0;i<arrs.length;i++){
             found = arrs[i].find(function(x){return x.id===id;});
@@ -332,6 +332,35 @@ window.onload = function() {
           }
           if (ch.checked) M.picks.add(id);
           else M.picks.delete(id);
+          saveModel();
+          render();
+        };
+      }
+      // Magic school checkboxes
+      if(ch.dataset.magic){
+        ch.onchange = function(){
+          var id = ch.dataset.id;
+          var school = magicSchools.find(function(x){return x.id===id;});
+          var costVal = school ? (school.cost||1) : 1;
+          var total = 15 + Array.from(M.flaws).reduce(function(s,fid){
+            var f=flaws.find(function(x){return x.id===fid;}); return s+(f?f.cost:0);
+          },0);
+          var cyberSlotCost = (M.cyberSlots || 0) * 2;
+          var picksSpent = Array.from(M.picks).map(function(pid){
+            var arrs = [commonPowers, perks, archPowers, cybernetics];
+            for(var i=0;i<arrs.length;i++){
+              var f=arrs[i].find(function(x){return x.id===pid;}); if(f) return f.cost||1;
+            }
+            return 0;
+          }).reduce(function(a,b){return a+b;},0);
+          var spent = picksSpent + cyberSlotCost;
+          var remain = total - spent;
+          if (ch.checked && remain < costVal) {
+            ch.checked = false;
+            return;
+          }
+          if (ch.checked) M.magicSchools.add(id);
+          else M.magicSchools.delete(id);
           saveModel();
           render();
         };
