@@ -49,17 +49,34 @@ window.onload = function() {
     magicSchools = magicData;
   }
 
+  // Flaw filter: handles human archetype-specific flaws
   function flawsForRace(race, arch) {
     if (!race) return [];
     var r = lc(race);
     var a = arch ? lc(arch) : "";
+
     return flaws.filter(function(flaw){
       var tags = flaw.tags ? flaw.tags.map(lc) : [];
+      // Strigoi and Gaki
       if (r === "strigoi" && tags.indexOf("race:strigoi") >= 0) return true;
       if (r === "gaki" && tags.indexOf("race:gaki") >= 0) return true;
+      // Veilborn, Spliced, etc
       if(tags.indexOf("race:" + r) >= 0) return true;
       if(a && (tags.indexOf("arch:" + a) >= 0 || tags.indexOf("spec:" + a) >= 0)) return true;
-      if (r === "human" && tags.indexOf("race:human") >= 0) return true;
+
+      // Human race: filter by species/archetype tags
+      if (r === "human") {
+        // If flaw is tagged with species:psion, only show if arch is psion
+        var hasPsion = tags.indexOf("species:psion") >= 0;
+        var hasArcanist = tags.indexOf("species:arcanist") >= 0;
+        var hasSynthral = tags.indexOf("species:synthral") >= 0;
+        if (hasPsion && a === "psion") return true;
+        if (hasArcanist && a === "arcanist") return true;
+        if (hasSynthral && a === "synthral") return true;
+        // If flaw has no species tag, but has race:human, show for any human
+        if (!hasPsion && !hasArcanist && !hasSynthral && tags.indexOf("race:human") >= 0) return true;
+        return false;
+      }
       return false;
     });
   }
@@ -155,7 +172,7 @@ window.onload = function() {
           arches.map(function(a){return '<option value="'+esc(a)+'"'+(a===arch?' selected':'')+'>'+esc(a)+'</option>';}).join('') +
         '</select>' +
       '</div>' +
-      '<div class="note" style="margin-top:10px">Humans include <b>Human (no powers)</b>. Veilborn no longer include Unaffiliated.</div>'
+      '<div class="note" style="margin-top:10px">Humans include <b>Human (no powers)</b>. Veilborn do not include Unaffiliated.</div>'
     );
   }
   function page2_wire(){
