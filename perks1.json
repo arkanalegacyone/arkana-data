@@ -1,73 +1,143 @@
 [
-  {
+ {
     "id": "vamp_emotional_resonance",
     "name": "Emotional Resonance",
     "desc": "When feeding, absorb fragments of emotion; use or manipulate for subtle influence. (+1 to Mental or Perception rolls to influence)",
     "cost": 2,
-    "species": "vampire"
+    "species": "gaki"
   },
   {
     "id": "vamp_unnatural_beauty",
     "name": "Unnatural Beauty",
     "desc": "Gifted with unnatural beauty; mortals and supernaturals stare in awe or dread. (+3 Mental in Social Situations or use of Mental Powers)",
     "cost": 3,
-    "species": "vampire"
+    "species": "gaki"
   },
   {
     "id": "vamp_unyielding_will",
     "name": "Unyielding Will",
     "desc": "Mind-influencing powers (fear, charms, compulsions) find it harder to affect you. (-2 to Attackers' Roll)",
     "cost": 3,
-    "species": "vampire"
+    "species": "gaki"
   },
   {
     "id": "vamp_shadows_veil",
     "name": "Shadow’s Veil",
     "desc": "Blend into darkness comes easy; (+1 to Stealth Rolls)",
     "cost": 2,
-    "species": "vampire"
+    "species": "gaki"
   },
   {
     "id": "vamp_ancient_wisdom",
     "name": "Ancient Wisdom",
     "desc": "You speak one additional language and can decipher arcane text. Grants a single starting school of Magic.",
     "cost": 2,
-    "species": "vampire"
+    "species": "gaki"
   },
   {
     "id": "vamp_neural_disruptive_vitae",
     "name": "Neural Disruptive Vitae",
     "desc": "Your blood acts as a short-lived poison, disabling cybernetic linkages temporarily.",
     "cost": 3,
-    "species": "vampire"
+    "species": "gaki"
   },
   {
     "id": "vamp_predators_cunning",
     "name": "Predator’s Cunning",
     "desc": "Sense violence before it happens; seize the initiative (Go first).",
     "cost": 2,
-    "species": "vampire"
+    "species": "gaki"
   },
   {
     "id": "vamp_pulse_of_ark",
     "name": "Pulse of the Ark",
     "desc": "Sense clusters of humanity/life across the Ark’s levels. Helps guide your hunt.",
     "cost": 2,
-    "species": "vampire"
+    "species": "gaki"
   },
   {
     "id": "vamp_blood_economy",
     "name": "Blood Economy",
     "desc": "Store blood/Chi more efficiently, reducing need to feed and enhancing resource management.",
     "cost": 3,
-    "species": "vampire"
+    "species": "gaki"
   },
   {
     "id": "vamp_cybernetic_adaptation",
     "name": "Cybernetic Adaptation",
     "desc": "Your nature entwines seamlessly with cybernetics, allowing implants and augmentations to shift with your essence.",
     "cost": 3,
-    "species": "vampire"
+    "species": "gaki"
+  },
+  {
+    "id": "vamp_emotional_resonance",
+    "name": "Emotional Resonance",
+    "desc": "When feeding, absorb fragments of emotion; use or manipulate for subtle influence. (+1 to Mental or Perception rolls to influence)",
+    "cost": 2,
+    "species": "strigoi"
+  },
+  {
+    "id": "vamp_unnatural_beauty",
+    "name": "Unnatural Beauty",
+    "desc": "Gifted with unnatural beauty; mortals and supernaturals stare in awe or dread. (+3 Mental in Social Situations or use of Mental Powers)",
+    "cost": 3,
+    "species": "strigoi"
+  },
+  {
+    "id": "vamp_unyielding_will",
+    "name": "Unyielding Will",
+    "desc": "Mind-influencing powers (fear, charms, compulsions) find it harder to affect you. (-2 to Attackers' Roll)",
+    "cost": 3,
+    "species": "strigoi"
+  },
+  {
+    "id": "vamp_shadows_veil",
+    "name": "Shadow’s Veil",
+    "desc": "Blend into darkness comes easy; (+1 to Stealth Rolls)",
+    "cost": 2,
+    "species": "strigoi"
+  },
+  {
+    "id": "vamp_ancient_wisdom",
+    "name": "Ancient Wisdom",
+    "desc": "You speak one additional language and can decipher arcane text. Grants a single starting school of Magic.",
+    "cost": 2,
+    "species": "strigoi"
+  },
+  {
+    "id": "vamp_neural_disruptive_vitae",
+    "name": "Neural Disruptive Vitae",
+    "desc": "Your blood acts as a short-lived poison, disabling cybernetic linkages temporarily.",
+    "cost": 3,
+    "species": "strigoi"
+  },
+  {
+    "id": "vamp_predators_cunning",
+    "name": "Predator’s Cunning",
+    "desc": "Sense violence before it happens; seize the initiative (Go first).",
+    "cost": 2,
+    "species": "strigoi"
+  },
+  {
+    "id": "vamp_pulse_of_ark",
+    "name": "Pulse of the Ark",
+    "desc": "Sense clusters of humanity/life across the Ark’s levels. Helps guide your hunt.",
+    "cost": 2,
+    "species": "strigoi"
+  },
+  {
+    "id": "vamp_blood_economy",
+    "name": "Blood Economy",
+    "desc": "Store blood/Chi more efficiently, reducing need to feed and enhancing resource management.",
+    "cost": 3,
+    "species": "strigoi"
+  },
+  {
+    "id": "vamp_cybernetic_adaptation",
+    "name": "Cybernetic Adaptation",
+    "desc": "Your nature entwines seamlessly with cybernetics, allowing implants and augmentations to shift with your essence.",
+    "cost": 3,
+    "species": "strigoi"
   },
 
   {
