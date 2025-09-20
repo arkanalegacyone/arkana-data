@@ -102,7 +102,6 @@ window.onload = function() {
     return cybernetics;
   }
   function canUseMagic(race, arch) {
-    // Human (no powers) cannot use magic; Spliced cannot use magic
     if(lc(race) === "human" && lc(arch) === "human (no powers)") return false;
     if(lc(race) === "spliced") return false;
     return true;
@@ -206,7 +205,6 @@ window.onload = function() {
     }
   }
 
-  // Stat system: stats now start at 0, not 1
   function statMod(v){ return v===0?-3 : v===1?-2 : v===2?0 : v===3?2 : v===4?4 : v===5?6:0; }
   function normalizeStats(){
     var S = M.stats = M.stats || {phys:0,dex:0,mental:0,perc:0};
@@ -257,7 +255,7 @@ window.onload = function() {
     });
   }
 
-  // Cybernetics: input for slots, cost calculation and display
+  // Flaws only; cybernetic slots input moved to page 5
   function page4_render() {
     var race = M.race || "Human";
     var arch = M.arch || "";
@@ -286,12 +284,6 @@ window.onload = function() {
       html += "</ul>";
     }
     html += "</div>";
-    // Cybernetics slot input
-    html += '<div class="cybernetic-section">' +
-      '<label class="cybernetic-label">Cybernetic Slots:</label>' +
-      '<input type="number" min="0" max="10" class="cybernetic-input" id="cyberneticSlotInput" value="'+(M.cyberSlots||0)+'">' +
-      '<span class="cybernetic-cost">Cost: '+(M.cyberSlots*2)+' points</span>' +
-      '</div>';
     return html;
   }
   function page4_wire(){
@@ -304,18 +296,9 @@ window.onload = function() {
         render();
       };
     });
-    var slotInput = document.getElementById('cyberneticSlotInput');
-    if (slotInput) {
-      slotInput.oninput = function(e){
-        var val = Math.max(0, Math.min(10, parseInt(e.target.value)||0));
-        M.cyberSlots = val;
-        saveModel();
-        render();
-      };
-    }
   }
 
-  // Powers/Perks/Cybernetics/Magic
+  // Powers/Perks/Cybernetics/Magic + cybernetic slots input (with overspending prevention)
   function page5_render(){
     var race = M.race || "";
     var arch = M.arch || "";
@@ -324,9 +307,10 @@ window.onload = function() {
       return s+(f?f.cost:0);
     },0);
 
-    // Add cybernetic slot cost (2 points per slot)
-    total -= (M.cyberSlots || 0) * 2;
+    // Calculate cybernetic slot cost (2 points/slot)
+    var cyberSlotCost = (M.cyberSlots || 0) * 2;
 
+    // Calculate points spent on picks
     var allPicks = Array.from(M.picks);
     var spent = allPicks.map(function(pid){
       var arrs = [commonPowers, perks, archPowers, cybernetics, magicSchools];
@@ -337,14 +321,24 @@ window.onload = function() {
       return 0;
     }).reduce(function(a,b){return a+b;},0);
 
+    spent += cyberSlotCost; // Add cybernetic slot cost to spent
+
     var remain = total - spent;
 
     var canMagic = canUseMagic(race, arch);
 
-    // For Human (no powers): no magic selection
-    // For Spliced: ensure archetype powers show (not 'none')
-    // For Strigoi: ensure common powers, perks, archetype powers show (not 'none')
-    // For Gaki: ensure perks show (not 'none')
+    // Prevent overspending: disable checkboxes and cyber slot input when no points remain
+    function willOverspend(extra) {
+      return spent + extra > total;
+    }
+
+    // Cybernetic slot input section
+    var cyberHtml = '<div class="cybernetic-section">' +
+      '<label class="cybernetic-label">Cybernetic Slots:</label>' +
+      '<input type="number" min="0" max="10" class="cybernetic-input" id="cyberneticSlotInput" value="'+(M.cyberSlots||0)+'"'+((remain<2 && M.cyberSlots < 10)?' disabled':'')+'>' +
+      '<span class="cybernetic-cost">Cost: '+cyberSlotCost+' points</span>' +
+      ((remain<2 && M.cyberSlots < 10) ? '<span class="muted" style="margin-left:10px;">No points left for more slots</span>':'') +
+      '</div>';
 
     function renderList(title, arr, selectedSet, opt) {
       opt = opt||{};
@@ -353,7 +347,8 @@ window.onload = function() {
       html += '<div class="list">';
       arr.forEach(function(item){
         var sel = selectedSet.has(item.id) ? ' checked' : '';
-        var disabled = opt.max && selectedSet.size>=opt.max && !sel ? ' disabled' : '';
+        var costVal = item.cost||1;
+        var disabled = (sel ? '' : (willOverspend(costVal)?' disabled':'')) + (opt.max && selectedSet.size>=opt.max && !sel ? ' disabled' : '');
         var cost = item.cost ? '<span class="pill">'+item.cost+' pts</span>' : '';
         html += '<label class="item"><input type="checkbox" data-id="'+item.id+'"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
       });
@@ -364,21 +359,13 @@ window.onload = function() {
     var html =
       '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
       '<div class="totals">Points: <b>'+total+'</b> • Spent <b>'+spent+'</b> • Remaining <b>'+remain+'</b></div>' +
-      '<div class="note">Select any combination of powers, perks, cybernetics, and magic school weaves. Be sure not to overspend your available points.</div>';
+      '<div class="note">Select any combination of powers, perks, cybernetics, magic school weaves, and cybernetic slots. You cannot spend more points than you have.</div>' +
+      cyberHtml +
+      renderList("Common Powers", commonPowersForRace(race), M.picks) +
+      renderList("Perks", perksForRace(race, arch), M.picks) +
+      renderList("Archetype Powers", archPowersForRaceArch(race, arch), M.picks) +
+      renderList("Cybernetic Augmentations & Hacking", cyberneticsAll(), M.picks);
 
-    // Common Powers (Strigoi must show, others as normal)
-    html += renderList("Common Powers", commonPowersForRace(race), M.picks);
-
-    // Perks (Gaki must show, others as normal)
-    html += renderList("Perks", perksForRace(race, arch), M.picks);
-
-    // Archetype Powers (Spliced, Strigoi must show)
-    html += renderList("Archetype Powers", archPowersForRaceArch(race, arch), M.picks);
-
-    // Cybernetic Augmentations & Hacking
-    html += renderList("Cybernetic Augmentations & Hacking", cyberneticsAll(), M.picks);
-
-    // Magic Schools & Weaves
     if (canMagic) {
       html += renderList("Magic Schools & Weaves", magicSchoolsAll(), M.magicSchools);
     } else {
@@ -388,19 +375,68 @@ window.onload = function() {
     return html;
   }
   function page5_wire(){
+    // Powers/perks/magic/cybernetics
     Array.prototype.forEach.call(document.querySelectorAll('#page5 input[type="checkbox"][data-id]'),function(ch){
       ch.onchange = function(){
         var id = ch.dataset.id;
+        var arrs = [commonPowers, perks, archPowers, cybernetics, magicSchools];
+        var found;
+        for(var i=0;i<arrs.length;i++){
+          found = arrs[i].find(function(x){return x.id===id;});
+          if(found) break;
+        }
+        var costVal = found ? (found.cost||1) : 1;
+        var race = M.race || "";
+        var arch = M.arch || "";
+        var total = 15 + Array.from(M.flaws).reduce(function(s,fid){
+          var f=flaws.find(function(x){return x.id===fid;}); return s+(f?f.cost:0);
+        },0);
+        var cyberSlotCost = (M.cyberSlots || 0) * 2;
+        var picksSpent = Array.from(M.picks).map(function(pid){
+          for(var i=0;i<arrs.length;i++){
+            var f=arrs[i].find(function(x){return x.id===pid;}); if(f) return f.cost||1;
+          }
+          return 0;
+        }).reduce(function(a,b){return a+b;},0);
+        var spent = picksSpent + cyberSlotCost;
+        var remain = total - spent;
+
+        if (ch.checked && remain < costVal) {
+          ch.checked = false;
+          return;
+        }
         if (ch.checked) M.picks.add(id);
         else M.picks.delete(id);
         saveModel();
         render();
       };
     });
+    // Magic school picks
     Array.prototype.forEach.call(document.querySelectorAll('#page5 input[type="checkbox"][data-id]'),function(ch){
       if (magicSchools.find(function(x){return x.id===ch.dataset.id;})) {
         ch.onchange = function(){
           var id = ch.dataset.id;
+          var arrs = [commonPowers, perks, archPowers, cybernetics, magicSchools];
+          var found = magicSchools.find(function(x){return x.id===id;});
+          var costVal = found ? (found.cost||1) : 1;
+          var race = M.race || "";
+          var arch = M.arch || "";
+          var total = 15 + Array.from(M.flaws).reduce(function(s,fid){
+            var f=flaws.find(function(x){return x.id===fid;}); return s+(f?f.cost:0);
+          },0);
+          var cyberSlotCost = (M.cyberSlots || 0) * 2;
+          var picksSpent = Array.from(M.picks).map(function(pid){
+            for(var i=0;i<arrs.length;i++){
+              var f=arrs[i].find(function(x){return x.id===pid;}); if(f) return f.cost||1;
+            }
+            return 0;
+          }).reduce(function(a,b){return a+b;},0);
+          var spent = picksSpent + cyberSlotCost;
+          var remain = total - spent;
+          if (ch.checked && remain < costVal) {
+            ch.checked = false;
+            return;
+          }
           if (ch.checked) M.magicSchools.add(id);
           else M.magicSchools.delete(id);
           saveModel();
@@ -408,13 +444,41 @@ window.onload = function() {
         };
       }
     });
+    // Cybernetic slot input
+    var slotInput = document.getElementById('cyberneticSlotInput');
+    if (slotInput) {
+      slotInput.oninput = function(e){
+        var val = Math.max(0, Math.min(10, parseInt(e.target.value)||0));
+        var race = M.race || "";
+        var arch = M.arch || "";
+        var total = 15 + Array.from(M.flaws).reduce(function(s,fid){
+          var f=flaws.find(function(x){return x.id===fid;}); return s+(f?f.cost:0);
+        },0);
+        var allPicks = Array.from(M.picks);
+        var picksSpent = allPicks.map(function(pid){
+          var arrs = [commonPowers, perks, archPowers, cybernetics, magicSchools];
+          for(var i=0;i<arrs.length;i++){
+            var found=arrs[i].find(function(x){return x.id===pid;}); if(found) return found.cost||1;
+          }
+          return 0;
+        }).reduce(function(a,b){return a+b;},0);
+        var spent = picksSpent + (val*2);
+        var remain = total - spent;
+        // Only allow increasing if enough points remain
+        if ((val > M.cyberSlots) && remain < 2) {
+          val = M.cyberSlots; // Can't increase
+        }
+        M.cyberSlots = val;
+        saveModel();
+        render();
+      };
+    }
   }
 
   function page6_render(){
     var S = M.stats || {phys:0,dex:0,mental:0,perc:0};
     var hp = (S.phys||0)*5;
     var base = 15 + Array.from(M.flaws).reduce(function(s,fid){ var f=flaws.find(function(x){return x.id===fid;}); return s+(f?f.cost:0); },0);
-    // Subtract cybernetic slot cost
     base -= (M.cyberSlots || 0) * 2;
     var spent = Array.from(M.picks).reduce(function(s,pid){
       var arrs = [commonPowers, perks, archPowers, cybernetics, magicSchools];
@@ -441,6 +505,7 @@ window.onload = function() {
         '<div><b>Common Powers:</b> '+getNames(commonPowers, M.picks)+'</div>' +
         '<div><b>Perks:</b> '+getNames(perks, M.picks)+'</div>' +
         '<div><b>Archetype Powers:</b> '+getNames(archPowers, M.picks)+'</div>' +
+        '<div><b>Cybernetic Slots:</b> '+(M.cyberSlots||0)+' (cost '+((M.cyberSlots||0)*2)+' pts)</div>' +
         '<div><b>Cybernetics:</b> '+getNames(cybernetics, M.picks)+'</div>' +
         '<div><b>Magic Schools & Weaves:</b> '+magicPicks+'</div>' +
         '<div class="totals">Power Points: '+base+' • Spent '+spent+' • Remaining '+remain+'</div>' +
