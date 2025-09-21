@@ -661,12 +661,13 @@ window.onload = function() {
     root.innerHTML =
       '<h2>Arkana Character Creator</h2>' +
       '<div class="ark-steps" id="steps">' +
-steps.map(function(t,i){
-  var current = M.page === i+1 ? ' current' : '';
-  // Make step clickable
-  return '<button type="button" class="ark-step'+current+'" data-step="'+(i+1)+'">'+(i+1)+'</button>';
-}).join('') +
-'</div>' +
+      steps.map(function(t,i){
+        var current = M.page === i+1 ? ' current' : '';
+        // Make step clickable
+        return '<button type="button" class="ark-step'+current+'" data-step="'+(i+1)+'">'+(i+1)+'</button>';
+      }).join('') +
+      '</div>' +
+      '<div id="page"></div>' + // <-- FIXED: this ensures document.getElementById('page') works below!
       '<div class="ark-nav">' +
         '<button id="backBtn" type="button">← Back</button>' +
         '<button id="nextBtn" type="button">Next →</button>' +
@@ -674,6 +675,19 @@ steps.map(function(t,i){
       '<div class="diag" id="diag">page '+M.page+'</div>';
     document.getElementById('backBtn').onclick = function(){ M.page=Math.max(1,M.page-1); saveModel(); render(); };
     document.getElementById('nextBtn').onclick = function(){ M.page=Math.min(6,M.page+1); saveModel(); render(); };
+
+    // Add clickable wiring for step buttons
+    Array.prototype.forEach.call(document.querySelectorAll('.ark-step'), function(btn){
+      btn.onclick = function(){
+        var step = parseInt(btn.getAttribute('data-step'), 10);
+        if (step !== M.page) {
+          M.page = step;
+          saveModel();
+          render();
+        }
+      };
+    });
+
     var host = document.getElementById('page');
     if (M.page===1){ host.innerHTML = page1_render(); page1_wire(); }
     if (M.page===2){ host.innerHTML = page2_render(); page2_wire(); }
@@ -692,8 +706,12 @@ steps.map(function(t,i){
 })();
 };
 
-/* Add to your CSS for subtabs styling:
+/* Add to your CSS for subtabs and step styling:
 .ark-subtabs { margin: 12px 0 10px 0; display: flex; gap: 8px; }
 .ark-subtab-btn { background: #eee; border: 1px solid #bbb; border-radius: 6px 6px 0 0; padding: 6px 16px; cursor: pointer; font-weight: bold; }
 .ark-subtab-btn.active { background: #fff; border-bottom: 1px solid #fff; color: #222; }
+
+.ark-steps { display: flex; gap: 8px; margin-bottom: 14px; }
+.ark-step { border: 1px solid #bbb; border-radius: 50%; background: #eee; cursor: pointer; width: 32px; height: 32px; font-size: 1em; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+.ark-step.current { background: #fff; border: 2px solid #0077ff; color: #0077ff; }
 */
