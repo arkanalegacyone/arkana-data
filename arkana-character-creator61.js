@@ -8,7 +8,15 @@ window.onload = function() {
   function lc(s){ return String(s||'').toLowerCase(); }
   function loadModel(){
     var raw=window.localStorage ? localStorage.getItem('arkModel') : null;
-    var base = { page:1, identity:{}, race:'', arch:'', stats:{phys:0,dex:0,mental:0,perc:0,pool:10}, cyberSlots:0, flaws:[], picks:[], magicSchools:[], page5tab: 'common' };
+    var base = {
+      page:1, identity:{}, race:'', arch:'',
+      stats:{phys:0,dex:0,mental:0,perc:0,pool:10},
+      cyberSlots:0, flaws:[], picks:[], magicSchools:[],
+      page5tab: 'common',
+      freeMagicSchool: '',    // Arcanist
+      freeMagicWeave: '',     // Arcanist
+      synthralFreeWeave: ''   // Synthral
+    };
     try{
       var m = raw ? JSON.parse(raw) : base;
       m.flaws = new Set(m.flaws||[]);
@@ -16,15 +24,34 @@ window.onload = function() {
       m.magicSchools = new Set(m.magicSchools||[]);
       m.cyberSlots = m.cyberSlots || 0;
       m.page5tab = m.page5tab || 'common';
+      m.freeMagicSchool = m.freeMagicSchool || '';
+      m.freeMagicWeave = m.freeMagicWeave || '';
+      m.synthralFreeWeave = m.synthralFreeWeave || '';
       return Object.assign(base,m);
     }catch(_){
-      return { page:1, identity:{}, race:'', arch:'', stats:{phys:0,dex:0,mental:0,perc:0,pool:10}, cyberSlots:0, flaws:new Set(), picks:new Set(), magicSchools:new Set(), page5tab: 'common' };
+      return {
+        page:1, identity:{}, race:'', arch:'',
+        stats:{phys:0,dex:0,mental:0,perc:0,pool:10},
+        cyberSlots:0, flaws:new Set(), picks:new Set(),
+        magicSchools:new Set(), page5tab: 'common',
+        freeMagicSchool: '', freeMagicWeave: '', synthralFreeWeave: ''
+      };
     }
   }
   function saveModel(){
     try{
       if(window.localStorage){
-        var dump = {page:M.page, identity:M.identity, race:M.race, arch:M.arch, stats:M.stats, cyberSlots:M.cyberSlots, flaws:Array.from(M.flaws), picks:Array.from(M.picks), magicSchools:Array.from(M.magicSchools), page5tab: M.page5tab};
+        var dump = {
+          page:M.page, identity:M.identity, race:M.race, arch:M.arch, stats:M.stats,
+          cyberSlots:M.cyberSlots,
+          flaws:Array.from(M.flaws),
+          picks:Array.from(M.picks),
+          magicSchools:Array.from(M.magicSchools),
+          page5tab: M.page5tab,
+          freeMagicSchool: M.freeMagicSchool,
+          freeMagicWeave: M.freeMagicWeave,
+          synthralFreeWeave: M.synthralFreeWeave
+        };
         localStorage.setItem('arkModel', JSON.stringify(dump));
       }
     }catch(_){}
@@ -202,25 +229,72 @@ window.onload = function() {
     return html;
   }
 
-  function magicSectionHtml(section, arr) {
-    var schoolEntry = arr[0];
-    var schoolSelected = M.magicSchools.has(schoolEntry.id);
-    var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
-    arr.forEach(function(item, idx){
-      var sel = M.magicSchools.has(item.id) ? ' checked' : '';
-      var costVal = (typeof item.cost !== "undefined") ? item.cost : 1;
-      var disabled = '';
-      if (idx === 0) {
-        disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
-      } else {
-        if (!schoolSelected) disabled = ' disabled';
-        else disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
-      }
-      var cost = (typeof item.cost !== "undefined") ? '<span class="pill">'+item.cost+' pts</span>' : '';
-      html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-magic="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
+  // --- Magic UI helpers for free picks ---
+  function getTechnomancySchoolId() {
+    // Find the ID for Technomancy school
+    for (var i=0; i<magicSchools.length; ++i) {
+      var sch = magicSchools[i];
+      if (lc(sch.section) === "technomancy" && sch.id.startsWith("school_")) return sch.id;
+    }
+    return "";
+  }
+  function getSchoolWeaves(schoolId) {
+    // Find all weaves for given school id
+    var schoolEntry = magicSchools.find(x=>x.id===schoolId);
+    if (!schoolEntry) return [];
+    var section = schoolEntry.section;
+    return magicSchools.filter(function(x){
+      return x.section === section && !x.id.startsWith("school_");
     });
-    html += '</div>';
-    return html;
+  }
+  function getSchoolIdsForArcanist() {
+    // All school IDs available to Arcanists
+    var grouped = magicSchoolsAllGrouped(M.race, M.arch);
+    var ids = [];
+    Object.keys(grouped).forEach(section=>{
+      if (grouped[section].length) {
+        var school = grouped[section][0];
+        if (school.id.startsWith("school_")) ids.push(school.id);
+      }
+    });
+    return ids;
+  }
+  function getSchoolName(id) {
+    var sch = magicSchools.find(x=>x.id===id);
+    return sch ? sch.name : id;
+  }
+  function getWeaveName(id) {
+    var weave = magicSchools.find(x=>x.id===id);
+    return weave ? weave.name : id;
+  }
+
+  // --- Points calculation, exclude free picks ---
+  function pointsSpentTotal() {
+    var allPicks = Array.from(M.picks);
+    var spentPicks = allPicks.map(function(pid){
+      // Exclude free weaves
+      if (pid === M.freeMagicWeave || pid === M.synthralFreeWeave) return 0;
+      var arrs = [commonPowers, perks, archPowers, cybernetics];
+      for(var i=0;i<arrs.length;i++){
+        var found=arrs[i].find(function(x){return x.id===pid;});
+        if (found && typeof found.cost !== "undefined") return found.cost;
+        if (found) return 1;
+      }
+      return 0;
+    }).reduce(function(a,b){return a+b;},0);
+
+    // Exclude free schools
+    var spentMagic = Array.from(M.magicSchools).map(function(id){
+      if (id === M.freeMagicSchool || id === getTechnomancySchoolId()) return 0;
+      var found = magicSchools.find(function(x){return x.id===id;});
+      if (found && typeof found.cost !== "undefined") return found.cost;
+      if (found) return 1;
+      return 0;
+    }).reduce(function(a,b){return a+b;},0);
+
+    var cyberSlotCost = (M.cyberSlots || 0) * 2;
+
+    return spentPicks + spentMagic + cyberSlotCost;
   }
 
   function willOverspend(extra) {
@@ -237,31 +311,7 @@ window.onload = function() {
     return total;
   }
 
-  function pointsSpentTotal() {
-    var allPicks = Array.from(M.picks);
-    var spentPicks = allPicks.map(function(pid){
-      var arrs = [commonPowers, perks, archPowers, cybernetics];
-      for(var i=0;i<arrs.length;i++){
-        var found=arrs[i].find(function(x){return x.id===pid;});
-        if (found && typeof found.cost !== "undefined") return found.cost;
-        if (found) return 1;
-      }
-      return 0;
-    }).reduce(function(a,b){return a+b;},0);
-
-    var spentMagic = Array.from(M.magicSchools).map(function(id){
-      var found = magicSchools.find(function(x){return x.id===id;});
-      if (found && typeof found.cost !== "undefined") return found.cost;
-      if (found) return 1;
-      return 0;
-    }).reduce(function(a,b){return a+b;},0);
-
-    var cyberSlotCost = (M.cyberSlots || 0) * 2;
-
-    return spentPicks + spentMagic + cyberSlotCost;
-  }
-
-  // ----------- SUBTABS PAGE 5 ----------------
+  // ----------- SUBTABS PAGE 5 + FREE PICKS UI ----------------
   function page5_render(){
     var race = M.race || "";
     var arch = M.arch || "";
@@ -270,10 +320,59 @@ window.onload = function() {
     var remain = total - spent;
     var canMagic = canUseMagic(race, arch);
 
+    var isSynthral = lc(race)==="human" && lc(arch)==="synthral";
+    var isArcanist = lc(race)==="human" && lc(arch)==="arcanist";
+
     var cyberSlots = M.cyberSlots || 0;
     var groupedMods = groupCyberneticsBySection(cyberneticsAll());
     var groupedMagicSchools = magicSchoolsAllGrouped(race, arch);
 
+    // --- Free picks UI ---
+    var freePicksHtml = '';
+    if (isSynthral) {
+      // Synthral: always gets Technomancy school + 1 Technomancy weave for free
+      var techSchoolId = getTechnomancySchoolId();
+      var techWeaves = getSchoolWeaves(techSchoolId);
+      freePicksHtml += '<div class="ark-free-pick"><b>Synthral: Free Technomancy School & Weave</b><br>';
+      freePicksHtml += '<span class="muted">You automatically receive the Technomancy school for free, and may select one weave below for free:</span><br>';
+      freePicksHtml += '<select id="synthralFreeWeaveSel">';
+      freePicksHtml += '<option value="">— select a Technomancy weave —</option>';
+      techWeaves.forEach(function(weave){
+        freePicksHtml += '<option value="'+esc(weave.id)+'"'+(M.synthralFreeWeave===weave.id?' selected':'')+'>'+esc(weave.name)+'</option>';
+      });
+      freePicksHtml += '</select>';
+      if (M.synthralFreeWeave) {
+        freePicksHtml += '<div class="muted">Free weave selected: <b>'+esc(getWeaveName(M.synthralFreeWeave))+'</b></div>';
+      }
+      freePicksHtml += '</div>';
+    }
+    if (isArcanist) {
+      // Arcanist: Choose free school and free weave from that school
+      var schoolIds = getSchoolIdsForArcanist();
+      freePicksHtml += '<div class="ark-free-pick"><b>Arcanist: Free Magic School & Weave</b><br>';
+      freePicksHtml += '<span class="muted">Select one school below for free, then one weave from that school for free:</span><br>';
+      freePicksHtml += '<select id="arcanistFreeSchoolSel">';
+      freePicksHtml += '<option value="">— select a school —</option>';
+      schoolIds.forEach(function(id){
+        freePicksHtml += '<option value="'+esc(id)+'"'+(M.freeMagicSchool===id?' selected':'')+'>'+esc(getSchoolName(id))+'</option>';
+      });
+      freePicksHtml += '</select><br>';
+      if (M.freeMagicSchool) {
+        var schoolWeaves = getSchoolWeaves(M.freeMagicSchool);
+        freePicksHtml += '<select id="arcanistFreeWeaveSel">';
+        freePicksHtml += '<option value="">— select a weave —</option>';
+        schoolWeaves.forEach(function(weave){
+          freePicksHtml += '<option value="'+esc(weave.id)+'"'+(M.freeMagicWeave===weave.id?' selected':'')+'>'+esc(weave.name)+'</option>';
+        });
+        freePicksHtml += '</select><br>';
+      }
+      if (M.freeMagicSchool && M.freeMagicWeave) {
+        freePicksHtml += '<div class="muted">Free school: <b>'+esc(getSchoolName(M.freeMagicSchool))+'</b>, Free weave: <b>'+esc(getWeaveName(M.freeMagicWeave))+'</b></div>';
+      }
+      freePicksHtml += '</div>';
+    }
+
+    // --- Tab content generation ---
     function cyberSectionHtml(section, arr) {
       var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
       var modsSelected = numCyberModsSelected();
@@ -286,6 +385,60 @@ window.onload = function() {
         else if (!sel && willOverspend(costVal)) disabled = ' disabled';
         var cost = (typeof item.cost !== "undefined") ? '<span class="pill">'+item.cost+' pts</span>' : '';
         html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-cyber="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
+      });
+      html += '</div>';
+      return html;
+    }
+
+    // --- Magic picker logic: disables normal picking of free school/weave ---
+    function magicSectionHtml(section, arr) {
+      var schoolEntry = arr[0];
+      var schoolSelected = M.magicSchools.has(schoolEntry.id) ||
+        (isArcanist && M.freeMagicSchool === schoolEntry.id) ||
+        (isSynthral && schoolEntry.id === getTechnomancySchoolId());
+      var schoolIsFree = (isArcanist && M.freeMagicSchool === schoolEntry.id) || (isSynthral && schoolEntry.id === getTechnomancySchoolId());
+      var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
+      arr.forEach(function(item, idx){
+        var sel = M.magicSchools.has(item.id) ? ' checked' : '';
+        var costVal = (typeof item.cost !== "undefined") ? item.cost : 1;
+        var disabled = '';
+        var freeWeaveHere = false;
+        // Free school: always selected/disabled
+        if (idx === 0) {
+          // School entry
+          if (schoolIsFree) {
+            sel = ' checked';
+            disabled = ' disabled';
+            costVal = 0;
+          } else {
+            disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
+          }
+        } else {
+          // Weave entries
+          if (schoolIsFree) {
+            // Free weave
+            if (
+              (isSynthral && M.synthralFreeWeave === item.id) ||
+              (isArcanist && M.freeMagicWeave === item.id)
+            ) {
+              sel = ' checked';
+              disabled = ' disabled';
+              freeWeaveHere = true;
+              costVal = 0;
+            } else {
+              // Only allow selecting free weave via dropdown, not via checkbox
+              disabled = ' disabled';
+            }
+          } else {
+            if (!schoolSelected) disabled = ' disabled';
+            else disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
+          }
+        }
+        var cost = (costVal === 0) ? '<span class="pill" style="background:#aaf;">FREE</span>' :
+          (typeof item.cost !== "undefined") ? '<span class="pill">'+item.cost+' pts</span>' : '';
+        html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-magic="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost;
+        if (freeWeaveHere) html += ' <span class="muted">(free)</span>';
+        html += '</label>';
       });
       html += '</div>';
       return html;
@@ -334,6 +487,7 @@ window.onload = function() {
       '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
       '<div class="totals">Points: <b>'+total+'</b> • Spent <b>'+spent+'</b> • Remaining <b>'+remain+'</b></div>' +
       '<div class="note">Select any combination of powers, perks, archetype powers, cybernetics (requires slot), magic school weaves, and cybernetic slots. You cannot spend more points than you have.</div>' +
+      freePicksHtml +
       tabsHtml +
       `<div class="ark-subtab-content" id="ark-subtab-content">${sectionHtmls[M.page5tab]||''}</div>`;
 
@@ -341,7 +495,6 @@ window.onload = function() {
   }
 
   function page5_wire(){
-    // Wire subtabs
     Array.prototype.forEach.call(document.querySelectorAll('.ark-subtab-btn'), function(btn){
       btn.onclick = function(){
         var tab = btn.getAttribute('data-tab');
@@ -350,6 +503,41 @@ window.onload = function() {
         render();
       };
     });
+
+    // --- Free picks wiring ---
+    var synthralFreeWeaveSel = document.getElementById('synthralFreeWeaveSel');
+    if (synthralFreeWeaveSel) {
+      synthralFreeWeaveSel.onchange = function(e){
+        var weaveId = e.target.value;
+        M.synthralFreeWeave = weaveId;
+        // Ensure the Technomancy school is always selected
+        var techSchoolId = getTechnomancySchoolId();
+        if (techSchoolId && !M.magicSchools.has(techSchoolId)) M.magicSchools.add(techSchoolId);
+        saveModel();
+        render();
+      };
+    }
+    var arcanistFreeSchoolSel = document.getElementById('arcanistFreeSchoolSel');
+    if (arcanistFreeSchoolSel) {
+      arcanistFreeSchoolSel.onchange = function(e){
+        var schoolId = e.target.value;
+        M.freeMagicSchool = schoolId;
+        if (schoolId && !M.magicSchools.has(schoolId)) M.magicSchools.add(schoolId);
+        // Reset free weave if school changed
+        M.freeMagicWeave = '';
+        saveModel();
+        render();
+      };
+    }
+    var arcanistFreeWeaveSel = document.getElementById('arcanistFreeWeaveSel');
+    if (arcanistFreeWeaveSel) {
+      arcanistFreeWeaveSel.onchange = function(e){
+        var weaveId = e.target.value;
+        M.freeMagicWeave = weaveId;
+        saveModel();
+        render();
+      };
+    }
 
     var cyberSlotInput = document.getElementById('cyberneticSlotInput');
     if (cyberSlotInput) {
@@ -397,6 +585,11 @@ window.onload = function() {
       if(ch.dataset.magic){
         ch.onchange = function(){
           var id = ch.dataset.id;
+          // Prevent unchecking free school/weave
+          if (id === M.freeMagicSchool || id === getTechnomancySchoolId() || id === M.freeMagicWeave || id === M.synthralFreeWeave) {
+            ch.checked = true;
+            return;
+          }
           var school = magicSchools.find(function(x){return x.id===id;});
           var costVal = (school && typeof school.cost !== "undefined") ? school.cost : 1;
           var section = school.section;
@@ -450,8 +643,9 @@ window.onload = function() {
     });
     enforceCyberModLimit();
   }
-  // --------- END SUBTABS PAGE 5 -----------
+  // --------- END SUBTABS PAGE 5 + FREE PICKS -----------
 
+  // --- All other rendering/wiring functions unchanged ---
   function page1_render(){
     var I = M.identity || (M.identity={});
     return (
@@ -517,20 +711,9 @@ window.onload = function() {
         M.flaws.clear();
         M.picks.clear();
         M.magicSchools.clear();
-        var races = [
-          { name: "Human", arches: ["Human (no powers)","Arcanist","Synthral","Psion"] },
-          { name: "Veilborn", arches: ["Echoes","Veils","Blossoms","Glass"] },
-          { name: "Spliced", arches: ["Predators","Avian","Aquatic","Reptilian","Insectoid","Chimeric"] },
-          { name: "Strigoi", arches: ["Life","Death","Warrior","Ruler"] },
-          { name: "Gaki", arches: ["Yin","Hun","Yang","P’o","Chudo"] }
-        ];
-        var cur = races.find(function(r){return r.name === newRace;});
-        var arches = cur ? cur.arches : [];
-        if (archSel){
-          archSel.disabled = !newRace;
-          archSel.innerHTML = '<option value="">— optional —</option>' +
-            arches.map(function(a){return '<option value="'+esc(a)+'">'+esc(a)+'</option>';}).join('');
-        }
+        M.freeMagicSchool = '';
+        M.freeMagicWeave = '';
+        M.synthralFreeWeave = '';
         saveModel();
         render();
       };
@@ -540,6 +723,9 @@ window.onload = function() {
     if (archSel){
       archSel.addEventListener('change', function(){
         M.arch = archSel.value || '';
+        M.freeMagicSchool = '';
+        M.freeMagicWeave = '';
+        M.synthralFreeWeave = '';
         saveModel();
         render();
       }, { passive:true });
@@ -634,10 +820,14 @@ window.onload = function() {
     var spent = pointsSpentTotal();
     var remain = base - spent;
     var magicPicks = Array.from(M.magicSchools).map(function(id){
+      if (id === M.freeMagicSchool || id === getTechnomancySchoolId()) return esc(getSchoolName(id))+' (free)';
       return esc((magicSchools.find(function(x){return x.id===id;})||{}).name||id);
     }).join(', ') || '—';
     var getNames = function(arr, ids){
-      return Array.from(ids).map(function(id){ return esc((arr.find(function(x){return x.id===id;})||{}).name||id); }).filter(Boolean).join(', ');
+      return Array.from(ids).map(function(id){
+        if (id === M.freeMagicWeave || id === M.synthralFreeWeave) return esc(getWeaveName(id))+' (free)';
+        return esc((arr.find(function(x){return x.id===id;})||{}).name||id);
+      }).filter(Boolean).join(', ');
     };
     return (
       '<h2>Summary</h2>' +
@@ -651,7 +841,10 @@ window.onload = function() {
         '<div><b>Archetype Powers:</b> '+getNames(archPowers, M.picks)+'</div>' +
         '<div><b>Cybernetic Slots:</b> '+(M.cyberSlots||0)+' (cost '+((M.cyberSlots||0)*2)+' pts)</div>' +
         '<div><b>Cybernetics:</b> '+getNames(cybernetics, M.picks)+'</div>' +
-        '<div><b>Magic Schools & Weaves:</b> '+magicPicks+'</div>' +
+        '<div><b>Magic Schools & Weaves:</b> '+magicPicks+'; Free Weave: '+(
+          (M.freeMagicWeave ? esc(getWeaveName(M.freeMagicWeave)) : '') +
+          (M.synthralFreeWeave ? esc(getWeaveName(M.synthralFreeWeave)) : '')
+        )+'</div>' +
         '<div class="totals">Power Points: '+base+' • Spent '+spent+' • Remaining '+remain+'</div>' +
       '</div>'
     );
@@ -663,11 +856,10 @@ window.onload = function() {
       '<div class="ark-steps" id="steps">' +
       steps.map(function(t,i){
         var current = M.page === i+1 ? ' current' : '';
-        // Make step clickable
         return '<button type="button" class="ark-step'+current+'" data-step="'+(i+1)+'">'+(i+1)+'</button>';
       }).join('') +
       '</div>' +
-      '<div id="page"></div>' + // <-- FIXED: this ensures document.getElementById('page') works below!
+      '<div id="page"></div>' +
       '<div class="ark-nav">' +
         '<button id="backBtn" type="button">← Back</button>' +
         '<button id="nextBtn" type="button">Next →</button>' +
@@ -676,7 +868,6 @@ window.onload = function() {
     document.getElementById('backBtn').onclick = function(){ M.page=Math.max(1,M.page-1); saveModel(); render(); };
     document.getElementById('nextBtn').onclick = function(){ M.page=Math.min(6,M.page+1); saveModel(); render(); };
 
-    // Add clickable wiring for step buttons
     Array.prototype.forEach.call(document.querySelectorAll('.ark-step'), function(btn){
       btn.onclick = function(){
         var step = parseInt(btn.getAttribute('data-step'), 10);
@@ -714,4 +905,6 @@ window.onload = function() {
 .ark-steps { display: flex; gap: 8px; margin-bottom: 14px; }
 .ark-step { border: 1px solid #bbb; border-radius: 50%; background: #eee; cursor: pointer; width: 32px; height: 32px; font-size: 1em; font-weight: bold; display: flex; align-items: center; justify-content: center; }
 .ark-step.current { background: #fff; border: 2px solid #0077ff; color: #0077ff; }
+
+.ark-free-pick { background: #eef; border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; border:1px solid #bbe; }
 */
