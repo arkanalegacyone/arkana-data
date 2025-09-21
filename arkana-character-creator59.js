@@ -661,9 +661,12 @@ window.onload = function() {
     root.innerHTML =
       '<h2>Arkana Character Creator</h2>' +
       '<div class="ark-steps" id="steps">' +
-      steps.map(function(t,i){return '<div class="ark-step'+(M.page===i+1?' current':'')+'">'+(i+1)+'</div>';}).join('') +
-      '</div>' +
-      '<div id="page"></div>' +
+steps.map(function(t,i){
+  var current = M.page === i+1 ? ' current' : '';
+  // Make step clickable
+  return '<button type="button" class="ark-step'+current+'" data-step="'+(i+1)+'">'+(i+1)+'</button>';
+}).join('') +
+'</div>' +
       '<div class="ark-nav">' +
         '<button id="backBtn" type="button">← Back</button>' +
         '<button id="nextBtn" type="button">Next →</button>' +
