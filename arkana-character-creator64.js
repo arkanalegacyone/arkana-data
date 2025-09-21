@@ -804,9 +804,8 @@ window.onload = function() {
     // --- UI ---
     return (
       '<div class="ark-submit-msg" style="background:#f3f7ee;padding:14px 16px;border-radius:8px;border:1px solid #ccd;">' +
-      '<b>When you are happy with your character, click SUBMIT to submit your character sheet to the admin team.</b> ' +
-      'Copy your character sheet for your records and paste it in your Second Life picks. ' +
-      'Due to Second Life text restrictions, you may need to remove your character background or fields not applicable to your character.' +
+      '<b>When you are happy with your character, click SUBMIT CHARACTER to submit your character sheet to the admin team.</b> ' +
+      'Copy your character sheet for your records and paste it in your Second Life picks. Due to Second Life text restrictions, you may need to remove your character background or fields not applicable to your character.' +
       '</div>' +
       '<h2>Summary</h2>' +
       '<div class="group">' +
@@ -816,7 +815,6 @@ window.onload = function() {
         '<div><b>Faction / Allegiance:</b> '+esc(M.identity.faction||'-')+'</div>' +
         '<div><b>Concept / Role:</b> '+esc(M.identity.concept||'-')+'</div>' +
         '<div><b>Job:</b> '+esc(M.identity.job||'-')+'</div>' +
-        '<div style="white-space:pre-wrap"><b>Background:</b> '+esc(M.identity.background||'-')+'</div>' +
         '<div><b>Race:</b> '+esc(M.race||'-')+' <span class="muted">/ '+esc(M.arch||'—')+'</span></div>' +
         '<div><b>Stats:</b> Phys '+S.phys+' (HP '+hp+'), Dex '+S.dex+', Mental '+S.mental+', Perc '+S.perc+' <span class="muted">(Points spent: '+statPts+')</span></div>' +
         '<div><b>Flaws:</b> '+(flawsSummary.length?esc(flawsSummary.join(', ')):'None')+' <span class="muted">(Points gained: '+flawPts+')</span></div>' +
@@ -826,6 +824,7 @@ window.onload = function() {
         (freeMagicSchoolName ? '<div><b>Free Magic School:</b> '+esc(freeMagicSchoolName)+'</div>' : '') +
         (freeMagicWeaveName ? '<div><b>Free Magic Weave:</b> '+esc(freeMagicWeaveName)+'</div>' : '') +
         (synthralFreeWeaveName ? '<div><b>Synthral Free Weave:</b> '+esc(synthralFreeWeaveName)+'</div>' : '') +
+        '<div style="white-space:pre-wrap"><b>Background:</b> '+esc(M.identity.background||'-')+'</div>' +
         '<div class="totals">Power Points: '+base+' • Spent '+spent+' • Remaining '+remain+'</div>' +
       '</div>' +
       '<button id="submitBtn" type="button" class="ark-submit" style="margin-top:18px;font-size:1.2em;padding:10px 28px;background:#3c6;border-radius:8px;color:#fff;border:none;">SUBMIT CHARACTER</button>'
@@ -840,7 +839,6 @@ window.onload = function() {
       `**Faction / Allegiance:** ${data.faction}\n` +
       `**Concept / Role:** ${data.concept}\n` +
       `**Job:** ${data.job}\n` +
-      `**Background:** ${data.background}\n` +
       `**Race / Archetype:** ${data.race} / ${data.arch}\n` +
       `**Stats:** Phys ${data.stats.phys} (HP ${data.hp}), Dex ${data.stats.dex}, Mental ${data.stats.mental}, Perc ${data.stats.perc} (Points spent: ${data.statPts})\n` +
       `**Flaws:** ${(data.flaws.length ? data.flaws.join(', ') : 'None')} (Points gained: ${data.flawPts})\n` +
@@ -850,6 +848,7 @@ window.onload = function() {
       (data.freeMagicSchool ? `**Free Magic School:** ${data.freeMagicSchool}\n` : '') +
       (data.freeMagicWeave ? `**Free Magic Weave:** ${data.freeMagicWeave}\n` : '') +
       (data.synthralFreeWeave ? `**Synthral Free Weave:** ${data.synthralFreeWeave}\n` : '') +
+      `**Background:** ${data.background}\n` +
       `**Total Power Points:** ${data.base}, **Spent:** ${data.spent}, **Remaining:** ${data.remain}\n`;
     return msg;
   }
