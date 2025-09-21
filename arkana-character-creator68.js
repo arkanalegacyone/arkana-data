@@ -642,6 +642,7 @@ window.onload = function() {
           arches.map(function(a){return '<option value="'+esc(a)+'"'+(a===arch?' selected':'')+'>'+esc(a)+'</option>';}).join('') +
         '</select>' +
       '</div>' +
+      '<div class="note" style="margin-top:10px">Humans include <b>Human (no powers)</b>. Veilborn do not include Unaffiliated.</div>'
     );
   }
   function page2_wire(){
