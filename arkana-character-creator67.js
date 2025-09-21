@@ -593,6 +593,7 @@ window.onload = function() {
     });
     enforceCyberModLimit();
   }
+  // --- Page 1, 2, 3, 4 unchanged ---
   function page1_render(){
     var I = M.identity || (M.identity={});
     return (
@@ -640,7 +641,7 @@ window.onload = function() {
           '<option value="">— optional —</option>' +
           arches.map(function(a){return '<option value="'+esc(a)+'"'+(a===arch?' selected':'')+'>'+esc(a)+'</option>';}).join('') +
         '</select>' +
-      '</div>'
+      '</div>' +
     );
   }
   function page2_wire(){
@@ -934,6 +935,7 @@ window.onload = function() {
   function page6_wire(){
     wireSubmitButton();
   }
+  // --- Main render & wiring ---
   function render(){
     var steps = ['Identity','Race & Archetype','Stats','Optional Flaws','Powers/Perks/Cybernetics/Magic','Summary'];
     root.innerHTML =
@@ -982,7 +984,7 @@ window.onload = function() {
 /* Add to your CSS for subtabs and step styling:
 .ark-subtabs { margin: 12px 0 10px 0; display: flex; gap: 8px; }
 .ark-subtab-btn { background: #eee; border: 1px solid #bbb; border-radius: 6px 6px 0 0; padding: 6px 16px; cursor: pointer; font-weight: bold; }
-.ark-subtab-btn.active { background: #fff; border-bottom: 1px solid #fff; color:#222; }
+.ark-subtab-btn.active { background: #fff; border-bottom: 1px solid #fff; color: #222; }
 
 .ark-steps { display: flex; gap: 8px; margin-bottom: 14px; }
 .ark-step { border: 1px solid #bbb; border-radius: 50%; background: #eee; cursor: pointer; width: 32px; height: 32px; font-size: 1em; font-weight: bold; display: flex; align-items: center; justify-content: center; }
