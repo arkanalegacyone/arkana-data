@@ -60,7 +60,7 @@ window.onload = function() {
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/perks2.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/archetype_powers4.json?nocache=1",
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/cybernetics2.json?nocache=1",
-      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/magic_schools7.json?nocache=1"
+      "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/magic_schools8.json?nocache=1"
     ];
     var [flawsData, commonData, perksData, archData, cyberData, magicData] = await Promise.all(urls.map(u=>fetch(u).then(r=>{
       if (!r.ok) throw new Error("Failed to fetch "+u);
@@ -642,7 +642,6 @@ window.onload = function() {
           arches.map(function(a){return '<option value="'+esc(a)+'"'+(a===arch?' selected':'')+'>'+esc(a)+'</option>';}).join('') +
         '</select>' +
       '</div>' +
-      '<div class="note" style="margin-top:10px">Humans include <b>Human (no powers)</b>. Veilborn do not include Unaffiliated.</div>'
     );
   }
   function page2_wire(){
