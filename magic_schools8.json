@@ -377,8 +377,8 @@
 
   {
     "id": "school_divination",
-    "name": "Unlock School of Divination",
-    "desc": "Mystical insight, visions, and fate manipulation.",
+    "name": "Divination",
+    "desc": "Unlock School of Divination",
     "section": "Divination",
     "cost": 1
   },
