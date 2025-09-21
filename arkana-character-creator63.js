@@ -1,9 +1,12 @@
+// Arkana Character Creator with Discord Webhook Submission
 window.onload = function() {
 (async function(){
   var root = document.getElementById('ark-wizard');
   var flaws = [], commonPowers = [], perks = [], archPowers = [], cybernetics = [], magicSchools = [];
+  var DISCORD_WEBHOOK_URL = "https://discordapp.com/api/webhooks/1419119617573388348/MDsOewugKvquE0Sowp3LHSO6e_Tngue5lO6Z8ucFhwj6ZbQPn6RLD7L69rPOpYVwFSXW";
   var M = loadModel();
 
+  // --- Utility functions ---
   function esc(s){ return String(s||'').replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
   function lc(s){ return String(s||'').toLowerCase(); }
   function loadModel(){
@@ -13,9 +16,7 @@ window.onload = function() {
       stats:{phys:0,dex:0,mental:0,perc:0,pool:10},
       cyberSlots:0, flaws:[], picks:[], magicSchools:[],
       page5tab: 'common',
-      freeMagicSchool: '',    // Arcanist
-      freeMagicWeave: '',     // Arcanist
-      synthralFreeWeave: ''   // Synthral
+      freeMagicSchool: '', freeMagicWeave: '', synthralFreeWeave: ''
     };
     try{
       var m = raw ? JSON.parse(raw) : base;
@@ -29,13 +30,9 @@ window.onload = function() {
       m.synthralFreeWeave = m.synthralFreeWeave || '';
       return Object.assign(base,m);
     }catch(_){
-      return {
-        page:1, identity:{}, race:'', arch:'',
-        stats:{phys:0,dex:0,mental:0,perc:0,pool:10},
-        cyberSlots:0, flaws:new Set(), picks:new Set(),
-        magicSchools:new Set(), page5tab: 'common',
-        freeMagicSchool: '', freeMagicWeave: '', synthralFreeWeave: ''
-      };
+      return Object.assign({}, base, {
+        flaws: new Set(), picks: new Set(), magicSchools: new Set()
+      });
     }
   }
   function saveModel(){
@@ -76,7 +73,7 @@ window.onload = function() {
     cybernetics = cyberData;
     magicSchools = magicData;
   }
-
+  // --- Data helpers ---
   function flawsForRace(race, arch) {
     if (!race) return [];
     var r = lc(race);
@@ -103,7 +100,6 @@ window.onload = function() {
       return false;
     });
   }
-
   function perksForRace(race, arch) {
     var r = lc(race||"");
     var a = lc(arch||"");
@@ -207,7 +203,6 @@ window.onload = function() {
       cyberBoxes.forEach(ch => { if (!ch.checked) ch.disabled = false; });
     }
   }
-
   function renderList(title, arr, selectedSet, opt) {
     opt = opt||{};
     var html = title ? '<h3>'+esc(title)+'</h3>' : '';
@@ -259,7 +254,7 @@ window.onload = function() {
     var weave = magicSchools.find(x=>x.id===id);
     return weave ? weave.name : id;
   }
-  // --- Points calculation, exclude free picks ---
+  // --- Points calculation ---
   function pointsSpentTotal() {
     var allPicks = Array.from(M.picks);
     var spentPicks = allPicks.map(function(pid){
@@ -272,7 +267,6 @@ window.onload = function() {
       }
       return 0;
     }).reduce(function(a,b){return a+b;},0);
-
     var spentMagic = Array.from(M.magicSchools).map(function(id){
       if (id === M.freeMagicSchool || id === getTechnomancySchoolId()) return 0;
       var found = magicSchools.find(function(x){return x.id===id;});
@@ -280,9 +274,7 @@ window.onload = function() {
       if (found) return 1;
       return 0;
     }).reduce(function(a,b){return a+b;},0);
-
     var cyberSlotCost = (M.cyberSlots || 0) * 2;
-
     return spentPicks + spentMagic + cyberSlotCost;
   }
   function willOverspend(extra) {
@@ -297,7 +289,6 @@ window.onload = function() {
     },0);
     return total;
   }
-
   // ----------- SUBTABS PAGE 5 + FREE PICKS UI ----------------
   function page5_render(){
     var race = M.race || "";
@@ -306,14 +297,11 @@ window.onload = function() {
     var spent = pointsSpentTotal();
     var remain = total - spent;
     var canMagic = canUseMagic(race, arch);
-
     var isSynthral = lc(race)==="human" && lc(arch)==="synthral";
     var isArcanist = lc(race)==="human" && lc(arch)==="arcanist";
-
     var cyberSlots = M.cyberSlots || 0;
     var groupedMods = groupCyberneticsBySection(cyberneticsAll());
     var groupedMagicSchools = magicSchoolsAllGrouped(race, arch);
-
     // --- Free picks UI ---
     var freePicksHtml = '';
     if (isSynthral) {
@@ -356,8 +344,6 @@ window.onload = function() {
       }
       freePicksHtml += '</div>';
     }
-
-    // --- Tab content generation ---
     function cyberSectionHtml(section, arr) {
       var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
       var modsSelected = numCyberModsSelected();
@@ -374,8 +360,6 @@ window.onload = function() {
       html += '</div>';
       return html;
     }
-
-    // --- Magic picker logic: unlocks all weaves for free school (but only one is free) ---
     function magicSectionHtml(section, arr) {
       var schoolEntry = arr[0];
       var schoolSelected = M.magicSchools.has(schoolEntry.id) ||
@@ -388,7 +372,6 @@ window.onload = function() {
         var costVal = (typeof item.cost !== "undefined") ? item.cost : 1;
         var disabled = '';
         var freeWeaveHere = false;
-        // Free school: always selected/disabled
         if (idx === 0) {
           if (schoolIsFree) {
             sel = ' checked';
@@ -398,14 +381,9 @@ window.onload = function() {
             disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
           }
         } else {
-          // Weave entries
-          // Unlock all weaves for free school (including buying others for points)
           if (schoolIsFree) {
-            // Free weave: selected/disabled, others: allow normal purchase
-            if (
-              (isSynthral && M.synthralFreeWeave === item.id) ||
-              (isArcanist && M.freeMagicWeave === item.id)
-            ) {
+            if ((isSynthral && M.synthralFreeWeave === item.id) ||
+                (isArcanist && M.freeMagicWeave === item.id)) {
               sel = ' checked';
               disabled = ' disabled';
               freeWeaveHere = true;
@@ -427,7 +405,6 @@ window.onload = function() {
       html += '</div>';
       return html;
     }
-
     var sectionHtmls = {
       common: renderList("Common Powers", commonPowersForRace(race), M.picks),
       perks: renderList("Perks", perksForRace(race, arch), M.picks),
@@ -450,7 +427,6 @@ window.onload = function() {
           : '<h3>Magic Schools & Weaves</h3><div class="muted">Not available for '+esc(race)+(arch?' ('+esc(arch)+')':'')+'.</div>'
       )
     };
-
     var tabs = [
       { id: 'common', label: 'Common Powers' },
       { id: 'perks', label: 'Perks' },
@@ -458,7 +434,6 @@ window.onload = function() {
       { id: 'cyber', label: 'Cybernetics & Hacking' },
       { id: 'magic', label: 'Magic Schools & Weaves' }
     ];
-
     var tabsHtml = `
       <div class="ark-subtabs">
         ${tabs.map(tab =>
@@ -466,7 +441,6 @@ window.onload = function() {
         ).join('')}
       </div>
     `;
-
     var html =
       '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
       '<div class="totals">Points: <b>'+total+'</b> • Spent <b>'+spent+'</b> • Remaining <b>'+remain+'</b></div>' +
@@ -474,10 +448,8 @@ window.onload = function() {
       freePicksHtml +
       tabsHtml +
       `<div class="ark-subtab-content" id="ark-subtab-content">${sectionHtmls[M.page5tab]||''}</div>`;
-
     return html;
   }
-
   function page5_wire(){
     Array.prototype.forEach.call(document.querySelectorAll('.ark-subtab-btn'), function(btn){
       btn.onclick = function(){
@@ -487,8 +459,6 @@ window.onload = function() {
         render();
       };
     });
-
-    // --- Free picks wiring ---
     var synthralFreeWeaveSel = document.getElementById('synthralFreeWeaveSel');
     if (synthralFreeWeaveSel) {
       synthralFreeWeaveSel.onchange = function(e){
@@ -520,7 +490,6 @@ window.onload = function() {
         render();
       };
     }
-
     var cyberSlotInput = document.getElementById('cyberneticSlotInput');
     if (cyberSlotInput) {
       cyberSlotInput.oninput = function(e){
@@ -567,7 +536,6 @@ window.onload = function() {
       if(ch.dataset.magic){
         ch.onchange = function(){
           var id = ch.dataset.id;
-          // Prevent unchecking free school/weave
           if (id === M.freeMagicSchool || id === getTechnomancySchoolId() || id === M.freeMagicWeave || id === M.synthralFreeWeave) {
             ch.checked = true;
             return;
@@ -625,9 +593,7 @@ window.onload = function() {
     });
     enforceCyberModLimit();
   }
-  // --------- END SUBTABS PAGE 5 + FREE PICKS -----------
-
-  // --- All other rendering/wiring functions unchanged ---
+  // --- Page 1, 2, 3, 4 unchanged ---
   function page1_render(){
     var I = M.identity || (M.identity={});
     return (
@@ -795,42 +761,183 @@ window.onload = function() {
       };
     });
   }
+  // --- Summary & Submission ---
   function page6_render(){
     var S = M.stats || {phys:0,dex:0,mental:0,perc:0};
     var hp = (S.phys||0)*5;
     var base = pointsTotal();
     var spent = pointsSpentTotal();
     var remain = base - spent;
-    var magicPicks = Array.from(M.magicSchools).map(function(id){
-      if (id === M.freeMagicSchool || id === getTechnomancySchoolId()) return esc(getSchoolName(id))+' (free)';
-      return esc((magicSchools.find(function(x){return x.id===id;})||{}).name||id);
-    }).join(', ') || '—';
-    var getNames = function(arr, ids){
-      return Array.from(ids).map(function(id){
-        if (id === M.freeMagicWeave || id === M.synthralFreeWeave) return esc(getWeaveName(id))+' (free)';
-        return esc((arr.find(function(x){return x.id===id;})||{}).name||id);
-      }).filter(Boolean).join(', ');
-    };
+    function spentFor(arr){
+      return Array.from(arr).map(function(id){
+        if (id === M.freeMagicWeave || id === M.synthralFreeWeave) return 0;
+        var found =
+          commonPowers.find(x=>x.id===id) ||
+          perks.find(x=>x.id===id) ||
+          archPowers.find(x=>x.id===id) ||
+          cybernetics.find(x=>x.id===id) ||
+          magicSchools.find(x=>x.id===id);
+        return found && typeof found.cost !== "undefined" ? found.cost : 1;
+      }).reduce(function(a,b){return a+b;},0);
+    }
+    // --- fields for Discord ---
+    var flawsSummary = Array.from(M.flaws).map(fid=>flaws.find(f=>f.id===fid)?.name).filter(Boolean);
+    var powersSummary = Array.from(M.picks).map(pid =>
+      commonPowers.find(p=>p.id===pid)?.name ||
+      perks.find(p=>p.id===pid)?.name ||
+      archPowers.find(p=>p.id===pid)?.name ||
+      cybernetics.find(p=>p.id===pid)?.name
+    ).filter(Boolean);
+    var magicSchoolsSummary = Array.from(M.magicSchools).map(id => magicSchools.find(s=>s.id===id)?.name).filter(Boolean);
+    var freeMagicSchoolName = M.freeMagicSchool ? (magicSchools.find(s=>s.id===M.freeMagicSchool)?.name || '') : '';
+    var freeMagicWeaveName = M.freeMagicWeave ? (magicSchools.find(w=>w.id===M.freeMagicWeave)?.name || '') : '';
+    var synthralFreeWeaveName = M.synthralFreeWeave ? (magicSchools.find(w=>w.id===M.synthralFreeWeave)?.name || '') : '';
+    // --- Points breakdown ---
+    var flawPts = Array.from(M.flaws).map(fid=>{
+      var f=flaws.find(x=>x.id===fid);
+      return f?f.cost:0;
+    }).reduce((a,b)=>a+b,0);
+    var statPts = (S.phys)+(S.dex)+(S.mental)+(S.perc);
+    var cyberSlotPts = (M.cyberSlots||0)*2;
+    var powersPts = spentFor(M.picks);
+    var magicPts = spentFor(M.magicSchools);
+    // --- UI ---
     return (
+      '<div class="ark-submit-msg" style="background:#f3f7ee;padding:14px 16px;border-radius:8px;border:1px solid #ccd;">' +
+      '<b>When you are happy with your character, click SUBMIT to submit your character sheet to the admin team.</b> ' +
+      'Copy your character sheet for your records and paste it in your Second Life picks. ' +
+      'Due to Second Life text restrictions, you may need to remove your character background or fields not applicable to your character.' +
+      '</div>' +
       '<h2>Summary</h2>' +
       '<div class="group">' +
-        '<div><b>Name:</b> '+esc(M.identity.name||'-')+' <span class="muted">('+esc(M.identity.sl||'-')+')</span></div>' +
+        '<div><b>Character Name:</b> '+esc(M.identity.name||'-')+'</div>' +
+        '<div><b>Second Life Name:</b> '+esc(M.identity.sl||'-')+'</div>' +
+        '<div><b>Alias / Callsign:</b> '+esc(M.identity.alias||'-')+'</div>' +
+        '<div><b>Faction / Allegiance:</b> '+esc(M.identity.faction||'-')+'</div>' +
+        '<div><b>Concept / Role:</b> '+esc(M.identity.concept||'-')+'</div>' +
+        '<div><b>Job:</b> '+esc(M.identity.job||'-')+'</div>' +
+        '<div style="white-space:pre-wrap"><b>Background:</b> '+esc(M.identity.background||'-')+'</div>' +
         '<div><b>Race:</b> '+esc(M.race||'-')+' <span class="muted">/ '+esc(M.arch||'—')+'</span></div>' +
-        '<div><b>Stats:</b> Phys '+S.phys+' (HP '+hp+'), Dex '+S.dex+', Mental '+S.mental+', Perc '+S.perc+'</div>' +
-        '<div><b>Flaws:</b> '+getNames(flaws, M.flaws)+'</div>' +
-        '<div><b>Common Powers:</b> '+getNames(commonPowers, M.picks)+'</div>' +
-        '<div><b>Perks:</b> '+getNames(perks, M.picks)+'</div>' +
-        '<div><b>Archetype Powers:</b> '+getNames(archPowers, M.picks)+'</div>' +
-        '<div><b>Cybernetic Slots:</b> '+(M.cyberSlots||0)+' (cost '+((M.cyberSlots||0)*2)+' pts)</div>' +
-        '<div><b>Cybernetics:</b> '+getNames(cybernetics, M.picks)+'</div>' +
-        '<div><b>Magic Schools & Weaves:</b> '+magicPicks+'; Free Weave: '+(
-          (M.freeMagicWeave ? esc(getWeaveName(M.freeMagicWeave)) : '') +
-          (M.synthralFreeWeave ? esc(getWeaveName(M.synthralFreeWeave)) : '')
-        )+'</div>' +
+        '<div><b>Stats:</b> Phys '+S.phys+' (HP '+hp+'), Dex '+S.dex+', Mental '+S.mental+', Perc '+S.perc+' <span class="muted">(Points spent: '+statPts+')</span></div>' +
+        '<div><b>Flaws:</b> '+(flawsSummary.length?esc(flawsSummary.join(', ')):'None')+' <span class="muted">(Points gained: '+flawPts+')</span></div>' +
+        '<div><b>Common Powers/Perks/Arch/Cyber:</b> '+(powersSummary.length?esc(powersSummary.join(', ')):'None')+' <span class="muted">(Points spent: '+powersPts+')</span></div>' +
+        '<div><b>Cybernetic Slots:</b> '+(M.cyberSlots||0)+' <span class="muted">(Points spent: '+cyberSlotPts+')</span></div>' +
+        '<div><b>Magic Schools:</b> '+(magicSchoolsSummary.length?esc(magicSchoolsSummary.join(', ')):'None')+' <span class="muted">(Points spent: '+magicPts+')</span></div>' +
+        (freeMagicSchoolName ? '<div><b>Free Magic School:</b> '+esc(freeMagicSchoolName)+'</div>' : '') +
+        (freeMagicWeaveName ? '<div><b>Free Magic Weave:</b> '+esc(freeMagicWeaveName)+'</div>' : '') +
+        (synthralFreeWeaveName ? '<div><b>Synthral Free Weave:</b> '+esc(synthralFreeWeaveName)+'</div>' : '') +
         '<div class="totals">Power Points: '+base+' • Spent '+spent+' • Remaining '+remain+'</div>' +
-      '</div>'
+      '</div>' +
+      '<button id="submitBtn" type="button" class="ark-submit" style="margin-top:18px;font-size:1.2em;padding:10px 28px;background:#3c6;border-radius:8px;color:#fff;border:none;">SUBMIT CHARACTER</button>'
     );
   }
+  function discordifyCharacter(data) {
+    let msg =
+      `**Arkana Character Submission**\n` +
+      `**Character Name:** ${data.name}\n` +
+      `**Second Life Name:** ${data.sl}\n` +
+      `**Alias / Callsign:** ${data.alias}\n` +
+      `**Faction / Allegiance:** ${data.faction}\n` +
+      `**Concept / Role:** ${data.concept}\n` +
+      `**Job:** ${data.job}\n` +
+      `**Background:** ${data.background}\n` +
+      `**Race / Archetype:** ${data.race} / ${data.arch}\n` +
+      `**Stats:** Phys ${data.stats.phys} (HP ${data.hp}), Dex ${data.stats.dex}, Mental ${data.stats.mental}, Perc ${data.stats.perc} (Points spent: ${data.statPts})\n` +
+      `**Flaws:** ${(data.flaws.length ? data.flaws.join(', ') : 'None')} (Points gained: ${data.flawPts})\n` +
+      `**Common Powers/Perks/Arch/Cyber:** ${(data.powers.length ? data.powers.join(', ') : 'None')} (Points spent: ${data.powersPts})\n` +
+      `**Cybernetic Slots:** ${data.cyberSlots} (Points spent: ${data.cyberSlotPts})\n` +
+      `**Magic Schools:** ${(data.magicSchools.length ? data.magicSchools.join(', ') : 'None')} (Points spent: ${data.magicPts})\n` +
+      (data.freeMagicSchool ? `**Free Magic School:** ${data.freeMagicSchool}\n` : '') +
+      (data.freeMagicWeave ? `**Free Magic Weave:** ${data.freeMagicWeave}\n` : '') +
+      (data.synthralFreeWeave ? `**Synthral Free Weave:** ${data.synthralFreeWeave}\n` : '') +
+      `**Total Power Points:** ${data.base}, **Spent:** ${data.spent}, **Remaining:** ${data.remain}\n`;
+    return msg;
+  }
+  function getCharacterDataForDiscord() {
+    var S = M.stats || {phys:0,dex:0,mental:0,perc:0};
+    var hp = (S.phys||0)*5;
+    var base = pointsTotal();
+    var spent = pointsSpentTotal();
+    var remain = base - spent;
+    var flawsSummary = Array.from(M.flaws).map(fid=>flaws.find(f=>f.id===fid)?.name).filter(Boolean);
+    var flawPts = Array.from(M.flaws).map(fid=>{
+      var f=flaws.find(x=>x.id===fid);
+      return f?f.cost:0;
+    }).reduce((a,b)=>a+b,0);
+    var statPts = (S.phys)+(S.dex)+(S.mental)+(S.perc);
+    var powersSummary = Array.from(M.picks).map(pid =>
+      commonPowers.find(p=>p.id===pid)?.name ||
+      perks.find(p=>p.id===pid)?.name ||
+      archPowers.find(p=>p.id===pid)?.name ||
+      cybernetics.find(p=>p.id===pid)?.name
+    ).filter(Boolean);
+    var powersPts = Array.from(M.picks).map(function(id){
+      if (id === M.freeMagicWeave || id === M.synthralFreeWeave) return 0;
+      var found =
+        commonPowers.find(x=>x.id===id) ||
+        perks.find(x=>x.id===id) ||
+        archPowers.find(x=>x.id===id) ||
+        cybernetics.find(x=>x.id===id);
+      return found && typeof found.cost !== "undefined" ? found.cost : 1;
+    }).reduce(function(a,b){return a+b;},0);
+    var cyberSlotPts = (M.cyberSlots||0)*2;
+    var magicSchoolsSummary = Array.from(M.magicSchools).map(id => magicSchools.find(s=>s.id===id)?.name).filter(Boolean);
+    var magicPts = Array.from(M.magicSchools).map(function(id){
+      if (id === M.freeMagicSchool || id === getTechnomancySchoolId()) return 0;
+      var found = magicSchools.find(x=>x.id===id);
+      return found && typeof found.cost !== "undefined" ? found.cost : 1;
+    }).reduce(function(a,b){return a+b;},0);
+    var freeMagicSchoolName = M.freeMagicSchool ? (magicSchools.find(s=>s.id===M.freeMagicSchool)?.name || '') : '';
+    var freeMagicWeaveName = M.freeMagicWeave ? (magicSchools.find(w=>w.id===M.freeMagicWeave)?.name || '') : '';
+    var synthralFreeWeaveName = M.synthralFreeWeave ? (magicSchools.find(w=>w.id===M.synthralFreeWeave)?.name || '') : '';
+    return {
+      name: M.identity.name || '',
+      sl: M.identity.sl || '',
+      alias: M.identity.alias || '',
+      faction: M.identity.faction || '',
+      concept: M.identity.concept || '',
+      job: M.identity.job || '',
+      background: M.identity.background || '',
+      race: M.race,
+      arch: M.arch,
+      stats: S,
+      hp, base, spent, remain,
+      statPts, flaws: flawsSummary, flawPts,
+      powers: powersSummary, powersPts,
+      cyberSlots: M.cyberSlots||0, cyberSlotPts,
+      magicSchools: magicSchoolsSummary, magicPts,
+      freeMagicSchool: freeMagicSchoolName,
+      freeMagicWeave: freeMagicWeaveName,
+      synthralFreeWeave: synthralFreeWeaveName
+    };
+  }
+  function wireSubmitButton() {
+    var btn = document.getElementById('submitBtn');
+    if (btn) {
+      btn.onclick = async function(){
+        btn.disabled = true;
+        btn.textContent = "Submitting...";
+        const data = getCharacterDataForDiscord();
+        const content = discordifyCharacter(data);
+        try {
+          await fetch(DISCORD_WEBHOOK_URL, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ content })
+          });
+          btn.textContent = "Submitted!";
+        } catch (e) {
+          btn.textContent = "Error!";
+          alert("Submission failed: "+e.message);
+        }
+        setTimeout(()=>{ btn.disabled=false; btn.textContent="SUBMIT CHARACTER"; }, 5000);
+      };
+    }
+  }
+  function page6_wire(){
+    wireSubmitButton();
+  }
+  // --- Main render & wiring ---
   function render(){
     var steps = ['Identity','Race & Archetype','Stats','Optional Flaws','Powers/Perks/Cybernetics/Magic','Summary'];
     root.innerHTML =
@@ -849,7 +956,6 @@ window.onload = function() {
       '<div class="diag" id="diag">page '+M.page+'</div>';
     document.getElementById('backBtn').onclick = function(){ M.page=Math.max(1,M.page-1); saveModel(); render(); };
     document.getElementById('nextBtn').onclick = function(){ M.page=Math.min(6,M.page+1); saveModel(); render(); };
-
     Array.prototype.forEach.call(document.querySelectorAll('.ark-step'), function(btn){
       btn.onclick = function(){
         var step = parseInt(btn.getAttribute('data-step'), 10);
@@ -860,16 +966,14 @@ window.onload = function() {
         }
       };
     });
-
     var host = document.getElementById('page');
     if (M.page===1){ host.innerHTML = page1_render(); page1_wire(); }
     if (M.page===2){ host.innerHTML = page2_render(); page2_wire(); }
     if (M.page===3){ host.innerHTML = page3_render(); page3_wire(); }
     if (M.page===4){ host.innerHTML = page4_render(); page4_wire(); }
     if (M.page===5){ host.innerHTML = '<div id="page5">'+page5_render()+'</div>'; page5_wire(); }
-    if (M.page===6){ host.innerHTML = page6_render(); }
+    if (M.page===6){ host.innerHTML = page6_render(); page6_wire(); }
   }
-
   try {
     await loadAllData();
     render();
@@ -889,4 +993,6 @@ window.onload = function() {
 .ark-step.current { background: #fff; border: 2px solid #0077ff; color: #0077ff; }
 
 .ark-free-pick { background: #eef; border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; border:1px solid #bbe; }
+.ark-submit-msg { margin-bottom: 18px; }
+.ark-submit { font-size:1.2em; padding:10px 28px; background:#3c6; border-radius:8px; color:#fff; border:none; cursor: pointer;}
 */
