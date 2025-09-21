@@ -134,7 +134,6 @@ window.onload = function() {
     if(lc(race) === "spliced") return false;
     return true;
   }
-
   function groupMagicSchoolsBySection(arr, race, arch) {
     var isSynthral = lc(race) === "human" && lc(arch) === "synthral";
     var out = {};
@@ -164,7 +163,6 @@ window.onload = function() {
     S.pool = Math.max(0, 10 - spent);
     return S;
   }
-
   function groupCyberneticsBySection(arr) {
     var sectionLabels = [
       "Sensory Mods",
@@ -183,11 +181,9 @@ window.onload = function() {
     });
     return out;
   }
-
   function numCyberModsSelected() {
     return Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid)).length;
   }
-
   function enforceCyberModLimit() {
     var cyberSlots = M.cyberSlots || 0;
     var cyberBoxes = Array.from(document.querySelectorAll('#page5 input[data-cyber="1"]'));
@@ -228,10 +224,8 @@ window.onload = function() {
     html += '</div>';
     return html;
   }
-
-  // --- Magic UI helpers for free picks ---
+  // --- Magic UI helpers ---
   function getTechnomancySchoolId() {
-    // Find the ID for Technomancy school
     for (var i=0; i<magicSchools.length; ++i) {
       var sch = magicSchools[i];
       if (lc(sch.section) === "technomancy" && sch.id.startsWith("school_")) return sch.id;
@@ -239,7 +233,6 @@ window.onload = function() {
     return "";
   }
   function getSchoolWeaves(schoolId) {
-    // Find all weaves for given school id
     var schoolEntry = magicSchools.find(x=>x.id===schoolId);
     if (!schoolEntry) return [];
     var section = schoolEntry.section;
@@ -248,7 +241,6 @@ window.onload = function() {
     });
   }
   function getSchoolIdsForArcanist() {
-    // All school IDs available to Arcanists
     var grouped = magicSchoolsAllGrouped(M.race, M.arch);
     var ids = [];
     Object.keys(grouped).forEach(section=>{
@@ -267,12 +259,10 @@ window.onload = function() {
     var weave = magicSchools.find(x=>x.id===id);
     return weave ? weave.name : id;
   }
-
   // --- Points calculation, exclude free picks ---
   function pointsSpentTotal() {
     var allPicks = Array.from(M.picks);
     var spentPicks = allPicks.map(function(pid){
-      // Exclude free weaves
       if (pid === M.freeMagicWeave || pid === M.synthralFreeWeave) return 0;
       var arrs = [commonPowers, perks, archPowers, cybernetics];
       for(var i=0;i<arrs.length;i++){
@@ -283,7 +273,6 @@ window.onload = function() {
       return 0;
     }).reduce(function(a,b){return a+b;},0);
 
-    // Exclude free schools
     var spentMagic = Array.from(M.magicSchools).map(function(id){
       if (id === M.freeMagicSchool || id === getTechnomancySchoolId()) return 0;
       var found = magicSchools.find(function(x){return x.id===id;});
@@ -296,13 +285,11 @@ window.onload = function() {
 
     return spentPicks + spentMagic + cyberSlotCost;
   }
-
   function willOverspend(extra) {
     var spent = pointsSpentTotal();
     var total = pointsTotal();
     return spent + extra > total;
   }
-
   function pointsTotal() {
     var total = 15 + Array.from(M.flaws).reduce(function(s,fid){
       var f=flaws.find(function(x){return x.id===fid;});
@@ -330,7 +317,6 @@ window.onload = function() {
     // --- Free picks UI ---
     var freePicksHtml = '';
     if (isSynthral) {
-      // Synthral: always gets Technomancy school + 1 Technomancy weave for free
       var techSchoolId = getTechnomancySchoolId();
       var techWeaves = getSchoolWeaves(techSchoolId);
       freePicksHtml += '<div class="ark-free-pick"><b>Synthral: Free Technomancy School & Weave</b><br>';
@@ -347,7 +333,6 @@ window.onload = function() {
       freePicksHtml += '</div>';
     }
     if (isArcanist) {
-      // Arcanist: Choose free school and free weave from that school
       var schoolIds = getSchoolIdsForArcanist();
       freePicksHtml += '<div class="ark-free-pick"><b>Arcanist: Free Magic School & Weave</b><br>';
       freePicksHtml += '<span class="muted">Select one school below for free, then one weave from that school for free:</span><br>';
@@ -390,7 +375,7 @@ window.onload = function() {
       return html;
     }
 
-    // --- Magic picker logic: disables normal picking of free school/weave ---
+    // --- Magic picker logic: unlocks all weaves for free school (but only one is free) ---
     function magicSectionHtml(section, arr) {
       var schoolEntry = arr[0];
       var schoolSelected = M.magicSchools.has(schoolEntry.id) ||
@@ -405,7 +390,6 @@ window.onload = function() {
         var freeWeaveHere = false;
         // Free school: always selected/disabled
         if (idx === 0) {
-          // School entry
           if (schoolIsFree) {
             sel = ' checked';
             disabled = ' disabled';
@@ -415,8 +399,9 @@ window.onload = function() {
           }
         } else {
           // Weave entries
+          // Unlock all weaves for free school (including buying others for points)
           if (schoolIsFree) {
-            // Free weave
+            // Free weave: selected/disabled, others: allow normal purchase
             if (
               (isSynthral && M.synthralFreeWeave === item.id) ||
               (isArcanist && M.freeMagicWeave === item.id)
@@ -426,8 +411,7 @@ window.onload = function() {
               freeWeaveHere = true;
               costVal = 0;
             } else {
-              // Only allow selecting free weave via dropdown, not via checkbox
-              disabled = ' disabled';
+              disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
             }
           } else {
             if (!schoolSelected) disabled = ' disabled';
@@ -510,7 +494,6 @@ window.onload = function() {
       synthralFreeWeaveSel.onchange = function(e){
         var weaveId = e.target.value;
         M.synthralFreeWeave = weaveId;
-        // Ensure the Technomancy school is always selected
         var techSchoolId = getTechnomancySchoolId();
         if (techSchoolId && !M.magicSchools.has(techSchoolId)) M.magicSchools.add(techSchoolId);
         saveModel();
@@ -523,7 +506,6 @@ window.onload = function() {
         var schoolId = e.target.value;
         M.freeMagicSchool = schoolId;
         if (schoolId && !M.magicSchools.has(schoolId)) M.magicSchools.add(schoolId);
-        // Reset free weave if school changed
         M.freeMagicWeave = '';
         saveModel();
         render();
