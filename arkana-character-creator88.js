@@ -833,7 +833,7 @@ window.onload = function() {
     var flawPts = Array.from(M.flaws).map(fid=>{
       var f=flaws.find(x=>x.id===fid);
       return f?f.cost:0;
-    }).reduce((a,b)=>a+b,0);
+    }).reduce((a,b)=>a+b,0); //
     var statPts =
       (S.phys-1-splicedBonus>0?S.phys-1-splicedBonus:0) +
       (S.dex-1-splicedBonus>0?S.dex-1-splicedBonus:0) +
