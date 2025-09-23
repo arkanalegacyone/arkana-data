@@ -1,5 +1,14 @@
 // Arkana Character Creator Wizard with Google Apps Script Submission
 
+// --- Set title font sizes ---
+(function() {
+  var style = document.createElement('style');
+  style.innerHTML = `
+    h2 { font-size: 20pt !important; }
+    h3, h4 { font-size: 1.1em; }
+  `;
+  document.head.appendChild(style);
+})();
 window.onload = function() {
 (async function(){
   var root = document.getElementById('ark-wizard');
@@ -469,6 +478,7 @@ window.onload = function() {
     `;
     var html =
       '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
+      '<button id="resetPage5Btn" style="margin:12px 0;padding:7px 18px;font-size:1em;">Reset Page 5 Choices</button>' +
       '<div class="totals">Points: <b>'+total+'</b> • Spent <b>'+spent+'</b> • Remaining <b>'+remain+'</b></div>' +
       '<div class="note">Select any combination of powers, perks, archetype powers, cybernetics (requires slot), magic school weaves, and cybernetic slots. You cannot spend more points than you have.</div>' +
       freePicksHtml +
@@ -617,7 +627,22 @@ window.onload = function() {
       }
     });
     enforceCyberModLimit();
-  }
+
+    // --- Page 5 Reset Button ---
+    var resetBtn = document.getElementById('resetPage5Btn');
+    if (resetBtn) {
+      resetBtn.onclick = function() {
+        M.picks.clear();
+        M.magicSchools.clear();
+        M.cyberSlots = 0;
+        M.freeMagicSchool = '';
+        M.freeMagicWeave = '';
+        M.synthralFreeWeave = '';
+        saveModel();
+        render();
+      };
+    }
+}
 
   function page1_render(){
     var I = M.identity || (M.identity={});
@@ -676,22 +701,26 @@ window.onload = function() {
     if (!(M.picks instanceof Set)) M.picks = new Set(M.picks||[]);
     if (!(M.magicSchools instanceof Set)) M.magicSchools = new Set(M.magicSchools||[]);
     if (raceSel){
-      var onRace = function(){
-        var newRace = raceSel.value || '';
-        M.race = newRace;
-        M.arch = '';
-        M.flaws.clear();
-        M.picks.clear();
-        M.magicSchools.clear();
-        M.freeMagicSchool = '';
-        M.freeMagicWeave = '';
-        M.synthralFreeWeave = '';
-        saveModel();
-        render();
-      };
-      raceSel.addEventListener('change', onRace, { passive:true });
-      raceSel.addEventListener('input',  onRace, { passive:true });
-    }
+  var onRace = function(){
+    var newRace = raceSel.value || '';
+    M.race = newRace;
+    M.arch = '';
+
+    // Reset all later pages (stats, flaws, picks, magic, etc)
+    M.stats = {phys:1,dex:1,mental:1,perc:1,pool:6};
+    M.flaws = new Set();
+    M.picks = new Set();
+    M.magicSchools = new Set();
+    M.cyberSlots = 0;
+    M.freeMagicSchool = '';
+    M.freeMagicWeave = '';
+    M.synthralFreeWeave = '';
+    saveModel();
+    render();
+  };
+  raceSel.addEventListener('change', onRace, { passive:true });
+  raceSel.addEventListener('input',  onRace, { passive:true });
+}
     if (archSel){
       archSel.addEventListener('change', function(){
         M.arch = archSel.value || '';
