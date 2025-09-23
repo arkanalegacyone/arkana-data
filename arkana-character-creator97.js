@@ -5,12 +5,12 @@
   var style = document.createElement('style');
   style.innerHTML = `
     #ark-wizard h2 {
-      font-size: 1.2em !important;
-      line-height: 1.2 !important;
+      font-size: 2em !important;
+      line-height: 2.2 !important;
     }
     #ark-wizard h3, #ark-wizard h4 {
-      font-size: 1.05em !important;
-      line-height: 1.2 !important;
+      font-size: 2em !important;
+      line-height: 2.2 !important;
     }
   `;
   document.head.appendChild(style);
@@ -484,8 +484,8 @@ window.onload = function() {
     `;
     var html =
       '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
-      '<div class="totals">Points: <b>'+total+'</b> • Spent <b>'+spent+'</b> • Remaining <b>'+remain+'</b></div>' +
       '<div class="note">Select any combination of powers, perks, archetype powers, cybernetics (requires slot), magic school weaves, and cybernetic slots. You cannot spend more points than you have.</div>' +
+      '<div class="totals">Points: <b>'+total+'</b> • Spent <b>'+spent+'</b> • Remaining <b>'+remain+'</b></div>' +
       '<button id="resetPage5Btn" style="margin:12px 0;padding:7px 18px;font-size:1em;">Reset Page 5 Choices</button>' +
       freePicksHtml +
       tabsHtml +
