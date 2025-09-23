@@ -5,7 +5,6 @@ window.onload = function() {
   var root = document.getElementById('ark-wizard');
   var flaws = [], commonPowers = [], perks = [], archPowers = [], cybernetics = [], magicSchools = [];
   var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyiEr1CrTTjNxdW2UrAKKYzO9fgrRywgnNOPdOztXO7eZzsjrizQvkO8EDCzG23PoophA/exec";
-  var DISCORD_WEBHOOK_URL = "https://discordapp.com/api/webhooks/1419119617573388348/MDsOewugKvquE0Sowp3LHSO6e_Tngue5lO6Z8ucFhwj6ZbQPn6RLD7L69rPOpYVwFSXW";
   var M = loadModel();
 
   // --- Utility functions ---
@@ -60,17 +59,6 @@ window.onload = function() {
         localStorage.setItem('arkModel', JSON.stringify(dump));
       }
     }catch(_){}
-  }
-
-  // --- Discord webhook sender ---
-  function sendToDiscord(message) {
-    fetch(DISCORD_WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: message })
-    }).catch(e => {
-      console.error("Failed to send to Discord:", e);
-    });
   }
 
   async function loadAllData() {
@@ -899,13 +887,6 @@ window.onload = function() {
   function page6_wire(){
     var form = document.getElementById('arkanaSubmitForm');
     if (form) {
-      form.onsubmit = function(e){
-        // Send first two lines of summary to Discord
-        var summary = form.querySelector('input[name="summary"]').value || "";
-        var lines = summary.split('\n');
-        var discordMsg = lines.slice(0, 2).join('\n');
-        sendToDiscord(discordMsg);
-
         setTimeout(function(){
           alert("Character submitted! Thank you.");
         }, 500);
