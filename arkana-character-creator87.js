@@ -1,10 +1,11 @@
-// Arkana Character Creator Wizard with Google Apps Script Submission
+// Arkana Character Creator Wizard with Google Apps Script Submission and Discord Webhook
 
 window.onload = function() {
 (async function(){
   var root = document.getElementById('ark-wizard');
   var flaws = [], commonPowers = [], perks = [], archPowers = [], cybernetics = [], magicSchools = [];
   var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyiEr1CrTTjNxdW2UrAKKYzO9fgrRywgnNOPdOztXO7eZzsjrizQvkO8EDCzG23PoophA/exec";
+  var DISCORD_WEBHOOK_URL = "https://discordapp.com/api/webhooks/1419119617573388348/MDsOewugKvquE0Sowp3LHSO6e_Tngue5lO6Z8ucFhwj6ZbQPn6RLD7L69rPOpYVwFSXW";
   var M = loadModel();
 
   // --- Utility functions ---
@@ -60,6 +61,18 @@ window.onload = function() {
       }
     }catch(_){}
   }
+
+  // --- Discord webhook sender ---
+  function sendToDiscord(message) {
+    fetch(DISCORD_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: message })
+    }).catch(e => {
+      console.error("Failed to send to Discord:", e);
+    });
+  }
+
   async function loadAllData() {
     const urls = [
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/flaws3.json",
@@ -81,7 +94,7 @@ window.onload = function() {
     magicSchools = magicData;
   }
 
-  // --- Data helpers:
+  // --- Data helpers ---
   function flawsForRace(race, arch) {
     if (!race) return [];
     var r = lc(race);
@@ -299,7 +312,7 @@ window.onload = function() {
       if (found && typeof found.cost !== "undefined") return found.cost;
       if (found) return 1;
       return 0;
-    }).reduce(function(a,b){return a+b;},0);
+    }).reduce(function(a,b){return a+b,0});
     var cyberSlotCost = (M.cyberSlots || 0) * 1;
     return statSpent + spentPicks + spentMagic + cyberSlotCost;
   }
@@ -882,10 +895,17 @@ window.onload = function() {
       '</form>'
     );
   }
+
   function page6_wire(){
     var form = document.getElementById('arkanaSubmitForm');
     if (form) {
       form.onsubmit = function(e){
+        // Send first two lines of summary to Discord
+        var summary = form.querySelector('input[name="summary"]').value || "";
+        var lines = summary.split('\n');
+        var discordMsg = lines.slice(0, 2).join('\n');
+        sendToDiscord(discordMsg);
+
         setTimeout(function(){
           alert("Character submitted! Thank you.");
         }, 500);
