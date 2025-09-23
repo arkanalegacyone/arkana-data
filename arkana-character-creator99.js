@@ -533,24 +533,23 @@ window.onload = function() {
       };
     }
     var cyberSlotInput = document.getElementById('cyberneticSlotInput');
-    if (cyberSlotInput) {
-      cyberSlotInput.oninput = function(e){
-        var val = Math.max(0, Math.min(10, parseInt(e.target.value)||0));
-        var total = pointsTotal();
-        var spent = pointsSpentTotal();
-        if (val < 0) val = 0;
-        if (val > 10) val = 10;
-        var cyberMods = Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid));
-        if (val === 0) {
-          cyberMods.forEach(pid=>M.picks.delete(pid));
-        } else if (cyberMods.length > val) {
-          cyberMods.slice(val).forEach(pid=>M.picks.delete(pid));
-        }
-        M.cyberSlots = val;
-        saveModel();
-        render();
-      };
+if (cyberSlotInput) {
+  cyberSlotInput.oninput = function(e){
+    var val = Math.max(0, Math.min(10, parseInt(e.target.value)||0));
+    var cyberMods = Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid));
+    // If reducing slots below current mods, remove excess mods
+    if (val < cyberMods.length) {
+      // Remove mods that exceed available slots
+      cyberMods.slice(val).forEach(pid => M.picks.delete(pid));
     }
+    if (val === 0) {
+      cyberMods.forEach(pid=>M.picks.delete(pid));
+    }
+    M.cyberSlots = val;
+    saveModel();
+    render();
+  };
+}
     Array.prototype.forEach.call(document.querySelectorAll('#page5 input[type="checkbox"][data-id]'),function(ch){
       if(ch.dataset.cyber) {
         ch.onchange = function(){
