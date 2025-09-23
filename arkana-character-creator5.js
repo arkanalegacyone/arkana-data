@@ -319,10 +319,10 @@ window.onload = function() {
     return statSpent + spentPicks + spentMagic + cyberSlotCost;
   }
   function willOverspend(extra) {
-    var spent = pointsSpentTotal();
-    var total = pointsTotal();
-    return spent + extra > total;
-  }
+  var spent = pointsSpentPage5();
+  var total = pointsTotal();
+  return spent + extra > total;
+}
   function pointsTotal() {
     var total = 15 + Array.from(M.flaws).reduce(function(s,fid){
       var f=flaws.find(function(x){return x.id===fid;});
@@ -330,14 +330,36 @@ window.onload = function() {
     },0);
     return total;
   }
+    function pointsSpentPage5() {
+    var allPicks = Array.from(M.picks);
+    var spentPicks = allPicks.map(function(pid){
+      if (pid === M.freeMagicWeave || pid === M.synthralFreeWeave) return 0;
+      var arrs = [commonPowers, perks, archPowers, cybernetics];
+      for(var i=0;i<arrs.length;i++){
+        var found=arrs[i].find(function(x){return x.id===pid;});
+        if (found && typeof found.cost !== "undefined") return found.cost;
+        if (found) return 1;
+      }
+      return 0;
+    }).reduce(function(a,b){return a+b;},0);
+    var spentMagic = Array.from(M.magicSchools).map(function(id){
+      if (id === M.freeMagicSchool || id === getTechnomancySchoolId()) return 0;
+      var found = magicSchools.find(function(x){return x.id===id;});
+      if (found && typeof found.cost !== "undefined") return found.cost;
+      if (found) return 1;
+      return 0;
+    }).reduce(function(a,b){return a+b;},0);
+    var cyberSlotCost = (M.cyberSlots || 0) * 1;
+    return spentPicks + spentMagic + cyberSlotCost;
+  }
 
   // ----------- SUBTABS PAGE 5 + FREE PICKS UI ----------------
-  function page5_render(){
-    var race = M.race || "";
-    var arch = M.arch || "";
-    var total = pointsTotal();
-    var spent = pointsSpentTotal();
-    var remain = total - spent;
+ function page5_render(){
+  var race = M.race || "";
+  var arch = M.arch || "";
+  var total = pointsTotal();
+  var spent = pointsSpentPage5();  // <--- use the new function!
+  var remain = total - spent;
     var canMagic = canUseMagic(race, arch);
     var isSynthral = lc(race)==="human" && lc(arch)==="synthral";
     var isArcanist = lc(race)==="human" && lc(arch)==="arcanist";
@@ -556,7 +578,7 @@ if (cyberSlotInput) {
           var found = cybernetics.find(function(x){return x.id===id;});
           var costVal = (found && typeof found.cost !== "undefined") ? found.cost : 1;
           var total = pointsTotal();
-          var spent = pointsSpentTotal();
+          var spent = pointsSpentPage5();
           var remain = total - spent;
           var cyberSlots = M.cyberSlots || 0;
           var numModsSelected = Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid)).length;
@@ -581,7 +603,7 @@ if (cyberSlotInput) {
           }
           var costVal = (found && typeof found.cost !== "undefined") ? found.cost : 1;
           var total = pointsTotal();
-          var spent = pointsSpentTotal();
+          var spent = pointsSpentPage5(); // <-- FIXED
           var remain = total - spent;
           if (ch.checked && remain < costVal) {
             ch.checked = false;
@@ -593,7 +615,7 @@ if (cyberSlotInput) {
           render();
         };
       }
-      if(ch.dataset.magic){
+            if(ch.dataset.magic){
         ch.onchange = function(){
           var id = ch.dataset.id;
           if (id === M.freeMagicSchool || id === getTechnomancySchoolId() || id === M.freeMagicWeave || id === M.synthralFreeWeave) {
@@ -607,7 +629,7 @@ if (cyberSlotInput) {
           var arr = grouped[section] || [];
           var isSchoolEntry = arr.length && arr[0].id === id;
           var total = pointsTotal();
-          var spent = pointsSpentTotal();
+          var spent = pointsSpentPage5(); // <-- FIXED
           var remain = total - spent;
           if (!isSchoolEntry && !M.magicSchools.has(arr[0].id)) {
             ch.checked = false;
