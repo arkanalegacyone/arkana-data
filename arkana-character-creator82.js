@@ -4,7 +4,7 @@ window.onload = function() {
 (async function(){
   var root = document.getElementById('ark-wizard');
   var flaws = [], commonPowers = [], perks = [], archPowers = [], cybernetics = [], magicSchools = [];
-  var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwV4jY__S6QyJiLE1FNXRgyVyPFb2sHyJT-BTdgxremQy8llXSfPeoKD5QWw5_JFa_qag/exec";
+  var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyiEr1CrTTjNxdW2UrAKKYzO9fgrRywgnNOPdOztXO7eZzsjrizQvkO8EDCzG23PoophA/exec";
   var M = loadModel();
 
   // --- Utility functions ---
