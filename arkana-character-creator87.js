@@ -312,7 +312,7 @@ window.onload = function() {
       if (found && typeof found.cost !== "undefined") return found.cost;
       if (found) return 1;
       return 0;
-    }).reduce(function(a,b){return a+b,0});
+    }).reduce(function(a,b){return a+b;},0);
     var cyberSlotCost = (M.cyberSlots || 0) * 1;
     return statSpent + spentPicks + spentMagic + cyberSlotCost;
   }
