@@ -1,4 +1,4 @@
-// Arkana Character Creator Wizard with Google Apps Script Submission and Discord Webhook
+// Arkana Character Creator Wizard with Google Apps Script Submission
 
 window.onload = function() {
 (async function(){
@@ -60,7 +60,6 @@ window.onload = function() {
       }
     }catch(_){}
   }
-
   async function loadAllData() {
     const urls = [
       "https://cdn.jsdelivr.net/gh/arkanalegacyone/arkana-data/flaws3.json",
@@ -82,7 +81,7 @@ window.onload = function() {
     magicSchools = magicData;
   }
 
-  // --- Data helpers ---
+  // --- Data helpers:
   function flawsForRace(race, arch) {
     if (!race) return [];
     var r = lc(race);
@@ -300,7 +299,7 @@ window.onload = function() {
       if (found && typeof found.cost !== "undefined") return found.cost;
       if (found) return 1;
       return 0;
-    }).reduce(function(a,b){return a+b,0});
+    }).reduce(function(a,b){return a+b;},0);
     var cyberSlotCost = (M.cyberSlots || 0) * 1;
     return statSpent + spentPicks + spentMagic + cyberSlotCost;
   }
@@ -821,7 +820,7 @@ window.onload = function() {
     var flawPts = Array.from(M.flaws).map(fid=>{
       var f=flaws.find(x=>x.id===fid);
       return f?f.cost:0;
-    }).reduce((a,b)=>a+b,0); //
+    }).reduce((a,b)=>a+b,0);
     var statPts =
       (S.phys-1-splicedBonus>0?S.phys-1-splicedBonus:0) +
       (S.dex-1-splicedBonus>0?S.dex-1-splicedBonus:0) +
@@ -883,20 +882,16 @@ window.onload = function() {
       '</form>'
     );
   }
-
- function page6_wire(){
-  var form = document.getElementById('arkanaSubmitForm');
-  if (form) {
-    form.onsubmit = function(e){
-      // Optionally prevent default if you want to stop normal HTML submission:
-      // e.preventDefault();
-
-      setTimeout(function(){
-        alert("Character submitted! Thank you.");
-      }, 500);
-    };
+  function page6_wire(){
+    var form = document.getElementById('arkanaSubmitForm');
+    if (form) {
+      form.onsubmit = function(e){
+        setTimeout(function(){
+          alert("Character submitted! Thank you.");
+        }, 500);
+      };
+    }
   }
-}
 
   // --- Main render & wiring ---
   function render(){
