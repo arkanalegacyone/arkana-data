@@ -13,7 +13,7 @@ window.onload = function() {
     var raw=window.localStorage ? localStorage.getItem('arkModel') : null;
     var base = {
       page:1, identity:{}, race:'', arch:'',
-      stats:{phys:0,dex:0,mental:0,perc:0,pool:10},
+      stats:{phys:1,dex:1,mental:1,perc:1,pool:6},
       cyberSlots:0, flaws:[], picks:[], magicSchools:[],
       page5tab: 'common',
       freeMagicSchool: '', freeMagicWeave: '', synthralFreeWeave: ''
@@ -28,6 +28,14 @@ window.onload = function() {
       m.freeMagicSchool = m.freeMagicSchool || '';
       m.freeMagicWeave = m.freeMagicWeave || '';
       m.synthralFreeWeave = m.synthralFreeWeave || '';
+      // stats default for new users
+      if (!m.stats || typeof m.stats !== "object") {
+        m.stats = {phys:1,dex:1,mental:1,perc:1,pool:6};
+      }
+      // ensure stats are at least 1
+      ['phys','dex','mental','perc'].forEach(function(k){
+        if (typeof m.stats[k]!=="number" || m.stats[k]<1) m.stats[k]=1;
+      });
       return Object.assign(base,m);
     }catch(_){
       return Object.assign({}, base, {
@@ -151,12 +159,26 @@ window.onload = function() {
   function magicSchoolsAllGrouped(race, arch) {
     return groupMagicSchoolsBySection(magicSchools, race, arch);
   }
-  function statMod(v){ return v===0?-3 : v===1?-2 : v===2?0 : v===3?2 : v===4?4 : v===5?6:0; }
+  function statMod(v){ return v===1?-2 : v===2?0 : v===3?2 : v===4?4 : v===5?6:0; }
   function normalizeStats(){
-    var S = M.stats = M.stats || {phys:0,dex:0,mental:0,perc:0};
-    ['phys','dex','mental','perc'].forEach(function(k){ if(typeof S[k]!=='number') S[k]=0; S[k]=Math.min(5,Math.max(0,S[k])); });
-    var spent = (S.phys)+(S.dex)+(S.mental)+(S.perc);
-    S.pool = Math.max(0, 10 - spent);
+    var S = M.stats = M.stats || {phys:1,dex:1,mental:1,perc:1};
+    // Set minimum stat to 1
+    ['phys','dex','mental','perc'].forEach(function(k){
+      if(typeof S[k]!=='number' || S[k]<1) S[k]=1;
+      S[k]=Math.min(5,Math.max(1,S[k]));
+    });
+    // Spliced bonus: 1 free point Phys+Dex
+    var race = lc(M.race||'');
+    var physBase = 1, dexBase = 1;
+    var splicedBonus = (race === "spliced") ? 1 : 0;
+    // Total points spent = stats - base (1 for each stat, +1 for spliced Phys/Dex)
+    var spent = (S.phys-physBase-splicedBonus>0?S.phys-physBase-splicedBonus:0) +
+                (S.dex-dexBase-splicedBonus>0?S.dex-dexBase-splicedBonus:0) +
+                (S.mental-1>0?S.mental-1:0) +
+                (S.perc-1>0?S.perc-1:0);
+
+    var pool = 6 - spent;
+    S.pool = Math.max(0, pool);
     return S;
   }
   function groupCyberneticsBySection(arr) {
@@ -256,6 +278,17 @@ window.onload = function() {
   }
   // --- Points calculation ---
   function pointsSpentTotal() {
+    // 1. Stat points: spent
+    var S = M.stats || {phys:1,dex:1,mental:1,perc:1};
+    var race = lc(M.race||'');
+    var splicedBonus = (race === "spliced") ? 1 : 0;
+    var statSpent =
+      (S.phys-1-splicedBonus>0?S.phys-1-splicedBonus:0) +
+      (S.dex-1-splicedBonus>0?S.dex-1-splicedBonus:0) +
+      (S.mental-1>0?S.mental-1:0) +
+      (S.perc-1>0?S.perc-1:0);
+
+    // 2. Powers, Perks, Arch, Cybernetics
     var allPicks = Array.from(M.picks);
     var spentPicks = allPicks.map(function(pid){
       if (pid === M.freeMagicWeave || pid === M.synthralFreeWeave) return 0;
@@ -267,6 +300,8 @@ window.onload = function() {
       }
       return 0;
     }).reduce(function(a,b){return a+b;},0);
+
+    // 3. Magic schools
     var spentMagic = Array.from(M.magicSchools).map(function(id){
       if (id === M.freeMagicSchool || id === getTechnomancySchoolId()) return 0;
       var found = magicSchools.find(function(x){return x.id===id;});
@@ -274,8 +309,11 @@ window.onload = function() {
       if (found) return 1;
       return 0;
     }).reduce(function(a,b){return a+b;},0);
+
+    // 4. Cyber slot cost: now 1 point per slot
     var cyberSlotCost = (M.cyberSlots || 0) * 1;
-    return spentPicks + spentMagic + cyberSlotCost;
+
+    return statSpent + spentPicks + spentMagic + cyberSlotCost;
   }
   function willOverspend(extra) {
     var spent = pointsSpentTotal();
@@ -289,6 +327,7 @@ window.onload = function() {
     },0);
     return total;
   }
+
   // ----------- SUBTABS PAGE 5 + FREE PICKS UI ----------------
   function page5_render(){
     var race = M.race || "";
@@ -413,9 +452,9 @@ window.onload = function() {
         '<div class="cybernetic-section" style="margin-bottom:12px;">' +
         '<div class="muted" style="margin-bottom:8px;font-size:1em;">To purchase <b>Cybernetic Augmentations & Hacking</b> items, you must first purchase a slot.</div>' +
         '<label class="ark-input" style="font-weight:600;width:auto;display:inline-block;margin-right:12px;">Cybernetic Slots</label>' +
-        '<input type="number" min="0" max="10" class="cybernetic-input" id="cyberneticSlotInput" value="'+cyberSlots+'"'+((remain<2 && cyberSlots < 10)?' disabled':'')+'">' +
-        '<span class="cybernetic-cost" style="margin-left:10px;">Cost: '+(cyberSlots*2)+' points</span>' +
-        ((remain<2 && cyberSlots < 10) ? '<span class="muted" style="margin-left:10px;">No points left for more slots</span>':'') +
+        '<input type="number" min="0" max="10" class="cybernetic-input" id="cyberneticSlotInput" value="'+cyberSlots+'"'+((remain<1 && cyberSlots < 10)?' disabled':'')+'">' +
+        '<span class="cybernetic-cost" style="margin-left:10px;">Cost: '+(cyberSlots*1)+' points</span>' +
+        ((remain<1 && cyberSlots < 10) ? '<span class="muted" style="margin-left:10px;">No points left for more slots</span>':'') +
         '</div>' +
         Object.keys(groupedMods).map(section=>cyberSectionHtml(section, groupedMods[section])).join('')
       ),
@@ -509,8 +548,30 @@ window.onload = function() {
         render();
       };
     }
+    // Powers, Perks, Arch, Cybernetics, Magic
     Array.prototype.forEach.call(document.querySelectorAll('#page5 input[type="checkbox"][data-id]'),function(ch){
-      if(!ch.dataset.cyber && !ch.dataset.magic){
+      // --- for cybernetics, fix bug for points refund on unchecking ---
+      if(ch.dataset.cyber) {
+        ch.onchange = function(){
+          var id = ch.dataset.id;
+          var found = cybernetics.find(function(x){return x.id===id;});
+          var costVal = (found && typeof found.cost !== "undefined") ? found.cost : 1;
+          var total = pointsTotal();
+          var spent = pointsSpentTotal();
+          var remain = total - spent;
+          var cyberSlots = M.cyberSlots || 0;
+          var numModsSelected = Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid)).length;
+          if (cyberSlots < 1 || (!ch.checked && numModsSelected >= cyberSlots) || (ch.checked && remain < costVal)) {
+            ch.checked = false;
+            return;
+          }
+          if (ch.checked) M.picks.add(id);
+          else M.picks.delete(id); // fixes bug: re-credit points on unchecking
+          enforceCyberModLimit();
+          saveModel();
+          render();
+        };
+      } else if(!ch.dataset.magic){
         ch.onchange = function(){
           var id = ch.dataset.id;
           var arrs = [commonPowers, perks, archPowers];
@@ -570,29 +631,9 @@ window.onload = function() {
         };
       }
     });
-    Array.prototype.forEach.call(document.querySelectorAll('#page5 input[data-cyber="1"]'), function(ch){
-      ch.onchange = function(){
-        var id = ch.dataset.id;
-        var found = cybernetics.find(function(x){return x.id===id;});
-        var costVal = (found && typeof found.cost !== "undefined") ? found.cost : 1;
-        var total = pointsTotal();
-        var spent = pointsSpentTotal();
-        var remain = total - spent;
-        var cyberSlots = M.cyberSlots || 0;
-        var numModsSelected = Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid)).length;
-        if (cyberSlots < 1 || (!ch.checked && numModsSelected >= cyberSlots) || (ch.checked && remain < costVal)) {
-          ch.checked = false;
-          return;
-        }
-        if (ch.checked) M.picks.add(id);
-        else M.picks.delete(id);
-        enforceCyberModLimit();
-        saveModel();
-        render();
-      };
-    });
     enforceCyberModLimit();
   }
+  // --- Page 1, 2, 3, 4 unchanged ---
   function page1_render(){
     var I = M.identity || (M.identity={});
     return (
@@ -679,19 +720,30 @@ window.onload = function() {
   }
   function page3_render(){
     var S = normalizeStats();
+    var race = lc(M.race||"");
+    var splicedBonus = (race === "spliced") ? 1 : 0;
     function row(k,label){
+      var minStat = 1;
+      var maxStat = 5;
+      var val = S[k];
+      var bonus = (k === "phys" || k === "dex") && splicedBonus ? 1 : 0;
+      var isSpliced = bonus > 0;
+      var minusDisabled = (val <= minStat);
+      var plusDisabled = (val >= maxStat || S.pool <= 0);
+      var pillText = 'mod: ' + (statMod(val)>=0?'+':'') + statMod(val);
+      var bonusText = isSpliced ? ' <span style="color:#286;">(+1 free for Spliced)</span>' : '';
       return (
         '<div class="stat" data-k="'+k+'">' +
-          '<div style="width:210px">'+label+'</div>' +
-          '<button type="button" class="minus">–</button>' +
-          '<strong class="val">'+S[k]+'</strong>' +
-          '<button type="button" class="plus">+</button>' +
-          '<span class="stat-mod">mod: '+(statMod(M.stats[k])>=0?'+':'')+statMod(M.stats[k])+'</span>' +
+          '<div style="width:210px">'+label+bonusText+'</div>' +
+          '<button type="button" class="minus"'+(minusDisabled?' disabled':'')+'>–</button>' +
+          '<strong class="val">'+val+'</strong>' +
+          '<button type="button" class="plus"'+(plusDisabled?' disabled':'')+'>+</button>' +
+          '<span class="stat-mod">'+pillText+'</span>' +
         '</div>'
       );
     }
     return (
-      '<h2>Stats (10 points total; each stat 0–5)</h2>' +
+      '<h2>Stats (Start at 1 point each; you have 6 points to spend)</h2>' +
       '<div class="totals">Points Remaining: <b id="pts">'+S.pool+'</b></div>' +
       row('phys','Physical (HP = ×5)') +
       row('dex','Dexterity') +
@@ -707,14 +759,14 @@ window.onload = function() {
       var minus=row.querySelector('.minus'), plus=row.querySelector('.plus');
       val.textContent = M.stats[k];
       pill.textContent = 'mod: ' + (statMod(M.stats[k])>=0?'+':'') + statMod(M.stats[k]);
-      minus.disabled = (M.stats[k]===0);
+      minus.disabled = (M.stats[k]===1);
       plus.disabled  = (M.stats[k]===5 || M.stats.pool===0);
       ptsEl.textContent = M.stats.pool;
     }
     Array.prototype.forEach.call(document.querySelectorAll('.stat'),function(row){
       refreshRow(row);
       var k=row.dataset.k, minus=row.querySelector('.minus'), plus=row.querySelector('.plus');
-      minus.onclick = function(e){ e.preventDefault(); if (M.stats[k]>0){ M.stats[k]--; normalizeStats(); refreshRow(row); saveModel(); } };
+      minus.onclick = function(e){ e.preventDefault(); if (M.stats[k]>1){ M.stats[k]--; normalizeStats(); refreshRow(row); saveModel(); } };
       plus.onclick  = function(e){ e.preventDefault(); normalizeStats(); if (M.stats[k]<5 && M.stats.pool>0){ M.stats[k]++; normalizeStats(); refreshRow(row); saveModel(); } };
     });
   }
@@ -761,8 +813,10 @@ window.onload = function() {
   }
   // --- Summary & Submission ---
   function page6_render(){
-    var S = M.stats || {phys:0,dex:0,mental:0,perc:0};
-    var hp = (S.phys||0)*5;
+    var S = M.stats || {phys:1,dex:1,mental:1,perc:1};
+    var race = lc(M.race||'');
+    var splicedBonus = (race === "spliced") ? 1 : 0;
+    var hp = (S.phys||1)*5;
     var base = pointsTotal();
     var spent = pointsSpentTotal();
     var remain = base - spent;
@@ -795,8 +849,12 @@ window.onload = function() {
       var f=flaws.find(x=>x.id===fid);
       return f?f.cost:0;
     }).reduce((a,b)=>a+b,0);
-    var statPts = (S.phys)+(S.dex)+(S.mental)+(S.perc);
-    var cyberSlotPts = (M.cyberSlots||0)*2;
+    var statPts =
+      (S.phys-1-splicedBonus>0?S.phys-1-splicedBonus:0) +
+      (S.dex-1-splicedBonus>0?S.dex-1-splicedBonus:0) +
+      (S.mental-1>0?S.mental-1:0) +
+      (S.perc-1>0?S.perc-1:0);
+    var cyberSlotPts = (M.cyberSlots||0)*1;
     var powersPts = spentFor(M.picks);
     var magicPts = spentFor(M.magicSchools);
     // --- UI ---
@@ -851,8 +909,10 @@ window.onload = function() {
     return msg;
   }
   function getCharacterDataForDiscord() {
-    var S = M.stats || {phys:0,dex:0,mental:0,perc:0};
-    var hp = (S.phys||0)*5;
+    var S = M.stats || {phys:1,dex:1,mental:1,perc:1};
+    var race = lc(M.race||'');
+    var splicedBonus = (race === "spliced") ? 1 : 0;
+    var hp = (S.phys||1)*5;
     var base = pointsTotal();
     var spent = pointsSpentTotal();
     var remain = base - spent;
@@ -861,7 +921,11 @@ window.onload = function() {
       var f=flaws.find(x=>x.id===fid);
       return f?f.cost:0;
     }).reduce((a,b)=>a+b,0);
-    var statPts = (S.phys)+(S.dex)+(S.mental)+(S.perc);
+    var statPts =
+      (S.phys-1-splicedBonus>0?S.phys-1-splicedBonus:0) +
+      (S.dex-1-splicedBonus>0?S.dex-1-splicedBonus:0) +
+      (S.mental-1>0?S.mental-1:0) +
+      (S.perc-1>0?S.perc-1:0);
     var powersSummary = Array.from(M.picks).map(pid =>
       commonPowers.find(p=>p.id===pid)?.name ||
       perks.find(p=>p.id===pid)?.name ||
@@ -877,7 +941,7 @@ window.onload = function() {
         cybernetics.find(x=>x.id===id);
       return found && typeof found.cost !== "undefined" ? found.cost : 1;
     }).reduce(function(a,b){return a+b;},0);
-    var cyberSlotPts = (M.cyberSlots||0)*2;
+    var cyberSlotPts = (M.cyberSlots||0)*1;
     var magicSchoolsSummary = Array.from(M.magicSchools).map(id => magicSchools.find(s=>s.id===id)?.name).filter(Boolean);
     var magicPts = Array.from(M.magicSchools).map(function(id){
       if (id === M.freeMagicSchool || id === getTechnomancySchoolId()) return 0;
