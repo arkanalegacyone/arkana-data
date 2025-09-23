@@ -6,11 +6,11 @@
   style.innerHTML = `
     #ark-wizard h2 {
       font-size: 2em !important;
-      line-height: 2.2 !important;
+      line-height: 1.2 !important;
     }
     #ark-wizard h3, #ark-wizard h4 {
       font-size: 2em !important;
-      line-height: 2.2 !important;
+      line-height: 1.2 !important;
     }
   `;
   document.head.appendChild(style);
