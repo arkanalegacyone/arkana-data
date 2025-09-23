@@ -1,9 +1,9 @@
-// Arkana Character Creator with Discord & Google Drive Submission
+// Arkana Character Creator Wizard with Google Apps Script Submission
+
 window.onload = function() {
 (async function(){
   var root = document.getElementById('ark-wizard');
   var flaws = [], commonPowers = [], perks = [], archPowers = [], cybernetics = [], magicSchools = [];
-  var DISCORD_WEBHOOK_URL = "https://discordapp.com/api/webhooks/1419119617573388348/MDsOewugKvquE0Sowp3LHSO6e_Tngue5lO6Z8ucFhwj6ZbQPn6RLD7L69rPOpYVwFSXW";
   var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwV4jY__S6QyJiLE1FNXRgyVyPFb2sHyJT-BTdgxremQy8llXSfPeoKD5QWw5_JFa_qag/exec";
   var M = loadModel();
 
@@ -29,11 +29,9 @@ window.onload = function() {
       m.freeMagicSchool = m.freeMagicSchool || '';
       m.freeMagicWeave = m.freeMagicWeave || '';
       m.synthralFreeWeave = m.synthralFreeWeave || '';
-      // stats default for new users
       if (!m.stats || typeof m.stats !== "object") {
         m.stats = {phys:1,dex:1,mental:1,perc:1,pool:6};
       }
-      // ensure stats are at least 1
       ['phys','dex','mental','perc'].forEach(function(k){
         if (typeof m.stats[k]!=="number" || m.stats[k]<1) m.stats[k]=1;
       });
@@ -82,7 +80,8 @@ window.onload = function() {
     cybernetics = cyberData;
     magicSchools = magicData;
   }
-  // --- Data helpers ---
+
+  // --- Data helpers:
   function flawsForRace(race, arch) {
     if (!race) return [];
     var r = lc(race);
@@ -163,21 +162,17 @@ window.onload = function() {
   function statMod(v){ return v===1?-2 : v===2?0 : v===3?2 : v===4?4 : v===5?6:0; }
   function normalizeStats(){
     var S = M.stats = M.stats || {phys:1,dex:1,mental:1,perc:1};
-    // Set minimum stat to 1
     ['phys','dex','mental','perc'].forEach(function(k){
       if(typeof S[k]!=='number' || S[k]<1) S[k]=1;
       S[k]=Math.min(5,Math.max(1,S[k]));
     });
-    // Spliced bonus: 1 free point Phys+Dex
     var race = lc(M.race||'');
-    var physBase = 1, dexBase = 1;
     var splicedBonus = (race === "spliced") ? 1 : 0;
-    // Total points spent = stats - base (1 for each stat, +1 for spliced Phys/Dex)
+    var physBase = 1, dexBase = 1;
     var spent = (S.phys-physBase-splicedBonus>0?S.phys-physBase-splicedBonus:0) +
                 (S.dex-dexBase-splicedBonus>0?S.dex-dexBase-splicedBonus:0) +
                 (S.mental-1>0?S.mental-1:0) +
                 (S.perc-1>0?S.perc-1:0);
-
     var pool = 6 - spent;
     S.pool = Math.max(0, pool);
     return S;
@@ -279,7 +274,6 @@ window.onload = function() {
   }
   // --- Points calculation ---
   function pointsSpentTotal() {
-    // 1. Stat points: spent
     var S = M.stats || {phys:1,dex:1,mental:1,perc:1};
     var race = lc(M.race||'');
     var splicedBonus = (race === "spliced") ? 1 : 0;
@@ -288,8 +282,6 @@ window.onload = function() {
       (S.dex-1-splicedBonus>0?S.dex-1-splicedBonus:0) +
       (S.mental-1>0?S.mental-1:0) +
       (S.perc-1>0?S.perc-1:0);
-
-    // 2. Powers, Perks, Arch, Cybernetics
     var allPicks = Array.from(M.picks);
     var spentPicks = allPicks.map(function(pid){
       if (pid === M.freeMagicWeave || pid === M.synthralFreeWeave) return 0;
@@ -301,8 +293,6 @@ window.onload = function() {
       }
       return 0;
     }).reduce(function(a,b){return a+b;},0);
-
-    // 3. Magic schools
     var spentMagic = Array.from(M.magicSchools).map(function(id){
       if (id === M.freeMagicSchool || id === getTechnomancySchoolId()) return 0;
       var found = magicSchools.find(function(x){return x.id===id;});
@@ -310,10 +300,7 @@ window.onload = function() {
       if (found) return 1;
       return 0;
     }).reduce(function(a,b){return a+b;},0);
-
-    // 4. Cyber slot cost: now 1 point per slot
     var cyberSlotCost = (M.cyberSlots || 0) * 1;
-
     return statSpent + spentPicks + spentMagic + cyberSlotCost;
   }
   function willOverspend(extra) {
@@ -342,7 +329,6 @@ window.onload = function() {
     var cyberSlots = M.cyberSlots || 0;
     var groupedMods = groupCyberneticsBySection(cyberneticsAll());
     var groupedMagicSchools = magicSchoolsAllGrouped(race, arch);
-    // --- Free picks UI ---
     var freePicksHtml = '';
     if (isSynthral) {
       var techSchoolId = getTechnomancySchoolId();
@@ -549,9 +535,7 @@ window.onload = function() {
         render();
       };
     }
-    // Powers, Perks, Arch, Cybernetics, Magic
     Array.prototype.forEach.call(document.querySelectorAll('#page5 input[type="checkbox"][data-id]'),function(ch){
-      // --- for cybernetics, fix bug for points refund on unchecking ---
       if(ch.dataset.cyber) {
         ch.onchange = function(){
           var id = ch.dataset.id;
@@ -567,7 +551,7 @@ window.onload = function() {
             return;
           }
           if (ch.checked) M.picks.add(id);
-          else M.picks.delete(id); // fixes bug: re-credit points on unchecking
+          else M.picks.delete(id);
           enforceCyberModLimit();
           saveModel();
           render();
@@ -634,6 +618,7 @@ window.onload = function() {
     });
     enforceCyberModLimit();
   }
+
   function page1_render(){
     var I = M.identity || (M.identity={});
     return (
@@ -811,7 +796,8 @@ window.onload = function() {
       };
     });
   }
-  // --- Summary & Submission ---
+
+  // --- Summary & Submission Page ---
   function page6_render(){
     var S = M.stats || {phys:1,dex:1,mental:1,perc:1};
     var race = lc(M.race||'');
@@ -820,19 +806,6 @@ window.onload = function() {
     var base = pointsTotal();
     var spent = pointsSpentTotal();
     var remain = base - spent;
-    function spentFor(arr){
-      return Array.from(arr).map(function(id){
-        if (id === M.freeMagicWeave || id === M.synthralFreeWeave) return 0;
-        var found =
-          commonPowers.find(x=>x.id===id) ||
-          perks.find(x=>x.id===id) ||
-          archPowers.find(x=>x.id===id) ||
-          cybernetics.find(x=>x.id===id) ||
-          magicSchools.find(x=>x.id===id);
-        return found && typeof found.cost !== "undefined" ? found.cost : 1;
-      }).reduce(function(a,b){return a+b;},0);
-    }
-    // --- fields for Discord ---
     var flawsSummary = Array.from(M.flaws).map(fid=>flaws.find(f=>f.id===fid)?.name).filter(Boolean);
     var powersSummary = Array.from(M.picks).map(pid =>
       commonPowers.find(p=>p.id===pid)?.name ||
@@ -844,7 +817,6 @@ window.onload = function() {
     var freeMagicSchoolName = M.freeMagicSchool ? (magicSchools.find(s=>s.id===M.freeMagicSchool)?.name || '') : '';
     var freeMagicWeaveName = M.freeMagicWeave ? (magicSchools.find(w=>w.id===M.freeMagicWeave)?.name || '') : '';
     var synthralFreeWeaveName = M.synthralFreeWeave ? (magicSchools.find(w=>w.id===M.synthralFreeWeave)?.name || '') : '';
-    // --- Points breakdown ---
     var flawPts = Array.from(M.flaws).map(fid=>{
       var f=flaws.find(x=>x.id===fid);
       return f?f.cost:0;
@@ -855,196 +827,72 @@ window.onload = function() {
       (S.mental-1>0?S.mental-1:0) +
       (S.perc-1>0?S.perc-1:0);
     var cyberSlotPts = (M.cyberSlots||0)*1;
-    var powersPts = spentFor(M.picks);
-    var magicPts = spentFor(M.magicSchools);
-    // --- UI ---
+    var powersPts = powersSummary.length;
+    var magicPts = magicSchoolsSummary.length;
+    var summaryText =
+      `Arkana Character Submission\n` +
+      `Character Name: ${M.identity.name||'-'}\n` +
+      `Second Life Name: ${M.identity.sl||'-'}\n` +
+      `Alias / Callsign: ${M.identity.alias||'-'}\n` +
+      `Faction / Allegiance: ${M.identity.faction||'-'}\n` +
+      `Concept / Role: ${M.identity.concept||'-'}\n` +
+      `Job: ${M.identity.job||'-'}\n` +
+      `Race / Archetype: ${M.race||'-'} / ${M.arch||'-'}\n` +
+      `Stats: Phys ${S.phys} (HP ${hp}), Dex ${S.dex}, Mental ${S.mental}, Perc ${S.perc} (Points spent: ${statPts})\n` +
+      `Flaws: ${(flawsSummary.length ? flawsSummary.join(', ') : 'None')} (Points gained: ${flawPts})\n` +
+      `Common Powers/Perks/Arch/Cyber: ${(powersSummary.length ? powersSummary.join(', ') : 'None')} (Points spent: ${powersPts})\n` +
+      `Cybernetic Slots: ${M.cyberSlots||0} (Points spent: ${cyberSlotPts})\n` +
+      `Magic Schools: ${(magicSchoolsSummary.length ? magicSchoolsSummary.join(', ') : 'None')} (Points spent: ${magicPts})\n` +
+      (freeMagicSchoolName ? `Free Magic School: ${freeMagicSchoolName}\n` : '') +
+      (freeMagicWeaveName ? `Free Magic Weave: ${freeMagicWeaveName}\n` : '') +
+      (synthralFreeWeaveName ? `Synthral Free Weave: ${synthralFreeWeaveName}\n` : '') +
+      `Background: ${M.identity.background||'-'}\n` +
+      `Total Power Points: ${base}, Spent: ${spent}, Remaining: ${remain}\n`;
     return (
       '<div class="ark-submit-msg" style="background:#f3f7ee;padding:14px 16px;border-radius:8px;border:1px solid #ccd;">' +
-      '<b>When you are happy with your character, click SUBMIT CHARACTER to submit your character sheet to the admin team.</b> ' +
-      'Copy your character sheet for your records and paste it in your Second Life picks. Due to Second Life text restrictions, you may need to remove your character background or fields not applicable to your character.' +
+      '<b>When you are happy with your character, click SUBMIT CHARACTER to submit your character sheet to the admin team.</b>' +
       '</div>' +
       '<h2>Summary</h2>' +
-      '<div class="group">' +
-        '<div><b>Character Name:</b> '+esc(M.identity.name||'-')+'</div>' +
-        '<div><b>Second Life Name:</b> '+esc(M.identity.sl||'-')+'</div>' +
-        '<div><b>Alias / Callsign:</b> '+esc(M.identity.alias||'-')+'</div>' +
-        '<div><b>Faction / Allegiance:</b> '+esc(M.identity.faction||'-')+'</div>' +
-        '<div><b>Concept / Role:</b> '+esc(M.identity.concept||'-')+'</div>' +
-        '<div><b>Job:</b> '+esc(M.identity.job||'-')+'</div>' +
-        '<div><b>Race:</b> '+esc(M.race||'-')+' <span class="muted">/ '+esc(M.arch||'—')+'</span></div>' +
-        '<div><b>Stats:</b> Phys '+S.phys+' (HP '+hp+'), Dex '+S.dex+', Mental '+S.mental+', Perc '+S.perc+' <span class="muted">(Points spent: '+statPts+')</span></div>' +
-        '<div><b>Flaws:</b> '+(flawsSummary.length?esc(flawsSummary.join(', ')):'None')+' <span class="muted">(Points gained: '+flawPts+')</span></div>' +
-        '<div><b>Common Powers/Perks/Arch/Cyber:</b> '+(powersSummary.length?esc(powersSummary.join(', ')):'None')+' <span class="muted">(Points spent: '+powersPts+')</span></div>' +
-        '<div><b>Cybernetic Slots:</b> '+(M.cyberSlots||0)+' <span class="muted">(Points spent: '+cyberSlotPts+')</span></div>' +
-        '<div><b>Magic Schools:</b> '+(magicSchoolsSummary.length?esc(magicSchoolsSummary.join(', ')):'None')+' <span class="muted">(Points spent: '+magicPts+')</span></div>' +
-        (freeMagicSchoolName ? '<div><b>Free Magic School:</b> '+esc(freeMagicSchoolName)+'</div>' : '') +
-        (freeMagicWeaveName ? '<div><b>Free Magic Weave:</b> '+esc(freeMagicWeaveName)+'</div>' : '') +
-        (synthralFreeWeaveName ? '<div><b>Synthral Free Weave:</b> '+esc(synthralFreeWeaveName)+'</div>' : '') +
-        '<div style="white-space:pre-wrap"><b>Background:</b> '+esc(M.identity.background||'-')+'</div>' +
-        '<div class="totals">Power Points: '+base+' • Spent '+spent+' • Remaining '+remain+'</div>' +
+      '<div class="group" style="margin-bottom:22px;">' +
+      '<pre style="white-space:pre-wrap;background:#fff;border-radius:8px;padding:14px;border:1px solid #eee;">'+esc(summaryText)+'</pre>' +
       '</div>' +
-      '<button id="submitBtn" type="button" class="ark-submit" style="margin-top:18px;font-size:1.2em;padding:10px 28px;background:#3c6;border-radius:8px;color:#fff;border:none;">SUBMIT CHARACTER</button>'
+      '<form action="'+GOOGLE_SCRIPT_URL+'" method="post" id="arkanaSubmitForm">' +
+        '<input type="hidden" name="name" value="'+esc(M.identity.name||'')+'">' +
+        '<input type="hidden" name="sl" value="'+esc(M.identity.sl||'')+'">' +
+        '<input type="hidden" name="alias" value="'+esc(M.identity.alias||'')+'">' +
+        '<input type="hidden" name="faction" value="'+esc(M.identity.faction||'')+'">' +
+        '<input type="hidden" name="concept" value="'+esc(M.identity.concept||'')+'">' +
+        '<input type="hidden" name="job" value="'+esc(M.identity.job||'')+'">' +
+        '<input type="hidden" name="race" value="'+esc(M.race||'')+'">' +
+        '<input type="hidden" name="arch" value="'+esc(M.arch||'')+'">' +
+        '<input type="hidden" name="background" value="'+esc(M.identity.background||'')+'">' +
+        '<input type="hidden" name="stats" value="Phys: '+(S.phys||1)+', Dex: '+(S.dex||1)+', Mental: '+(S.mental||1)+', Perc: '+(S.perc||1)+'">' +
+        '<input type="hidden" name="flaws" value="'+esc(flawsSummary.join(', '))+'">' +
+        '<input type="hidden" name="powers" value="'+esc(powersSummary.join(', '))+'">' +
+        '<input type="hidden" name="cyberSlots" value="'+esc(M.cyberSlots||0)+'">' +
+        '<input type="hidden" name="magicSchools" value="'+esc(magicSchoolsSummary.join(', '))+'">' +
+        '<input type="hidden" name="freeMagicSchool" value="'+esc(freeMagicSchoolName)+'">' +
+        '<input type="hidden" name="freeMagicWeave" value="'+esc(freeMagicWeaveName)+'">' +
+        '<input type="hidden" name="synthralFreeWeave" value="'+esc(synthralFreeWeaveName)+'">' +
+        '<input type="hidden" name="points_total" value="'+esc(base)+'">' +
+        '<input type="hidden" name="points_spent" value="'+esc(spent)+'">' +
+        '<input type="hidden" name="points_remaining" value="'+esc(remain)+'">' +
+        '<input type="hidden" name="summary" value="'+esc(summaryText)+'">' +
+        '<button type="submit" class="ark-submit" style="margin-top:18px;font-size:1.2em;padding:10px 28px;background:#3c6;border-radius:8px;color:#fff;border:none;">SUBMIT CHARACTER</button>' +
+      '</form>'
     );
   }
-
-  // --- Discord: Only First Two Lines ---
-  function discordifyCharacter(data) {
-    return (
-      `**Arkana Character Submission**\n` +
-      `**Character Name:** ${data.name}\n` +
-      `**Second Life Name:** ${data.sl}\n`
-    );
-  }
-
-  // --- Full Summary for Google Drive (Plain Text) ---
-  function discordFullSummary(data) {
-    let msg =
-      `Arkana Character Submission\n` +
-      `Character Name: ${data.name}\n` +
-      `Second Life Name: ${data.sl}\n` +
-      `Alias / Callsign: ${data.alias}\n` +
-      `Faction / Allegiance: ${data.faction}\n` +
-      `Concept / Role: ${data.concept}\n` +
-      `Job: ${data.job}\n` +
-      `Race / Archetype: ${data.race} / ${data.arch}\n` +
-      `Stats: Phys ${data.stats.phys} (HP ${data.hp}), Dex ${data.stats.dex}, Mental ${data.stats.mental}, Perc ${data.stats.perc} (Points spent: ${data.statPts})\n` +
-      `Flaws: ${(data.flaws.length ? data.flaws.join(', ') : 'None')} (Points gained: ${data.flawPts})\n` +
-      `Common Powers/Perks/Arch/Cyber: ${(data.powers.length ? data.powers.join(', ') : 'None')} (Points spent: ${data.powersPts})\n` +
-      `Cybernetic Slots: ${data.cyberSlots} (Points spent: ${data.cyberSlotPts})\n` +
-      `Magic Schools: ${(data.magicSchools.length ? data.magicSchools.join(', ') : 'None')} (Points spent: ${data.magicPts})\n` +
-      (data.freeMagicSchool ? `Free Magic School: ${data.freeMagicSchool}\n` : '') +
-      (data.freeMagicWeave ? `Free Magic Weave: ${data.freeMagicWeave}\n` : '') +
-      (data.synthralFreeWeave ? `Synthral Free Weave: ${data.synthralFreeWeave}\n` : '') +
-      `Background: ${data.background}\n` +
-      `Total Power Points: ${data.base}, Spent: ${data.spent}, Remaining: ${data.remain}\n`;
-    return msg;
-  }
-
-  // --- Send Summary to Google Drive ---
-  async function sendSummaryToGoogleDrive(summaryText) {
-    try {
-      await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ summary: summaryText })
-      });
-      return true;
-    } catch (e) {
-      console.error("Google Drive submission failed", e);
-      return false;
-    }
-  }
-
-  function getCharacterDataForDiscord() {
-    var S = M.stats || {phys:1,dex:1,mental:1,perc:1};
-    var race = lc(M.race||'');
-    var splicedBonus = (race === "spliced") ? 1 : 0;
-    var hp = (S.phys||1)*5;
-    var base = pointsTotal();
-    var spent = pointsSpentTotal();
-    var remain = base - spent;
-    var flawsSummary = Array.from(M.flaws).map(fid=>flaws.find(f=>f.id===fid)?.name).filter(Boolean);
-    var flawPts = Array.from(M.flaws).map(fid=>{
-      var f=flaws.find(x=>x.id===fid);
-      return f?f.cost:0;
-    }).reduce((a,b)=>a+b,0);
-    var statPts =
-      (S.phys-1-splicedBonus>0?S.phys-1-splicedBonus:0) +
-      (S.dex-1-splicedBonus>0?S.dex-1-splicedBonus:0) +
-      (S.mental-1>0?S.mental-1:0) +
-      (S.perc-1>0?S.perc-1:0);
-    var powersSummary = Array.from(M.picks).map(pid =>
-      commonPowers.find(p=>p.id===pid)?.name ||
-      perks.find(p=>p.id===pid)?.name ||
-      archPowers.find(p=>p.id===pid)?.name ||
-      cybernetics.find(p=>p.id===pid)?.name
-    ).filter(Boolean);
-    var powersPts = Array.from(M.picks).map(function(id){
-      if (id === M.freeMagicWeave || id === M.synthralFreeWeave) return 0;
-      var found =
-        commonPowers.find(x=>x.id===id) ||
-        perks.find(x=>x.id===id) ||
-        archPowers.find(x=>x.id===id) ||
-        cybernetics.find(x=>x.id===id);
-      return found && typeof found.cost !== "undefined" ? found.cost : 1;
-    }).reduce(function(a,b){return a+b;},0);
-    var cyberSlotPts = (M.cyberSlots||0)*1;
-    var magicSchoolsSummary = Array.from(M.magicSchools).map(id => magicSchools.find(s=>s.id===id)?.name).filter(Boolean);
-    var magicPts = Array.from(M.magicSchools).map(function(id){
-      if (id === M.freeMagicSchool || id === getTechnomancySchoolId()) return 0;
-      var found = magicSchools.find(x=>x.id===id);
-      return found && typeof found.cost !== "undefined" ? found.cost : 1;
-    }).reduce(function(a,b){return a+b;},0);
-    var freeMagicSchoolName = M.freeMagicSchool ? (magicSchools.find(s=>s.id===M.freeMagicSchool)?.name || '') : '';
-    var freeMagicWeaveName = M.freeMagicWeave ? (magicSchools.find(w=>w.id===M.freeMagicWeave)?.name || '') : '';
-    var synthralFreeWeaveName = M.synthralFreeWeave ? (magicSchools.find(w=>w.id===M.synthralFreeWeave)?.name || '') : '';
-    return {
-      name: M.identity.name || '',
-      sl: M.identity.sl || '',
-      alias: M.identity.alias || '',
-      faction: M.identity.faction || '',
-      concept: M.identity.concept || '',
-      job: M.identity.job || '',
-      background: M.identity.background || '',
-      race: M.race,
-      arch: M.arch,
-      stats: S,
-      hp, base, spent, remain,
-      statPts, flaws: flawsSummary, flawPts,
-      powers: powersSummary, powersPts,
-      cyberSlots: M.cyberSlots||0, cyberSlotPts,
-      magicSchools: magicSchoolsSummary, magicPts,
-      freeMagicSchool: freeMagicSchoolName,
-      freeMagicWeave: freeMagicWeaveName,
-      synthralFreeWeave: synthralFreeWeaveName
-    };
-  }
-
-  // --- Submission Button Wiring ---
-  function wireSubmitButton() {
-    var btn = document.getElementById('submitBtn');
-    if (btn) {
-      btn.onclick = async function(){
-        btn.disabled = true;
-        btn.textContent = "Submitting...";
-        const data = getCharacterDataForDiscord();
-        const discordContent = discordifyCharacter(data);
-        const fullSummary = discordFullSummary(data);
-
-        // Send to Discord (first two lines)
-        let discordOk = false;
-        try {
-          await fetch(DISCORD_WEBHOOK_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ content: discordContent })
-          });
-          discordOk = true;
-        } catch (e) {
-          btn.textContent = "Discord Error!";
-          alert("Discord submission failed: " + e.message);
-        }
-
-        // Send to Google Drive
-        let driveOk = false;
-        try {
-          driveOk = await sendSummaryToGoogleDrive(fullSummary);
-          if (!driveOk) throw new Error("Google Drive submission failed");
-        } catch (e) {
-          btn.textContent = "Google Drive Error!";
-          alert("Google Drive submission failed: " + e.message);
-        }
-
-        if (discordOk && driveOk) {
-          btn.textContent = "Submitted!";
-        }
-        setTimeout(() => { btn.disabled = false; btn.textContent = "SUBMIT CHARACTER"; }, 5000);
+  function page6_wire(){
+    var form = document.getElementById('arkanaSubmitForm');
+    if (form) {
+      form.onsubmit = function(e){
+        setTimeout(function(){
+          alert("Character submitted! Thank you.");
+        }, 500);
       };
     }
   }
-  function page6_wire(){
-    wireSubmitButton();
-  }
+
   // --- Main render & wiring ---
   function render(){
     var steps = ['Identity','Race & Archetype','Stats','Optional Flaws','Powers/Perks/Cybernetics/Magic','Summary'];
@@ -1082,6 +930,7 @@ window.onload = function() {
     if (M.page===5){ host.innerHTML = '<div id="page5">'+page5_render()+'</div>'; page5_wire(); }
     if (M.page===6){ host.innerHTML = page6_render(); page6_wire(); }
   }
+
   try {
     await loadAllData();
     render();
@@ -1090,17 +939,3 @@ window.onload = function() {
   }
 })();
 };
-
-/* Add to your CSS for subtabs and step styling:
-.ark-subtabs { margin: 12px 0 10px 0; display: flex; gap: 8px; }
-.ark-subtab-btn { background: #eee; border: 1px solid #bbb; border-radius: 6px 6px 0 0; padding: 6px 16px; cursor: pointer; font-weight: bold; }
-.ark-subtab-btn.active { background: #fff; border-bottom: 1px solid #fff; color: #222; }
-
-.ark-steps { display: flex; gap: 8px; margin-bottom: 14px; }
-.ark-step { border: 1px solid #bbb; border-radius: 50%; background: #eee; cursor: pointer; width: 32px; height: 32px; font-size: 1em; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-.ark-step.current { background: #fff; border: 2px solid #0077ff; color: #0077ff; }
-
-.ark-free-pick { background: #eef; border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; border:1px solid #bbe; }
-.ark-submit-msg { margin-bottom: 18px; }
-.ark-submit { font-size:1.2em; padding:10px 28px; background:#3c6; border-radius:8px; color:#fff; border:none; cursor: pointer;}
-*/
