@@ -4,9 +4,15 @@
 (function() {
   var style = document.createElement('style');
   style.innerHTML = `
-  h2 { font-size: 1.3em !important; }
-  h3, h4 { font-size: 1.1em; }
-`;
+    #ark-wizard h2 {
+      font-size: 1.2em !important;
+      line-height: 1.2 !important;
+    }
+    #ark-wizard h3, #ark-wizard h4 {
+      font-size: 1.05em !important;
+      line-height: 1.2 !important;
+    }
+  `;
   document.head.appendChild(style);
 })();
 window.onload = function() {
