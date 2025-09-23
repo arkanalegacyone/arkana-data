@@ -882,16 +882,40 @@ window.onload = function() {
       '</form>'
     );
   }
-  function page6_wire(){
-    var form = document.getElementById('arkanaSubmitForm');
-    if (form) {
-      form.onsubmit = function(e){
-        setTimeout(function(){
-          alert("Character submitted! Thank you.");
-        }, 500);
-      };
-    }
+  // --- Discord webhook function ---
+async function sendDiscordWebhook(summaryText) {
+  // Only send the first 2 lines of the summary
+  var lines = summaryText.split('\n').filter(l => l.trim());
+  var firstTwo = lines.slice(0,2).join('\n');
+  var discordWebhookUrl = "https://discordapp.com/api/webhooks/1419119617573388348/MDsOewugKvquE0Sowp3LHSO6e_Tngue5lO6Z8ucFhwj6ZbQPn6RLD7L69rPOpYVwFSXW";
+
+  try {
+    await fetch(discordWebhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        content: "```" + firstTwo + "```"
+      })
+    });
+  } catch (err) {
+    console.error("Discord webhook failed:", err);
   }
+}
+function page6_wire(){
+  var form = document.getElementById('arkanaSubmitForm');
+  if (form) {
+    form.onsubmit = async function(e){
+      var summaryPre = document.querySelector('#page pre');
+      var summaryText = summaryPre ? summaryPre.textContent : "";
+      await sendDiscordWebhook(summaryText); // send to Discord
+      setTimeout(function(){
+        alert("Character submitted! Thank you.");
+      }, 500);
+    };
+  }
+}
 
   // --- Main render & wiring ---
   function render(){
