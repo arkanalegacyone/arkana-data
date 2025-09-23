@@ -548,26 +548,35 @@ window.onload = function() {
         render();
       };
     }
-    // Powers, Perks, Arch, Cybernetics, Magic
     Array.prototype.forEach.call(document.querySelectorAll('#page5 input[type="checkbox"][data-id]'),function(ch){
       // --- for cybernetics, fix bug for points refund on unchecking ---
-      if(ch.dataset.cyber) {
+      if(ch.dataset.cyber){
         ch.onchange = function(){
           var id = ch.dataset.id;
           var found = cybernetics.find(function(x){return x.id===id;});
           var costVal = (found && typeof found.cost !== "undefined") ? found.cost : 1;
-          var total = pointsTotal();
-          var spent = pointsSpentTotal();
-          var remain = total - spent;
           var cyberSlots = M.cyberSlots || 0;
-          var numModsSelected = Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid)).length;
-          if (cyberSlots < 1 || (!ch.checked && numModsSelected >= cyberSlots) || (ch.checked && remain < costVal)) {
+          var picksArray = Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid));
+          var numModsSelected = picksArray.length;
+
+          if (cyberSlots < 1) {
             ch.checked = false;
             return;
           }
-          if (ch.checked) M.picks.add(id);
-          else M.picks.delete(id); // fixes bug: re-credit points on unchecking
-          enforceCyberModLimit();
+          // When checking, only allow if there's a slot and enough points
+          if (ch.checked) {
+            if (numModsSelected >= cyberSlots) {
+              ch.checked = false;
+              return;
+            }
+            if (willOverspend(costVal)) {
+              ch.checked = false;
+              return;
+            }
+            M.picks.add(id);
+          } else {
+            M.picks.delete(id); // This refunds the points!
+          }
           saveModel();
           render();
         };
