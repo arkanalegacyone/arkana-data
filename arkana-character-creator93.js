@@ -884,9 +884,9 @@ window.onload = function() {
   }
   // --- Discord webhook function ---
 async function sendDiscordWebhook(summaryText) {
-  // Only send the first 2 lines of the summary
+  // Only send the first 3 lines of the summary
   var lines = summaryText.split('\n').filter(l => l.trim());
-  var firstTwo = lines.slice(0,2).join('\n');
+  var firstThree = lines.slice(0,3).join('\n');
   var discordWebhookUrl = "https://discordapp.com/api/webhooks/1419119617573388348/MDsOewugKvquE0Sowp3LHSO6e_Tngue5lO6Z8ucFhwj6ZbQPn6RLD7L69rPOpYVwFSXW";
 
   try {
@@ -896,7 +896,7 @@ async function sendDiscordWebhook(summaryText) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        content: "```" + firstTwo + "```"
+        content: "```" + firstThree + "```"
       })
     });
   } catch (err) {
