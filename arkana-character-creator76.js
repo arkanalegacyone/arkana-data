@@ -82,20 +82,137 @@ window.onload = function() {
   }
 
   // --- Page renders and wires ---
-  function page1_render(){ /* ...identity page code... */ return '<div>Identity Page</div>'; }
-  function page1_wire(){ /* ...wire code... */ }
-  function page2_render(){ /* ...race page code... */ return '<div>Race Page</div>'; }
-  function page2_wire(){ /* ...wire code... */ }
-  function page3_render(){ /* ...stats page code... */ return '<div>Stats Page</div>'; }
-  function page3_wire(){ /* ...wire code... */ }
-  function page4_render(){ /* ...flaws page code... */ return '<div>Flaws Page</div>'; }
-  function page4_wire(){ /* ...wire code... */ }
-  function page5_render(){ /* ...powers page code... */ return '<div>Powers Page</div>'; }
-  function page5_wire(){ /* ...wire code... */ }
-  function page6_render(){ 
-    return `<div>Summary Page
+  function page1_render(){
+    var I = M.identity || (M.identity={});
+    return (
+      '<h2>Identity</h2>' +
+      '<div class="ark-row">' +
+        '<div><label>Character Name</label><input class="ark-input" id="i_name" value="'+esc(I.name||'')+'"></div>' +
+        '<div><label>Second Life Name</label><input class="ark-input" id="i_sl" value="'+esc(I.sl||'')+'"></div>' +
+        '<div><label>Alias / Callsign <span class="muted">(optional)</span></label><input class="ark-input" id="i_alias" value="'+esc(I.alias||'')+'"></div>' +
+        '<div><label>Faction / Allegiance <span class="muted">(optional)</span></label><input class="ark-input" id="i_faction" value="'+esc(I.faction||'')+'"></div>' +
+        '<div><label>Concept / Role</label><input class="ark-input" id="i_concept" value="'+esc(I.concept||'')+'"></div>' +
+        '<div><label>Job</label><input class="ark-input" id="i_job" value="'+esc(I.job||'')+'"></div>' +
+        '<div style="grid-column:1/-1"><label>Background</label><textarea class="ark-input" rows="5" id="i_bg">'+esc(I.background||'')+'</textarea></div>' +
+      '</div>'
+    );
+  }
+  function page1_wire(){
+    var I = M.identity;
+    [['i_name','name'],['i_sl','sl'],['i_alias','alias'],['i_faction','faction'],['i_concept','concept'],['i_job','job'],['i_bg','background']]
+      .forEach(function(pair){ var id=pair[0],key=pair[1]; var n=document.getElementById(id); if(n) n.oninput=function(e){ I[key]=e.target.value; saveModel(); }; });
+  }
+  function page2_render(){
+    // Race and Archetype selection
+    var raceList = ['Human','Strigoi','Gaki','Spliced'];
+    var archList = ['Human (No Powers)','Arcanist','Synthral','Psion'];
+    return (
+      '<h2>Race & Archetype</h2>' +
+      '<div><label>Race</label><select id="raceSel">' +
+        raceList.map(r=>'<option'+(M.race===r?' selected':'')+'>'+esc(r)+'</option>').join('') +
+      '</select></div>' +
+      '<div><label>Archetype</label><select id="archSel">' +
+        archList.map(a=>'<option'+(M.arch===a?' selected':'')+'>'+esc(a)+'</option>').join('') +
+      '</select></div>'
+    );
+  }
+  function page2_wire(){
+    var raceSel=document.getElementById('raceSel'), archSel=document.getElementById('archSel');
+    if(raceSel)raceSel.onchange=function(e){M.race=e.target.value;saveModel();};
+    if(archSel)archSel.onchange=function(e){M.arch=e.target.value;saveModel();};
+  }
+  function page3_render(){
+    var S = M.stats;
+    return (
+      '<h2>Stats</h2>' +
+      ['phys','dex','mental','perc'].map(function(stat){
+        return '<div><label>'+stat.charAt(0).toUpperCase()+stat.slice(1)+': </label><input type="number" min="1" max="5" id="stat_'+stat+'" value="'+esc(S[stat])+'"></div>';
+      }).join('') +
+      '<div><label>Points Left: <span id="ptsLeft">'+esc(S.pool)+'</span></label></div>'
+    );
+  }
+  function page3_wire(){
+    ['phys','dex','mental','perc'].forEach(function(stat){
+      var n=document.getElementById('stat_'+stat);
+      if(n)n.oninput=function(e){S[stat]=parseInt(e.target.value,10)||1;normalizeStats();saveModel();render();};
+    });
+  }
+  function page4_render(){
+    // Flaws selection
+    var html = '<h2>Optional Flaws</h2>';
+    html += flaws.map(function(flaw){
+      return '<div><label><input type="checkbox" data-flaw="'+esc(flaw.id)+'"'+(M.flaws.has(flaw.id)?' checked':'')+'>'+esc(flaw.name)+': '+esc(flaw.desc)+'</label></div>';
+    }).join('');
+    return html;
+  }
+  function page4_wire(){
+    Array.prototype.forEach.call(document.querySelectorAll('input[data-flaw]'),function(ch){
+      ch.onchange=function(){
+        if(ch.checked)M.flaws.add(ch.getAttribute('data-flaw'));
+        else M.flaws.delete(ch.getAttribute('data-flaw'));
+        saveModel();
+      };
+    });
+  }
+  function page5_render(){
+    // Powers, Perks, Cybernetics, Magic selection (simplified)
+    var html = '<h2>Powers, Perks, Cybernetics, Magic</h2>';
+    html += '<div><label>Cybernetic Slots: <input type="number" min="0" max="5" id="cyberSlots" value="'+esc(M.cyberSlots||0)+'"></label></div>';
+    html += '<h3>Common Powers</h3>' +
+      commonPowers.map(function(p){return '<div><label><input type="checkbox" data-pick="'+esc(p.id)+'"'+(M.picks.has(p.id)?' checked':'')+'>'+esc(p.name)+': '+esc(p.desc)+'</label></div>';}).join('');
+    html += '<h3>Perks</h3>' +
+      perks.map(function(p){return '<div><label><input type="checkbox" data-pick="'+esc(p.id)+'"'+(M.picks.has(p.id)?' checked':'')+'>'+esc(p.name)+': '+esc(p.desc)+'</label></div>';}).join('');
+    html += '<h3>Archetype Powers</h3>' +
+      archPowers.map(function(p){return '<div><label><input type="checkbox" data-pick="'+esc(p.id)+'"'+(M.picks.has(p.id)?' checked':'')+'>'+esc(p.name)+': '+esc(p.desc)+'</label></div>';}).join('');
+    html += '<h3>Cybernetics</h3>' +
+      cybernetics.map(function(c){return '<div><label><input type="checkbox" data-pick="'+esc(c.id)+'"'+(M.picks.has(c.id)?' checked':'')+'>'+esc(c.name)+': '+esc(c.desc)+'</label></div>';}).join('');
+    html += '<h3>Magic Schools</h3>' +
+      magicSchools.filter(s=>s.id.startsWith('school_')).map(function(s){return '<div><label><input type="checkbox" data-magicschool="'+esc(s.id)+'"'+(M.magicSchools.has(s.id)?' checked':'')+'>'+esc(s.name)+': '+esc(s.desc)+'</label></div>';}).join('');
+    return html;
+  }
+  function page5_wire(){
+    var cs=document.getElementById('cyberSlots');
+    if(cs)cs.oninput=function(e){M.cyberSlots=parseInt(e.target.value,10)||0;saveModel();};
+    Array.prototype.forEach.call(document.querySelectorAll('input[data-pick]'),function(ch){
+      ch.onchange=function(){
+        if(ch.checked)M.picks.add(ch.getAttribute('data-pick'));
+        else M.picks.delete(ch.getAttribute('data-pick'));
+        saveModel();
+      };
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('input[data-magicschool]'),function(ch){
+      ch.onchange=function(){
+        if(ch.checked)M.magicSchools.add(ch.getAttribute('data-magicschool'));
+        else M.magicSchools.delete(ch.getAttribute('data-magicschool'));
+        saveModel();
+      };
+    });
+  }
+  function page6_render(){
+    var I = M.identity;
+    return `
+      <h2>Summary & Submit</h2>
+      <div><strong>Character Name:</strong> ${esc(I.name||'')}</div>
+      <div><strong>Second Life Name:</strong> ${esc(I.sl||'')}</div>
+      <div><strong>Alias:</strong> ${esc(I.alias||'')}</div>
+      <div><strong>Faction:</strong> ${esc(I.faction||'')}</div>
+      <div><strong>Concept:</strong> ${esc(I.concept||'')}</div>
+      <div><strong>Job:</strong> ${esc(I.job||'')}</div>
+      <div><strong>Background:</strong> ${esc(I.background||'')}</div>
+      <div><strong>Race:</strong> ${esc(M.race||'')}</div>
+      <div><strong>Archetype:</strong> ${esc(M.arch||'')}</div>
+      <div><strong>Stats:</strong> Phys ${esc(M.stats.phys)}, Dex ${esc(M.stats.dex)}, Mental ${esc(M.stats.mental)}, Perc ${esc(M.stats.perc)}</div>
+      <div><strong>Flaws:</strong> ${Array.from(M.flaws).map(fid=>flaws.find(f=>f.id===fid)?.name||fid).join(', ')||'None'}</div>
+      <div><strong>Powers/Perks/Arch/Cyber:</strong> ${Array.from(M.picks).map(pid=>
+        commonPowers.find(p=>p.id===pid)?.name||
+        perks.find(p=>p.id===pid)?.name||
+        archPowers.find(p=>p.id===pid)?.name||
+        cybernetics.find(p=>p.id===pid)?.name||pid
+      ).join(', ')||'None'}</div>
+      <div><strong>Cybernetic Slots:</strong> ${esc(M.cyberSlots||0)}</div>
+      <div><strong>Magic Schools:</strong> ${Array.from(M.magicSchools).map(id=>magicSchools.find(s=>s.id===id)?.name||id).join(', ')||'None'}</div>
       <button id="submitBtn">Submit Character</button>
-    </div>`;
+    `;
   }
   function page6_wire(){ wireSubmitButton(); }
 
@@ -108,14 +225,41 @@ window.onload = function() {
       `Arkana Character Submission\n` +
       `Character Name: ${data.name}\n` +
       `Second Life Name: ${data.sl}\n` +
+      `Alias / Callsign: ${data.alias}\n` +
+      `Faction / Allegiance: ${data.faction}\n` +
+      `Concept / Role: ${data.concept}\n` +
+      `Job: ${data.job}\n` +
+      `Race / Archetype: ${data.race} / ${data.arch}\n` +
+      `Stats: Phys ${data.stats.phys}, Dex ${data.stats.dex}, Mental ${data.stats.mental}, Perc ${data.stats.perc}\n` +
+      `Flaws: ${(data.flaws.length ? data.flaws.join(', ') : 'None')}\n` +
+      `Common Powers/Perks/Arch/Cyber: ${(data.powers.length ? data.powers.join(', ') : 'None')}\n` +
+      `Cybernetic Slots: ${data.cyberSlots}\n` +
+      `Magic Schools: ${(data.magicSchools.length ? data.magicSchools.join(', ') : 'None')}\n` +
       `Background: ${data.background}\n`
     );
   }
   function getCharacterDataForDiscord() {
+    var I = M.identity;
     return {
-      name: M.identity.name || '',
-      sl: M.identity.sl || '',
-      background: M.identity.background || ''
+      name: I.name||'',
+      sl: I.sl||'',
+      alias: I.alias||'',
+      faction: I.faction||'',
+      concept: I.concept||'',
+      job: I.job||'',
+      background: I.background||'',
+      race: M.race,
+      arch: M.arch,
+      stats: M.stats,
+      flaws: Array.from(M.flaws).map(fid=>flaws.find(f=>f.id===fid)?.name||fid),
+      powers: Array.from(M.picks).map(pid=>
+        commonPowers.find(p=>p.id===pid)?.name||
+        perks.find(p=>p.id===pid)?.name||
+        archPowers.find(p=>p.id===pid)?.name||
+        cybernetics.find(p=>p.id===pid)?.name||pid
+      ),
+      cyberSlots: M.cyberSlots||0,
+      magicSchools: Array.from(M.magicSchools).map(id=>magicSchools.find(s=>s.id===id)?.name||id)
     };
   }
   function showSubmissionSuccess() {
@@ -241,6 +385,8 @@ window.onload = function() {
 };
 
 /* Add to your CSS for subtabs and step styling:
+.ark-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 12px; margin-bottom:16px; }
+.ark-input { width: 100%; box-sizing: border-box; font-size:1em; padding:6px 10px; border:1px solid #ccc; border-radius:6px; }
 .ark-subtabs { margin: 12px 0 10px 0; display: flex; gap: 8px; }
 .ark-subtab-btn { background: #eee; border: 1px solid #bbb; border-radius: 6px 6px 0 0; padding: 6px 16px; cursor: pointer; font-weight: bold; }
 .ark-subtab-btn.active { background: #fff; border-bottom: 1px solid #fff; color:#222; }
