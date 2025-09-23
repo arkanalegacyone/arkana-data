@@ -884,15 +884,19 @@ window.onload = function() {
     );
   }
 
-  function page6_wire(){
-    var form = document.getElementById('arkanaSubmitForm');
-    if (form) {
-        setTimeout(function(){
-          alert("Character submitted! Thank you.");
-        }, 500);
-      };
-    }
+ function page6_wire(){
+  var form = document.getElementById('arkanaSubmitForm');
+  if (form) {
+    form.onsubmit = function(e){
+      // Optionally prevent default if you want to stop normal HTML submission:
+      // e.preventDefault();
+
+      setTimeout(function(){
+        alert("Character submitted! Thank you.");
+      }, 500);
+    };
   }
+}
 
   // --- Main render & wiring ---
   function render(){
