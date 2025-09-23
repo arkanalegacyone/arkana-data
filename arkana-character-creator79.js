@@ -330,10 +330,487 @@ window.onload = function() {
   }
 
   // ----------- SUBTABS PAGE 5 + FREE PICKS UI ----------------
-  // ... (no changes needed for page5_render, page5_wire, etc., so omitted for brevity)
-  // --- Page 1, 2, 3, 4 unchanged ---
-  // ... (no changes needed for page1_render, page1_wire, page2_render, page2_wire, page3_render, page3_wire, page4_render, page4_wire, so omitted for brevity)
-
+  function page5_render(){
+    var race = M.race || "";
+    var arch = M.arch || "";
+    var total = pointsTotal();
+    var spent = pointsSpentTotal();
+    var remain = total - spent;
+    var canMagic = canUseMagic(race, arch);
+    var isSynthral = lc(race)==="human" && lc(arch)==="synthral";
+    var isArcanist = lc(race)==="human" && lc(arch)==="arcanist";
+    var cyberSlots = M.cyberSlots || 0;
+    var groupedMods = groupCyberneticsBySection(cyberneticsAll());
+    var groupedMagicSchools = magicSchoolsAllGrouped(race, arch);
+    // --- Free picks UI ---
+    var freePicksHtml = '';
+    if (isSynthral) {
+      var techSchoolId = getTechnomancySchoolId();
+      var techWeaves = getSchoolWeaves(techSchoolId);
+      freePicksHtml += '<div class="ark-free-pick"><b>Synthral: Free Technomancy School & Weave</b><br>';
+      freePicksHtml += '<span class="muted">You automatically receive the Technomancy school for free, and may select one weave below for free:</span><br>';
+      freePicksHtml += '<select id="synthralFreeWeaveSel">';
+      freePicksHtml += '<option value="">— select a Technomancy weave —</option>';
+      techWeaves.forEach(function(weave){
+        freePicksHtml += '<option value="'+esc(weave.id)+'"'+(M.synthralFreeWeave===weave.id?' selected':'')+'>'+esc(weave.name)+'</option>';
+      });
+      freePicksHtml += '</select>';
+      if (M.synthralFreeWeave) {
+        freePicksHtml += '<div class="muted">Free weave selected: <b>'+esc(getWeaveName(M.synthralFreeWeave))+'</b></div>';
+      }
+      freePicksHtml += '</div>';
+    }
+    if (isArcanist) {
+      var schoolIds = getSchoolIdsForArcanist();
+      freePicksHtml += '<div class="ark-free-pick"><b>Arcanist: Free Magic School & Weave</b><br>';
+      freePicksHtml += '<span class="muted">Select one school below for free, then one weave from that school for free:</span><br>';
+      freePicksHtml += '<select id="arcanistFreeSchoolSel">';
+      freePicksHtml += '<option value="">— select a school —</option>';
+      schoolIds.forEach(function(id){
+        freePicksHtml += '<option value="'+esc(id)+'"'+(M.freeMagicSchool===id?' selected':'')+'>'+esc(getSchoolName(id))+'</option>';
+      });
+      freePicksHtml += '</select><br>';
+      if (M.freeMagicSchool) {
+        var schoolWeaves = getSchoolWeaves(M.freeMagicSchool);
+        freePicksHtml += '<select id="arcanistFreeWeaveSel">';
+        freePicksHtml += '<option value="">— select a weave —</option>';
+        schoolWeaves.forEach(function(weave){
+          freePicksHtml += '<option value="'+esc(weave.id)+'"'+(M.freeMagicWeave===weave.id?' selected':'')+'>'+esc(weave.name)+'</option>';
+        });
+        freePicksHtml += '</select><br>';
+      }
+      if (M.freeMagicSchool && M.freeMagicWeave) {
+        freePicksHtml += '<div class="muted">Free school: <b>'+esc(getSchoolName(M.freeMagicSchool))+'</b>, Free weave: <b>'+esc(getWeaveName(M.freeMagicWeave))+'</b></div>';
+      }
+      freePicksHtml += '</div>';
+    }
+    function cyberSectionHtml(section, arr) {
+      var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
+      var modsSelected = numCyberModsSelected();
+      arr.forEach(function(item){
+        var sel = M.picks.has(item.id) ? ' checked' : '';
+        var costVal = (typeof item.cost !== "undefined") ? item.cost : 1;
+        var disabled = '';
+        if (cyberSlots < 1) disabled = ' disabled';
+        else if (!sel && modsSelected >= cyberSlots) disabled = ' disabled';
+        else if (!sel && willOverspend(costVal)) disabled = ' disabled';
+        var cost = (typeof item.cost !== "undefined") ? '<span class="pill">'+item.cost+' pts</span>' : '';
+        html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-cyber="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost+'</label>';
+      });
+      html += '</div>';
+      return html;
+    }
+    function magicSectionHtml(section, arr) {
+      var schoolEntry = arr[0];
+      var schoolSelected = M.magicSchools.has(schoolEntry.id) ||
+        (isArcanist && M.freeMagicSchool === schoolEntry.id) ||
+        (isSynthral && schoolEntry.id === getTechnomancySchoolId());
+      var schoolIsFree = (isArcanist && M.freeMagicSchool === schoolEntry.id) || (isSynthral && schoolEntry.id === getTechnomancySchoolId());
+      var html = '<h4 style="margin-top:14px;">'+esc(section)+'</h4><div class="list">';
+      arr.forEach(function(item, idx){
+        var sel = M.magicSchools.has(item.id) ? ' checked' : '';
+        var costVal = (typeof item.cost !== "undefined") ? item.cost : 1;
+        var disabled = '';
+        var freeWeaveHere = false;
+        if (idx === 0) {
+          if (schoolIsFree) {
+            sel = ' checked';
+            disabled = ' disabled';
+            costVal = 0;
+          } else {
+            disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
+          }
+        } else {
+          if (schoolIsFree) {
+            if ((isSynthral && M.synthralFreeWeave === item.id) ||
+                (isArcanist && M.freeMagicWeave === item.id)) {
+              sel = ' checked';
+              disabled = ' disabled';
+              freeWeaveHere = true;
+              costVal = 0;
+            } else {
+              disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
+            }
+          } else {
+            if (!schoolSelected) disabled = ' disabled';
+            else disabled = (sel ? '' : (willOverspend(costVal)?' disabled':''));
+          }
+        }
+        var cost = (costVal === 0) ? '<span class="pill" style="background:#aaf;">FREE</span>' :
+          (typeof item.cost !== "undefined") ? '<span class="pill">'+item.cost+' pts</span>' : '';
+        html += '<label class="item"><input type="checkbox" data-id="'+item.id+'" data-magic="1"'+sel+disabled+'>'+esc(item.name)+': '+esc(item.desc)+' '+cost;
+        if (freeWeaveHere) html += ' <span class="muted">(free)</span>';
+        html += '</label>';
+      });
+      html += '</div>';
+      return html;
+    }
+    var sectionHtmls = {
+      common: renderList("Common Powers", commonPowersForRace(race), M.picks),
+      perks: renderList("Perks", perksForRace(race, arch), M.picks),
+      archetype: renderList("Archetype Powers", archPowersForRaceArch(race, arch), M.picks),
+      cyber: (
+        '<div class="cybernetic-section" style="margin-bottom:12px;">' +
+        '<div class="muted" style="margin-bottom:8px;font-size:1em;">To purchase <b>Cybernetic Augmentations & Hacking</b> items, you must first purchase a slot.</div>' +
+        '<label class="ark-input" style="font-weight:600;width:auto;display:inline-block;margin-right:12px;">Cybernetic Slots</label>' +
+        '<input type="number" min="0" max="10" class="cybernetic-input" id="cyberneticSlotInput" value="'+cyberSlots+'"'+((remain<1 && cyberSlots < 10)?' disabled':'')+'">' +
+        '<span class="cybernetic-cost" style="margin-left:10px;">Cost: '+(cyberSlots*1)+' points</span>' +
+        ((remain<1 && cyberSlots < 10) ? '<span class="muted" style="margin-left:10px;">No points left for more slots</span>':'') +
+        '</div>' +
+        Object.keys(groupedMods).map(section=>cyberSectionHtml(section, groupedMods[section])).join('')
+      ),
+      magic: (
+        canMagic
+          ? Object.keys(groupedMagicSchools).length
+              ? Object.keys(groupedMagicSchools).map(section=>magicSectionHtml(section, groupedMagicSchools[section])).join('')
+              : '<div class="muted">No magic schools available for this archetype.</div>'
+          : '<h3>Magic Schools & Weaves</h3><div class="muted">Not available for '+esc(race)+(arch?' ('+esc(arch)+')':'')+'.</div>'
+      )
+    };
+    var tabs = [
+      { id: 'common', label: 'Common Powers' },
+      { id: 'perks', label: 'Perks' },
+      { id: 'archetype', label: 'Archetype Powers' },
+      { id: 'cyber', label: 'Cybernetics & Hacking' },
+      { id: 'magic', label: 'Magic Schools & Weaves' }
+    ];
+    var tabsHtml = `
+      <div class="ark-subtabs">
+        ${tabs.map(tab =>
+          `<button type="button" class="ark-subtab-btn${M.page5tab===tab.id?' active':''}" data-tab="${tab.id}">${esc(tab.label)}</button>`
+        ).join('')}
+      </div>
+    `;
+    var html =
+      '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
+      '<div class="totals">Points: <b>'+total+'</b> • Spent <b>'+spent+'</b> • Remaining <b>'+remain+'</b></div>' +
+      '<div class="note">Select any combination of powers, perks, archetype powers, cybernetics (requires slot), magic school weaves, and cybernetic slots. You cannot spend more points than you have.</div>' +
+      freePicksHtml +
+      tabsHtml +
+      `<div class="ark-subtab-content" id="ark-subtab-content">${sectionHtmls[M.page5tab]||''}</div>`;
+    return html;
+  }
+  function page5_wire(){
+    Array.prototype.forEach.call(document.querySelectorAll('.ark-subtab-btn'), function(btn){
+      btn.onclick = function(){
+        var tab = btn.getAttribute('data-tab');
+        M.page5tab = tab;
+        saveModel();
+        render();
+      };
+    });
+    var synthralFreeWeaveSel = document.getElementById('synthralFreeWeaveSel');
+    if (synthralFreeWeaveSel) {
+      synthralFreeWeaveSel.onchange = function(e){
+        var weaveId = e.target.value;
+        M.synthralFreeWeave = weaveId;
+        var techSchoolId = getTechnomancySchoolId();
+        if (techSchoolId && !M.magicSchools.has(techSchoolId)) M.magicSchools.add(techSchoolId);
+        saveModel();
+        render();
+      };
+    }
+    var arcanistFreeSchoolSel = document.getElementById('arcanistFreeSchoolSel');
+    if (arcanistFreeSchoolSel) {
+      arcanistFreeSchoolSel.onchange = function(e){
+        var schoolId = e.target.value;
+        M.freeMagicSchool = schoolId;
+        if (schoolId && !M.magicSchools.has(schoolId)) M.magicSchools.add(schoolId);
+        M.freeMagicWeave = '';
+        saveModel();
+        render();
+      };
+    }
+    var arcanistFreeWeaveSel = document.getElementById('arcanistFreeWeaveSel');
+    if (arcanistFreeWeaveSel) {
+      arcanistFreeWeaveSel.onchange = function(e){
+        var weaveId = e.target.value;
+        M.freeMagicWeave = weaveId;
+        saveModel();
+        render();
+      };
+    }
+    var cyberSlotInput = document.getElementById('cyberneticSlotInput');
+    if (cyberSlotInput) {
+      cyberSlotInput.oninput = function(e){
+        var val = Math.max(0, Math.min(10, parseInt(e.target.value)||0));
+        var total = pointsTotal();
+        var spent = pointsSpentTotal();
+        if (val < 0) val = 0;
+        if (val > 10) val = 10;
+        var cyberMods = Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid));
+        if (val === 0) {
+          cyberMods.forEach(pid=>M.picks.delete(pid));
+        } else if (cyberMods.length > val) {
+          cyberMods.slice(val).forEach(pid=>M.picks.delete(pid));
+        }
+        M.cyberSlots = val;
+        saveModel();
+        render();
+      };
+    }
+    // Powers, Perks, Arch, Cybernetics, Magic
+    Array.prototype.forEach.call(document.querySelectorAll('#page5 input[type="checkbox"][data-id]'),function(ch){
+      // --- for cybernetics, fix bug for points refund on unchecking ---
+      if(ch.dataset.cyber) {
+        ch.onchange = function(){
+          var id = ch.dataset.id;
+          var found = cybernetics.find(function(x){return x.id===id;});
+          var costVal = (found && typeof found.cost !== "undefined") ? found.cost : 1;
+          var total = pointsTotal();
+          var spent = pointsSpentTotal();
+          var remain = total - spent;
+          var cyberSlots = M.cyberSlots || 0;
+          var numModsSelected = Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid)).length;
+          if (cyberSlots < 1 || (!ch.checked && numModsSelected >= cyberSlots) || (ch.checked && remain < costVal)) {
+            ch.checked = false;
+            return;
+          }
+          if (ch.checked) M.picks.add(id);
+          else M.picks.delete(id); // fixes bug: re-credit points on unchecking
+          enforceCyberModLimit();
+          saveModel();
+          render();
+        };
+      } else if(!ch.dataset.magic){
+        ch.onchange = function(){
+          var id = ch.dataset.id;
+          var arrs = [commonPowers, perks, archPowers];
+          var found;
+          for(var i=0;i<arrs.length;i++){
+            found = arrs[i].find(function(x){return x.id===id;});
+            if(found) break;
+          }
+          var costVal = (found && typeof found.cost !== "undefined") ? found.cost : 1;
+          var total = pointsTotal();
+          var spent = pointsSpentTotal();
+          var remain = total - spent;
+          if (ch.checked && remain < costVal) {
+            ch.checked = false;
+            return;
+          }
+          if (ch.checked) M.picks.add(id);
+          else M.picks.delete(id);
+          saveModel();
+          render();
+        };
+      }
+      if(ch.dataset.magic){
+        ch.onchange = function(){
+          var id = ch.dataset.id;
+          if (id === M.freeMagicSchool || id === getTechnomancySchoolId() || id === M.freeMagicWeave || id === M.synthralFreeWeave) {
+            ch.checked = true;
+            return;
+          }
+          var school = magicSchools.find(function(x){return x.id===id;});
+          var costVal = (school && typeof school.cost !== "undefined") ? school.cost : 1;
+          var section = school.section;
+          var grouped = magicSchoolsAllGrouped(M.race, M.arch);
+          var arr = grouped[section] || [];
+          var isSchoolEntry = arr.length && arr[0].id === id;
+          var total = pointsTotal();
+          var spent = pointsSpentTotal();
+          var remain = total - spent;
+          if (!isSchoolEntry && !M.magicSchools.has(arr[0].id)) {
+            ch.checked = false;
+            return;
+          }
+          if (ch.checked && remain < costVal) {
+            ch.checked = false;
+            return;
+          }
+          if (ch.checked) {
+            M.magicSchools.add(id);
+          } else {
+            M.magicSchools.delete(id);
+            if (isSchoolEntry) {
+              arr.slice(1).forEach(item => M.magicSchools.delete(item.id));
+            }
+          }
+          saveModel();
+          render();
+        };
+      }
+    });
+    enforceCyberModLimit();
+  }
+  function page1_render(){
+    var I = M.identity || (M.identity={});
+    return (
+      '<h2>Identity</h2>' +
+      '<div class="ark-row">' +
+        '<div><label>Character Name</label><input class="ark-input" id="i_name" value="'+esc(I.name||'')+'"></div>' +
+        '<div><label>Second Life Name</label><input class="ark-input" id="i_sl" value="'+esc(I.sl||'')+'"></div>' +
+        '<div><label>Alias / Callsign <span class="muted">(optional)</span></label><input class="ark-input" id="i_alias" value="'+esc(I.alias||'')+'"></div>' +
+        '<div><label>Faction / Allegiance <span class="muted">(optional)</span></label><input class="ark-input" id="i_faction" value="'+esc(I.faction||'')+'"></div>' +
+        '<div><label>Concept / Role</label><input class="ark-input" id="i_concept" value="'+esc(I.concept||'')+'"></div>' +
+        '<div><label>Job</label><input class="ark-input" id="i_job" value="'+esc(I.job||'')+'"></div>' +
+        '<div style="grid-column:1/-1"><label>Background</label><textarea class="ark-input" rows="5" id="i_bg">'+esc(I.background||'')+'</textarea></div>' +
+      '</div>'
+    );
+  }
+  function page1_wire(){
+    var I = M.identity;
+    [['i_name','name'],['i_sl','sl'],['i_alias','alias'],['i_faction','faction'],['i_concept','concept'],['i_job','job'],['i_bg','background']]
+      .forEach(function(pair){ var id=pair[0],key=pair[1]; var n=document.getElementById(id); if(n) n.oninput=function(e){ I[key]=e.target.value; saveModel(); }; });
+  }
+  function page2_render(){
+    var races = [
+      { name: "Human", arches: ["Human (no powers)","Arcanist","Synthral","Psion"] },
+      { name: "Veilborn", arches: ["Echoes","Veils","Blossoms","Glass"] },
+      { name: "Spliced", arches: ["Predators","Avian","Aquatic","Reptilian","Insectoid","Chimeric"] },
+      { name: "Strigoi", arches: ["Life","Death","Warrior","Ruler"] },
+      { name: "Gaki", arches: ["Yin","Hun","Yang","P’o","Chudo"] }
+    ];
+    var race = M.race || '';
+    var arch = M.arch || '';
+    var current = races.find(function(r){return r.name === race;});
+    var arches  = current ? current.arches : [];
+    return (
+      '<h2>Race & Archetype</h2>' +
+      '<div>' +
+        '<label>Race</label>' +
+        '<select id="raceSel" class="ark-input">' +
+          '<option value="">— choose —</option>' +
+          races.map(function(r){return '<option value="'+esc(r.name)+'"'+(r.name===race?' selected':'')+'>'+esc(r.name)+'</option>';}).join('') +
+        '</select>' +
+      '</div>' +
+      '<div style="margin-top:10px">' +
+        '<label>Archetype / Path / Court <span class="muted">(optional)</span></label>' +
+        '<select id="archSel" class="ark-input"'+(race?'':' disabled')+'>' +
+          '<option value="">— optional —</option>' +
+          arches.map(function(a){return '<option value="'+esc(a)+'"'+(a===arch?' selected':'')+'>'+esc(a)+'</option>';}).join('') +
+        '</select>' +
+      '</div>'
+    );
+  }
+  function page2_wire(){
+    var raceSel = document.getElementById('raceSel');
+    var archSel = document.getElementById('archSel');
+    if (!(M.flaws instanceof Set)) M.flaws = new Set(M.flaws||[]);
+    if (!(M.picks instanceof Set)) M.picks = new Set(M.picks||[]);
+    if (!(M.magicSchools instanceof Set)) M.magicSchools = new Set(M.magicSchools||[]);
+    if (raceSel){
+      var onRace = function(){
+        var newRace = raceSel.value || '';
+        M.race = newRace;
+        M.arch = '';
+        M.flaws.clear();
+        M.picks.clear();
+        M.magicSchools.clear();
+        M.freeMagicSchool = '';
+        M.freeMagicWeave = '';
+        M.synthralFreeWeave = '';
+        saveModel();
+        render();
+      };
+      raceSel.addEventListener('change', onRace, { passive:true });
+      raceSel.addEventListener('input',  onRace, { passive:true });
+    }
+    if (archSel){
+      archSel.addEventListener('change', function(){
+        M.arch = archSel.value || '';
+        M.freeMagicSchool = '';
+        M.freeMagicWeave = '';
+        M.synthralFreeWeave = '';
+        saveModel();
+        render();
+      }, { passive:true });
+    }
+  }
+  function page3_render(){
+    var S = normalizeStats();
+    var race = lc(M.race||"");
+    var splicedBonus = (race === "spliced") ? 1 : 0;
+    function row(k,label){
+      var minStat = 1;
+      var maxStat = 5;
+      var val = S[k];
+      var bonus = (k === "phys" || k === "dex") && splicedBonus ? 1 : 0;
+      var isSpliced = bonus > 0;
+      var minusDisabled = (val <= minStat);
+      var plusDisabled = (val >= maxStat || S.pool <= 0);
+      var pillText = 'mod: ' + (statMod(val)>=0?'+':'') + statMod(val);
+      var bonusText = isSpliced ? ' <span style="color:#286;">(+1 free for Spliced)</span>' : '';
+      return (
+        '<div class="stat" data-k="'+k+'">' +
+          '<div style="width:210px">'+label+bonusText+'</div>' +
+          '<button type="button" class="minus"'+(minusDisabled?' disabled':'')+'>–</button>' +
+          '<strong class="val">'+val+'</strong>' +
+          '<button type="button" class="plus"'+(plusDisabled?' disabled':'')+'>+</button>' +
+          '<span class="stat-mod">'+pillText+'</span>' +
+        '</div>'
+      );
+    }
+    return (
+      '<h2>Stats (Start at 1 point each; you have 6 points to spend)</h2>' +
+      '<div class="totals">Points Remaining: <b id="pts">'+S.pool+'</b></div>' +
+      row('phys','Physical (HP = ×5)') +
+      row('dex','Dexterity') +
+      row('mental','Mental') +
+      row('perc','Perception')
+    );
+  }
+  function page3_wire(){
+    normalizeStats();
+    var ptsEl = document.getElementById('pts');
+    function refreshRow(row){
+      var k=row.dataset.k, val=row.querySelector('.val'), pill=row.querySelector('.stat-mod');
+      var minus=row.querySelector('.minus'), plus=row.querySelector('.plus');
+      val.textContent = M.stats[k];
+      pill.textContent = 'mod: ' + (statMod(M.stats[k])>=0?'+':'') + statMod(M.stats[k]);
+      minus.disabled = (M.stats[k]===1);
+      plus.disabled  = (M.stats[k]===5 || M.stats.pool===0);
+      ptsEl.textContent = M.stats.pool;
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.stat'),function(row){
+      refreshRow(row);
+      var k=row.dataset.k, minus=row.querySelector('.minus'), plus=row.querySelector('.plus');
+      minus.onclick = function(e){ e.preventDefault(); if (M.stats[k]>1){ M.stats[k]--; normalizeStats(); refreshRow(row); saveModel(); } };
+      plus.onclick  = function(e){ e.preventDefault(); normalizeStats(); if (M.stats[k]<5 && M.stats.pool>0){ M.stats[k]++; normalizeStats(); refreshRow(row); saveModel(); } };
+    });
+  }
+  function page4_render() {
+    var race = M.race || "Human";
+    var arch = M.arch || "";
+    var flawList = flawsForRace(race, arch);
+    var total = 15;
+    var flawPts = 0;
+    flawList.forEach(function(flaw){ if (M.flaws.has(flaw.id)) flawPts += flaw.cost; });
+    total += flawPts;
+    var html =
+      '<h2>Optional Flaws for '+esc(race)+(arch ? " ("+esc(arch)+")" : "")+'</h2>' +
+      '<div class="note">Select flaws below to gain extra points for powers on the next page.</div>' +
+      '<div class="totals">Flaw Points: <b>'+flawPts+'</b> &nbsp;|&nbsp; Starting Power Points: <b>'+total+'</b></div>' +
+      '<div id="flawDisplay">';
+    if (!flawList.length) {
+      html += "<div>No flaws found for this race.</div>";
+    } else {
+      html += "<ul>";
+      flawList.forEach(function(flaw){
+        html += '<li>' +
+          '<label class="item">' +
+            '<input type="checkbox" data-id="'+flaw.id+'"'+(M.flaws.has(flaw.id)?' checked':'')+'>' +
+            '<b>'+esc(flaw.name)+'</b>: '+esc(flaw.desc)+' [<span class="pill">'+flaw.cost+' pts</span>]' +
+          '</label>' +
+        '</li>';
+      });
+      html += "</ul>";
+    }
+    html += "</div>";
+    return html;
+  }
+  function page4_wire(){
+    Array.prototype.forEach.call(document.querySelectorAll('#flawDisplay input[type="checkbox"][data-id]'),function(ch){
+      ch.onchange = function(){
+        var id = ch.dataset.id;
+        if (ch.checked) M.flaws.add(id);
+        else M.flaws.delete(id);
+        saveModel();
+        render();
+      };
+    });
+  }
   // --- Summary & Submission ---
   function page6_render(){
     var S = M.stats || {phys:1,dex:1,mental:1,perc:1};
