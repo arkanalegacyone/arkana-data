@@ -1,0 +1,46 @@
+function doPost(e) {
+  var summary = "";
+  var name = "Unknown";
+  var sl = "Unknown";
+  var userEmail = "";
+  try {
+    // Accept JSON POST body
+    var data = JSON.parse(e.postData.contents);
+    summary = data.summary || "No sheet provided";
+    name = data.name || name;
+    sl = data.sl || sl;
+    userEmail = data.userEmail || "";
+  } catch (err) {
+    // If not JSON, fallback to URL params
+    summary = e.parameter.summary || e.parameter.fullSheet || "No sheet provided";
+    name = e.parameter.name || name;
+    sl = e.parameter.sl || sl;
+    userEmail = e.parameter.userEmail || "";
+  }
+  // Save to Drive as before
+  var folder = DriveApp.getFolderById("1PSnjxrlpgRG3T2n_vDrh9U-NY6YBCrgi");
+  var fileName = name + " (" + sl + ").txt";
+  folder.createFile(fileName, summary);
+
+  // If email provided, send summary to user
+  if (userEmail && userEmail.indexOf("@") > 0) {
+    MailApp.sendEmail({
+      to: userEmail,
+      subject: "Your Arkana Character Sheet Submission",
+      body: summary
+    });
+  }
+
+  return HtmlService.createHtmlOutput(
+    '<div style="max-width:560px;margin:80px auto;font-family:sans-serif;text-align:center;">' +
+      '<h2>Thank you for submitting your character sheet!</h2>' +
+      '<p>You will be contacted as soon as possible by a member of the admin team.<br><br>' +
+      'Please feel free to begin RP on the sim until you have heard back.<br>' +
+      'We strive to respond within 24 hours, but time may vary. We appreciate your patience.</p>' +
+      '<br>' +
+      '<a href="https://arkanarp.weebly.com/create-character.html" ' +
+        'style="display:inline-block;padding:12px 32px;background:#3c6;color:#fff;text-decoration:none;font-size:1.2em;border-radius:8px;border:none;">' +
+        'Return to Character Creation</a>' +
+    '</div>'
+  );
+}
