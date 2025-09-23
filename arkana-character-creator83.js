@@ -1,10 +1,11 @@
-// Arkana Character Creator Wizard with Google Apps Script Submission
+// Arkana Character Creator Wizard with Google Apps Script Submission and Email Option
 
 window.onload = function() {
 (async function(){
   var root = document.getElementById('ark-wizard');
   var flaws = [], commonPowers = [], perks = [], archPowers = [], cybernetics = [], magicSchools = [];
-  var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyiEr1CrTTjNxdW2UrAKKYzO9fgrRywgnNOPdOztXO7eZzsjrizQvkO8EDCzG23PoophA/exec";
+  // Use the NEW deployment URL
+  var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/library/d/1CgZoWInuy-gjpDoOCO8a3o9lsoktb2vJ14Sb4FYOzABi2jjnOqJb6ZTO/4";
   var M = loadModel();
 
   // --- Utility functions ---
@@ -81,7 +82,7 @@ window.onload = function() {
     magicSchools = magicData;
   }
 
-  // --- Data helpers:
+  // --- Data helpers ---
   function flawsForRace(race, arch) {
     if (!race) return [];
     var r = lc(race);
@@ -272,7 +273,6 @@ window.onload = function() {
     var weave = magicSchools.find(x=>x.id===id);
     return weave ? weave.name : id;
   }
-  // --- Points calculation ---
   function pointsSpentTotal() {
     var S = M.stats || {phys:1,dex:1,mental:1,perc:1};
     var race = lc(M.race||'');
@@ -797,7 +797,7 @@ window.onload = function() {
     });
   }
 
-  // --- Summary & Submission Page ---
+  // --- Summary & Submission Page, now includes Email Option ---
   function page6_render(){
     var S = M.stats || {phys:1,dex:1,mental:1,perc:1};
     var race = lc(M.race||'');
@@ -857,6 +857,8 @@ window.onload = function() {
       '<pre style="white-space:pre-wrap;background:#fff;border-radius:8px;padding:14px;border:1px solid #eee;">'+esc(summaryText)+'</pre>' +
       '</div>' +
       '<form action="'+GOOGLE_SCRIPT_URL+'" method="post" id="arkanaSubmitForm">' +
+        '<label for="userEmail" style="font-size:1.1em;">(Optional) Email your character sheet to yourself:</label><br>' +
+        '<input type="email" id="userEmail" name="userEmail" placeholder="your@email.com" style="margin-bottom:10px;width:80%;padding:8px;font-size:1em;"><br>' +
         '<input type="hidden" name="name" value="'+esc(M.identity.name||'')+'">' +
         '<input type="hidden" name="sl" value="'+esc(M.identity.sl||'')+'">' +
         '<input type="hidden" name="alias" value="'+esc(M.identity.alias||'')+'">' +
