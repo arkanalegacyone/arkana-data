@@ -4,9 +4,9 @@
 (function() {
   var style = document.createElement('style');
   style.innerHTML = `
-    h2 { font-size: 20pt !important; }
-    h3, h4 { font-size: 1.1em; }
-  `;
+  h2 { font-size: 1.3em !important; }
+  h3, h4 { font-size: 1.1em; }
+`;
   document.head.appendChild(style);
 })();
 window.onload = function() {
@@ -478,9 +478,9 @@ window.onload = function() {
     `;
     var html =
       '<h2>Powers, Perks, Augmentations, Magic, and Hacking</h2>' +
-      '<button id="resetPage5Btn" style="margin:12px 0;padding:7px 18px;font-size:1em;">Reset Page 5 Choices</button>' +
       '<div class="totals">Points: <b>'+total+'</b> • Spent <b>'+spent+'</b> • Remaining <b>'+remain+'</b></div>' +
       '<div class="note">Select any combination of powers, perks, archetype powers, cybernetics (requires slot), magic school weaves, and cybernetic slots. You cannot spend more points than you have.</div>' +
+      '<button id="resetPage5Btn" style="margin:12px 0;padding:7px 18px;font-size:1em;">Reset Page 5 Choices</button>' +
       freePicksHtml +
       tabsHtml +
       `<div class="ark-subtab-content" id="ark-subtab-content">${sectionHtmls[M.page5tab]||''}</div>`;
