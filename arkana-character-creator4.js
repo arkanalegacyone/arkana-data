@@ -549,11 +549,6 @@ if (cyberSlotInput) {
     render();
   };
 }
-    M.cyberSlots = val;
-    saveModel();
-    render();
-  };
-}
     Array.prototype.forEach.call(document.querySelectorAll('#page5 input[type="checkbox"][data-id]'),function(ch){
       if(ch.dataset.cyber) {
         ch.onchange = function(){
