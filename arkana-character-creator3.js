@@ -532,26 +532,23 @@ window.onload = function() {
         render();
       };
     }
-   var cyberSlotInput = document.getElementById('cyberneticSlotInput');
+  var cyberSlotInput = document.getElementById('cyberneticSlotInput');
 if (cyberSlotInput) {
   cyberSlotInput.oninput = function(e){
     var val = Math.max(0, Math.min(10, parseInt(e.target.value)||0));
+    M.cyberSlots = val;
     var cyberMods = Array.from(M.picks).filter(pid => cybernetics.find(c => c.id === pid));
     // Remove all cybernetic mods if slots set to zero
     if (val === 0) {
       cyberMods.forEach(pid => M.picks.delete(pid));
-      // Uncheck all cybernetic checkboxes in DOM
-      Array.prototype.forEach.call(document.querySelectorAll('#page5 input[data-cyber="1"]'), function(ch){
-        ch.checked = false;
-      });
     } else if (cyberMods.length > val) {
-      // Remove excess mods and uncheck their checkboxes
-      cyberMods.slice(val).forEach(pid => {
-        M.picks.delete(pid);
-        var ch = document.querySelector('#page5 input[data-id="' + pid + '"][data-cyber="1"]');
-        if (ch) ch.checked = false;
-      });
+      // Remove excess mods
+      cyberMods.slice(val).forEach(pid => M.picks.delete(pid));
     }
+    saveModel();
+    render();
+  };
+}
     M.cyberSlots = val;
     saveModel();
     render();
